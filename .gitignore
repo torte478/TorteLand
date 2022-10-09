@@ -185,3 +185,4 @@ FakesAssemblies/
 
 # My files
 .idea
+/dotnet/TorteLand/TorteLand.App/appsettings.Development.json
