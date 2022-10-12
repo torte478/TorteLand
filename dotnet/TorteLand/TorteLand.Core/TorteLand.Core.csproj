@@ -7,4 +7,14 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="SoftwareCraft.Either" />
+        <PackageReference Include="SoftwareCraft.Maybe" />
+        <PackageReference Include="System.Linq.Async" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TorteLand\TorteLand.csproj" />
+    </ItemGroup>
+
 </Project>

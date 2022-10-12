@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TorteLand.Core;
+﻿namespace TorteLand;
 
 public static class NavyExtensions
 {
