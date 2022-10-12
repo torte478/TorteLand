@@ -1,4 +1,4 @@
-﻿namespace TorteLand.Core;
+﻿namespace TorteLand.Core.Contracts;
 
 public record Segment<T>(
     T Begin,

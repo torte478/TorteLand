@@ -2,10 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
+using TorteLand.Core.Contracts;
 
 #pragma warning disable CS1998
 
-namespace TorteLand.Core;
+namespace TorteLand.Core.Notebooks;
 
 internal sealed class AsyncNotebook<TKey, TValue> : IAsyncNotebook<TKey, TValue>
 {

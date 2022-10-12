@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.FileStorage", "To
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand", "TorteLand\TorteLand.csproj", "{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.Core.Tests", "TorteLand.Core.Tests\TorteLand.Core.Tests.csproj", "{78D28379-B250-4837-9B73-02F2ABB4F940}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

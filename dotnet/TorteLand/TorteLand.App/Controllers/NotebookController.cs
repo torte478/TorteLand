@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SoftwareCraft.Functional;
-using TorteLand.Core;
+using TorteLand.Core.Contracts;
 
 namespace TorteLand.App.Controllers;
 
@@ -12,39 +12,52 @@ namespace TorteLand.App.Controllers;
 [Route("[controller]")]
 public sealed class NotebookController : ControllerBase
 {
-    private readonly INotebookProvider<int> _provider;
+    private readonly INotebooks<int, int, string> _notebooks;
 
-    public NotebookController(INotebookProvider<int> provider)
+    public NotebookController(INotebooks<int, int, string> notebooks)
     {
-        _provider = provider;
+        _notebooks = notebooks;
     }
 
     [HttpGet]
-    public async IAsyncEnumerable<KeyValuePair<int, string>> All(
+    public IAsyncEnumerable<KeyValuePair<int, string>> All(
         int index,
-        [EnumeratorCancellation] CancellationToken token)
-    {
-        var notebook = _provider.Get<int, string>(index);
+        CancellationToken token)
+        => _notebooks
+           .All(index, token)
+           .Select(_ => new KeyValuePair<int, string>(_.Item1, _.Item2));
 
-        await foreach (var item in notebook.WithCancellation(token))
-        {
-            yield return new KeyValuePair<int, string>(item.Item1, item.Item2);
-        }
-    }
+    [HttpPut]
+    public int Create() => _notebooks.Create();
 
     [HttpPost]
+    [Route("start_add")]
     public async Task<Models.Either<int, Segment<int>>> Add(
         int index,
         string value,
-        HalfSegment<int>? segment,
         CancellationToken token)
     {
-        var notebook = _provider.Get<int, string>(index);
-        var maybe = segment is { }
-                        ? Maybe.Some(segment)
-                        : Maybe.None<HalfSegment<int>>();
+        var result = await _notebooks.Add(
+                         index,
+                         value,
+                         Maybe.None<HalfSegment<int>>(),
+                         token);
 
-        var result = await notebook.Add(value, maybe, token);
+        return result.Match(
+            x => new Models.Either<int, Segment<int>>(x, default),
+            x => new Models.Either<int, Segment<int>>(default, x));
+    }
+
+    [HttpPost]
+    [Route("continue_add")]
+    public async Task<Models.Either<int, Segment<int>>> Add2(
+        int index,
+        string value,
+        HalfSegment<int> segment,
+        CancellationToken token)
+    {
+        var result = await _notebooks.Add(index, value, Maybe.Some(segment), token);
+
         return result.Match(
             x => new Models.Either<int, Segment<int>>(x, default),
             x => new Models.Either<int, Segment<int>>(default, x));

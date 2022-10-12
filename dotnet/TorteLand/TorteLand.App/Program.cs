@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TorteLand.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// TODO : to composition root
-// builder.Services
-//        .AddStorage(builder.Configuration);
+builder.Services
+       .AddCoreLogic();
 
 var app = builder.Build();
 

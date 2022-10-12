@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using SoftwareCraft.Functional;
+using TorteLand.Core.Contracts;
 
-namespace TorteLand.Core;
+namespace TorteLand.Core.Notebooks;
 
 internal sealed class Notebook<T> : INotebook<int, T>
 {
