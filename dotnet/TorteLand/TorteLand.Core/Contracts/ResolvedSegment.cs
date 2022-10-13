@@ -1,5 +1,5 @@
 ﻿namespace TorteLand.Core.Contracts;
 
-public record HalfSegment<T>(
-    Segment<T> Segment,
+public record ResolvedSegment(
+    Segment Segment,
     bool IsRight);

@@ -6,36 +6,25 @@ using TorteLand.Core.Contracts;
 
 namespace TorteLand.Core.Notebooks;
 
-internal sealed class Notebooks<TIndex, TKey, TValue>
-    : INotebooks<TIndex, TKey, TValue> where TIndex : notnull
+// TODO
+internal sealed class Notebooks : INotebooks
 {
-    private readonly Dictionary<TIndex, IAsyncNotebook<TKey, TValue>> _notebooks;
+    private readonly IAsyncNotebook _notebook;
 
-    private readonly IAsyncNotebookFactory<TKey, TValue> _factory;
-    private readonly IKeyGenerator<TIndex> _generator;
-
-    public Notebooks(IAsyncNotebookFactory<TKey, TValue> factory, IKeyGenerator<TIndex> generator)
+    public Notebooks(IFactory factory)
     {
-        _factory = factory;
-        _generator = generator;
-
-        _notebooks = new Dictionary<TIndex, IAsyncNotebook<TKey, TValue>>();
+        _notebook = factory.Create();
     }
 
-    public IAsyncEnumerable<(TKey, TValue)> All(TIndex index, CancellationToken token)
-        => _notebooks[index];
+    public IAsyncEnumerable<Unique<Note>> All(int index, CancellationToken token)
+        => _notebook;
 
-    public TIndex Create()
-    {
-        var key = _generator.Next();
-        _notebooks.Add(key, _factory.Create());
-        return key;
-    }
+    public int Create() => 0;
 
-    public Task<Either<TKey, Segment<TKey>>> Add(
-        TIndex index,
-        TValue value,
-        Maybe<HalfSegment<TKey>> segment,
+    public Task<Either<int, Segment>> Add(
+        int index,
+        string value,
+        Maybe<ResolvedSegment> segment,
         CancellationToken token)
-        => _notebooks[index].Add(value, segment, token);
+        => _notebook.Add(value, segment, token);
 }

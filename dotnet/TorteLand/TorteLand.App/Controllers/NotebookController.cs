@@ -12,9 +12,9 @@ namespace TorteLand.App.Controllers;
 [Route("[controller]")]
 public sealed class NotebookController : ControllerBase
 {
-    private readonly INotebooks<int, int, string> _notebooks;
+    private readonly INotebooks _notebooks;
 
-    public NotebookController(INotebooks<int, int, string> notebooks)
+    public NotebookController(INotebooks notebooks)
     {
         _notebooks = notebooks;
     }
@@ -25,14 +25,14 @@ public sealed class NotebookController : ControllerBase
         CancellationToken token)
         => _notebooks
            .All(index, token)
-           .Select(_ => new KeyValuePair<int, string>(_.Item1, _.Item2));
+           .Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text));
 
     [HttpPut]
     public int Create() => _notebooks.Create();
 
     [HttpPost]
     [Route("start_add")]
-    public async Task<Models.Either<int, Segment<int>>> Add(
+    public async Task<Models.Either<int, Segment>> Add(
         int index,
         string value,
         CancellationToken token)
@@ -40,26 +40,26 @@ public sealed class NotebookController : ControllerBase
         var result = await _notebooks.Add(
                          index,
                          value,
-                         Maybe.None<HalfSegment<int>>(),
+                         Maybe.None<ResolvedSegment>(),
                          token);
 
         return result.Match(
-            x => new Models.Either<int, Segment<int>>(x, default),
-            x => new Models.Either<int, Segment<int>>(default, x));
+            x => new Models.Either<int, Segment>(x, default),
+            x => new Models.Either<int, Segment>(default, x));
     }
 
     [HttpPost]
     [Route("continue_add")]
-    public async Task<Models.Either<int, Segment<int>>> Add2(
+    public async Task<Models.Either<int, Segment>> Add2(
         int index,
         string value,
-        HalfSegment<int> segment,
+        ResolvedSegment segment,
         CancellationToken token)
     {
         var result = await _notebooks.Add(index, value, Maybe.Some(segment), token);
 
         return result.Match(
-            x => new Models.Either<int, Segment<int>>(x, default),
-            x => new Models.Either<int, Segment<int>>(default, x));
+            x => new Models.Either<int, Segment>(x, default),
+            x => new Models.Either<int, Segment>(default, x));
     }
 }

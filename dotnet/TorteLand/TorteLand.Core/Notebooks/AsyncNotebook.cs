@@ -8,24 +8,34 @@ using TorteLand.Core.Contracts;
 
 namespace TorteLand.Core.Notebooks;
 
-internal sealed class AsyncNotebook<TKey, TValue> : IAsyncNotebook<TKey, TValue>
+internal sealed class AsyncNotebook : IAsyncNotebook
 {
-    private readonly INotebook<TKey, TValue> _origin;
+    private readonly INotebook _origin;
 
-    public AsyncNotebook(INotebook<TKey, TValue> origin)
+    public AsyncNotebook(INotebook origin)
     {
         _origin = origin;
     }
 
-    public IAsyncEnumerator<(TKey, TValue)> GetAsyncEnumerator(CancellationToken token)
+    public IAsyncEnumerator<Unique<Note>> GetAsyncEnumerator(CancellationToken token)
         => ToAsyncEnumerable().GetAsyncEnumerator(token);
 
-    public Task<Either<TKey, Segment<TKey>>> Add(TValue value, Maybe<HalfSegment<TKey>> segment, CancellationToken token)
+    public Task<Either<int, Segment>> Add(string value, Maybe<ResolvedSegment> segment, CancellationToken token)
         => _origin
            .Add(value, segment)
            ._(Task.FromResult);
 
-    private async IAsyncEnumerable<(TKey, TValue)> ToAsyncEnumerable()
+    public IAsyncNotebook Clone()
+        => _origin
+            .Clone()
+            ._(_ => new AsyncNotebook(_));
+
+    public Task<Note> ToNote(int key)
+        => _origin
+           .ToNote(key)
+           ._(Task.FromResult);
+
+    private async IAsyncEnumerable<Unique<Note>> ToAsyncEnumerable()
     {
         foreach (var item in _origin)
             yield return item;

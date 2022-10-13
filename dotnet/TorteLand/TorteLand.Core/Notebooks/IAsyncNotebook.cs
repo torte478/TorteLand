@@ -6,7 +6,9 @@ using TorteLand.Core.Contracts;
 
 namespace TorteLand.Core.Notebooks;
 
-internal interface IAsyncNotebook<TKey, TValue> : IAsyncEnumerable<(TKey, TValue)>
+internal interface IAsyncNotebook : IAsyncEnumerable<Unique<Note>>
 {
-    Task<Either<TKey, Segment<TKey>>> Add(TValue value, Maybe<HalfSegment<TKey>> segment, CancellationToken token);
+    Task<Either<int, Segment>> Add(string value, Maybe<ResolvedSegment> segment, CancellationToken token);
+    IAsyncNotebook Clone();
+    Task<Note> ToNote(int key);
 }

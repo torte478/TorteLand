@@ -1,6 +1,6 @@
 ﻿namespace TorteLand.Core.Contracts;
 
-public record Segment<T>(
-    T Begin,
-    T Middle,
-    T End);
+public record Segment(
+    int Begin,
+    int Border,
+    int End);

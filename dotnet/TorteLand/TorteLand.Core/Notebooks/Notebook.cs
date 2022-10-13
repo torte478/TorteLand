@@ -6,28 +6,41 @@ using TorteLand.Core.Contracts;
 
 namespace TorteLand.Core.Notebooks;
 
-internal sealed class Notebook<T> : INotebook<int, T>
+internal sealed class Notebook : INotebook
 {
-    private readonly List<T> _values;
+    private readonly List<string> _values;
 
-    public Notebook()
+    public Notebook(Maybe<List<string>> values)
     {
-        _values = new List<T>();
+        _values = values.Match(
+            _ => _,
+            () => new List<string>());
     }
 
-    public IEnumerator<(int, T)> GetEnumerator()
-        => _values.Select((x, i) => (i, x)).GetEnumerator();
+    public IEnumerator<Unique<Note>> GetEnumerator()
+        => _values
+           .Select((x, i) => new Unique<Note>(i, new Note(x, i)))
+           .GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public Either<int, Segment<int>> Add(T value, Maybe<HalfSegment<int>> segment)
+    public Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment)
         => _values switch
         {
             { Count: 0 } => AddToEmpty(value),
             _ => AddToExisting(value, segment)
         };
 
-    private Either<int,Segment<int>> AddToExisting(T value, Maybe<HalfSegment<int>> segment)
+    public INotebook Clone()
+        => _values
+           .ToList()
+           ._(Maybe.Some)
+           ._(_ => new Notebook(_));
+
+    public Note ToNote(int key)
+        => new Note(_values[key], key);
+
+    private Either<int,Segment> AddToExisting(string value, Maybe<ResolvedSegment> segment)
     {
         var (begin, end) = segment.Match(
             _ => ToHalf(_.Segment, _.IsRight),
@@ -41,24 +54,24 @@ internal sealed class Notebook<T> : INotebook<int, T>
             _values[i] = _values[i - 1];
         _values[begin] = value;
 
-        return Either.Left<int, Segment<int>>(begin);
+        return Either.Left<int, Segment>(begin);
     }
 
-    private static Either<int, Segment<int>> GetNextSegment(int begin, int end)
-        => new Segment<int>(
+    private static Either<int, Segment> GetNextSegment(int begin, int end)
+        => new Segment(
                 Begin: begin,
-                Middle: (begin + end) / 2,
+                Border: (begin + end) / 2,
                 End: end)
-            ._(Either.Right<int, Segment<int>>);
+            ._(Either.Right<int, Segment>);
 
-    private static (int, int) ToHalf(Segment<int> segment, bool isRight)
+    private static (int, int) ToHalf(Segment segment, bool isRight)
         => isRight
-               ? (segment.Middle, segment.End)
-               : (segment.Begin, segment.Middle);
+               ? (segment.Border + 1, segment.End)
+               : (segment.Begin + 1, segment.Border);
 
-    private Either<int,Segment<int>> AddToEmpty(T value)
+    private Either<int, Segment> AddToEmpty(string value)
     {
         _values.Add(value);
-        return Either.Left<int, Segment<int>>(0);
+        return Either.Left<int, Segment>(0);
     }
 }

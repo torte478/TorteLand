@@ -3,21 +3,24 @@ using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Notebooks;
 
+// ReSharper disable InconsistentNaming
+
 namespace TorteLand.Core.Tests;
 
 [TestFixture]
 internal sealed class Notebook_Should
 {
     [Test]
-    public void Foo_Bar()
+    public void AddElem_WhenNotebookIsNotEmpty()
     {
-        var notebook = new Notebook<string>
+        var notebook = new Notebook(Maybe.None<List<string>>())
                        {
-                           { "a", Maybe.None<HalfSegment<int>>() },
-                           { "b", Maybe.None<HalfSegment<int>>() }
+                           { "a", Maybe.None<ResolvedSegment>() },
+                           { "b", Maybe.None<ResolvedSegment>() }
                        };
-        var segment = new Segment<int>(0, 0, 1);
-        var halfSegment = new HalfSegment<int>(segment, true);
+
+        var segment = new Segment(0, 0, 1);
+        var halfSegment = new ResolvedSegment(segment, true);
 
         var actual = notebook.Add("b", Maybe.Some(halfSegment));
 

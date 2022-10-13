@@ -4,7 +4,9 @@ using TorteLand.Core.Contracts;
 
 namespace TorteLand.Core.Notebooks;
 
-internal interface INotebook<TKey, TValue> : IEnumerable<(TKey, TValue)>
+internal interface INotebook : IEnumerable<Unique<Note>>
 {
-    Either<TKey, Segment<TKey>> Add(TValue value, Maybe<HalfSegment<TKey>> segment);
+    Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment);
+    INotebook Clone();
+    Note ToNote(int key);
 }

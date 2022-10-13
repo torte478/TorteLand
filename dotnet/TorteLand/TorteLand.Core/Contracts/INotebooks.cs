@@ -2,18 +2,19 @@
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
+using TorteLand.Core.Notebooks;
 
 namespace TorteLand.Core.Contracts;
 
-public interface INotebooks<TIndex, TKey, TValue>
+public interface INotebooks
 {
-    IAsyncEnumerable<(TKey, TValue)> All(TIndex index, CancellationToken token);
+    IAsyncEnumerable<Unique<Note>> All(int index, CancellationToken token);
 
-    TIndex Create();
+    int Create();
 
-    Task<Either<TKey, Segment<TKey>>> Add(
-        TIndex index,
-        TValue value,
-        Maybe<HalfSegment<TKey>> segment,
+    Task<Either<int, Segment>> Add(
+        int index,
+        string value,
+        Maybe<ResolvedSegment> segment,
         CancellationToken token);
 }
