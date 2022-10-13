@@ -15,7 +15,7 @@ public static class IocExtensions
 
         services.AddSingleton<INotebooks>(
             provider => new FileNotebooks(
-                path: configuration.GetSection("FileStorage")["data"],
+                path: configuration.GetSection("FileStorage")["Path"],
                 factory: provider.GetRequiredService<INotebookFactory>()));
 
         return services;

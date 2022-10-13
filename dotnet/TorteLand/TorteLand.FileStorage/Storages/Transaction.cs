@@ -22,7 +22,7 @@ internal sealed class Transaction : ITransaction
     {
         if (!File.Exists(_path))
         {
-            File.WriteAllText(_path, string.Empty);
+            File.WriteAllText(_path, "[]");
             return new List<Note>();
         }
 

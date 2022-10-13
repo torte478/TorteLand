@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using TorteLand.Core.Contracts.Storage;
+﻿using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.FileStorage.Storages;
 
@@ -8,12 +7,9 @@ internal sealed class Storage : IStorage
     private readonly string _path;
     private readonly ITransactionFactory _factory;
 
-    public Storage(string file, ITransactionFactory factory)
+    public Storage(string path, ITransactionFactory factory)
     {
-        var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-        var full = Path.Combine(location, file);
-        _path = full;
-
+        _path = path;
         _factory = factory;
     }
 

@@ -13,18 +13,21 @@ internal sealed class FileNotebooks : INotebooks
     private readonly string _path;
     private readonly INotebookFactory _factory;
 
-    private int _next;
-
     public FileNotebooks(string path, INotebookFactory factory)
     {
         _factory = factory;
 
         _path = BuildPath(path);
-        _cache = BuildCache(path, factory);
+        _cache = BuildCache(_path, factory);
     }
 
-    public IAsyncEnumerable<Unique<Note>> All(int index, CancellationToken token)
+    public IAsyncEnumerable<Unique<Note>> Read(int index, CancellationToken token)
         => _cache[index].Notebook.All(token);
+
+    public IAsyncEnumerable<Unique<string>> All(CancellationToken token)
+        => _cache
+           .Select(_ => new Unique<string>(_.Key, Path.GetFileNameWithoutExtension(_.Value.Path)))
+           .ToAsyncEnumerable();
 
     public Task<int> Create(string name, CancellationToken token)
     {
@@ -33,7 +36,7 @@ internal sealed class FileNotebooks : INotebooks
             throw new Exception($"File exists: {path}");
 
         var notebook = _factory.Create(path);
-        var key = _next++;
+        var key = _cache.Keys.Max() + 1;
         _cache.Add(key, (path, notebook));
 
         return Task.FromResult(key);
@@ -48,23 +51,27 @@ internal sealed class FileNotebooks : INotebooks
     public Task Delete(int index, int key, CancellationToken token)
         => _cache[index].Notebook.Delete(key, token);
 
-    private Dictionary<int, (string Path, IQuestionableNotebook Notebook)> BuildCache(string path, INotebookFactory factory)
+    private static Dictionary<int, (string Path, IQuestionableNotebook Notebook)> BuildCache(
+        string path,
+        INotebookFactory factory)
         => path
            ._(Directory.EnumerateFiles)
-           .Select((_, i) => (i, (Path.GetFileName(_), factory.Create(_))))
+           .Select((file, i) => (i, (file, factory.Create(file))))
            .ToDictionary(
                _ => _.i,
                _ => _.Item2);
 
     private static string BuildPath(string path)
     {
-        var name = Assembly.GetExecutingAssembly().FullName!;
-        var full = Assembly.GetExecutingAssembly().Location[..^name.Length];
-        var result = Path.Combine(full, path);
+        var full = Assembly
+                   .GetExecutingAssembly()
+                   .Location
+                   ._(Path.GetDirectoryName)
+                   !._(Path.Combine, path);
 
-        if (!Directory.Exists(result))
-            Directory.CreateDirectory(result);
+        if (!Directory.Exists(full))
+            Directory.CreateDirectory(full);
 
-        return result;
+        return full;
     }
 }
