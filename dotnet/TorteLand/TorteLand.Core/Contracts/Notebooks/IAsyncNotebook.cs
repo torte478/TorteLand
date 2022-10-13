@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 
-namespace TorteLand.Core.Contracts;
+namespace TorteLand.Core.Contracts.Notebooks;
 
 public interface IAsyncNotebook
 {

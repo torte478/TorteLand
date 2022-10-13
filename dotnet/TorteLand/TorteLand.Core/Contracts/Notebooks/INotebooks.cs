@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
+using TorteLand.Core.Contracts.Storage;
 
-namespace TorteLand.Core.Contracts;
+namespace TorteLand.Core.Contracts.Notebooks;
 
 public interface INotebooks
 {

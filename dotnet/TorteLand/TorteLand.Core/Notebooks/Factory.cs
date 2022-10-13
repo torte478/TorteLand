@@ -1,5 +1,6 @@
 ﻿using SoftwareCraft.Functional;
-using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Storage;
 using TorteLand.Core.Storage;
 
 namespace TorteLand.Core.Notebooks;
@@ -7,9 +8,9 @@ namespace TorteLand.Core.Notebooks;
 internal sealed class Factory : IFactory
 {
     private readonly IStorage _storage;
-    private readonly IAsyncNotebookFactory _factory;
+    private readonly INotebookFactory _factory;
 
-    public Factory(IStorage storage, IAsyncNotebookFactory factory)
+    public Factory(IStorage storage, INotebookFactory factory)
     {
         _storage = storage;
         _factory = factory;
@@ -17,7 +18,7 @@ internal sealed class Factory : IFactory
 
     public ITransactionNotebook Create()
     {
-        var persisted = new PersistedAsyncNotebook(_storage, new Left<IAsyncNotebookFactory, IAsyncNotebook>(_factory));
+        var persisted = new PersistedAsyncNotebook(_storage, new Left<INotebookFactory, INotebook>(_factory));
         return new TransactionNotebook(persisted);
     }
 }

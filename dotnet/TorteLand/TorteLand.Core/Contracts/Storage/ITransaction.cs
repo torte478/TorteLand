@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TorteLand.Core.Contracts.Notebooks;
 
-namespace TorteLand.Core.Contracts;
+namespace TorteLand.Core.Contracts.Storage;
 
 public interface ITransaction
 {

@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Storage;
 
@@ -12,9 +14,9 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
 {
     private readonly IStorage _storage;
 
-    private Either<IAsyncNotebookFactory, IAsyncNotebook> _origin;
+    private Either<INotebookFactory, INotebook> _origin;
 
-    public PersistedAsyncNotebook(IStorage storage, Either<IAsyncNotebookFactory, IAsyncNotebook> origin)
+    public PersistedAsyncNotebook(IStorage storage, Either<INotebookFactory, INotebook> origin)
     {
         _storage = storage;
         _origin = origin;
@@ -23,7 +25,7 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
     public async IAsyncEnumerable<Unique<Note>> All([EnumeratorCancellation] CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        await foreach (var note in origin.All(token))
+        foreach (var note in origin)
             yield return note;
     }
 
@@ -33,8 +35,8 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
         CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        var copy = await origin.Clone(token);
-        var added = await copy.Add(value, segment, token);
+        var copy = origin.Clone();
+        var added = copy.Add(value, segment);
 
         await added.MatchAsync(
             _ => SaveChanges(_, copy, token),
@@ -46,8 +48,8 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
     public async Task<IAsyncNotebook> Clone(CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        var clone = await origin.Clone(token);
-        var notebook = new Right<IAsyncNotebookFactory, IAsyncNotebook>(clone);
+        var clone = origin.Clone();
+        var notebook = new Right<INotebookFactory, INotebook>(clone);
 
         return new PersistedAsyncNotebook(_storage, notebook);
     }
@@ -55,55 +57,51 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
     public async Task<Note> Delete(int key, CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        var copy = await origin.Clone(token);
-        var deleted = await copy.Delete(key, token);
+        var copy = origin.Clone();
+        var deleted =  copy.Delete(key);
 
         var transaction = _storage.StartTransaction();
         var entity = transaction.ToEntity(deleted);
         entity.Delete();
 
-        await foreach (var note in copy.All(token))
+        foreach (var note in copy)
         {
             var updated = transaction.ToEntity(note.Value);
             updated.Update(note.Value.Weight);
         }
         await transaction.Save(token);
 
-        _origin = new Right<IAsyncNotebookFactory, IAsyncNotebook>(copy);
+        _origin = new Right<INotebookFactory, INotebook>(copy);
         return deleted;
     }
 
     public async Task<Note> ToNote(int key, CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        return await origin.ToNote(key, token);
+        return origin.ToNote(key);
     }
 
-    private async Task SaveChanges(int key, IAsyncNotebook copy, CancellationToken token)
+    private async Task SaveChanges(int key, INotebook copy, CancellationToken token)
     {
         var transaction = _storage.StartTransaction();
-        await WriteChanges(transaction, key, copy, token);
+        WriteChanges(transaction, key, copy);
         await transaction.Save(token);
 
-        _origin = new Right<IAsyncNotebookFactory, IAsyncNotebook>(copy);
+        _origin = new Right<INotebookFactory, INotebook>(copy);
     }
 
-    private static async Task WriteChanges(
+    private static void WriteChanges(
         ITransaction transaction,
         int key,
-        IAsyncNotebook copy,
-        CancellationToken token)
+        INotebook copy)
     {
-        var created = await copy.ToNote(key, token);
+        var created = copy.ToNote(key);
 
         transaction.Create(created);
 
-        var changes = copy
-                      .All(token)
-                      .Where(_ => _.Id.CompareTo(key) > 0)
-                      .WithCancellation(token);
+        var changes = copy.Where(_ => _.Id.CompareTo(key) > 0);
 
-        await foreach (var change in changes)
+        foreach (var change in changes)
         {
             change.Value
                   ._(transaction.ToEntity)
@@ -111,7 +109,7 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
         }
     }
 
-    private async ValueTask<IAsyncNotebook> GetOrigin(CancellationToken token)
+    private async ValueTask<INotebook> GetOrigin(CancellationToken token)
     {
         var notebook = await  _origin.MatchAsync(
             _ => CreateNotebook(_, token),
@@ -120,9 +118,9 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
         return notebook;
     }
 
-    private async Task<IAsyncNotebook> CreateNotebook(IAsyncNotebookFactory factory, CancellationToken token)
+    private async Task<INotebook> CreateNotebook(INotebookFactory factory, CancellationToken token)
     {
         var notes = await _storage.StartTransaction().All(token).ToArrayAsync(token);
-        return await factory.Create(notes, token);
+        return factory.Create(notes);
     }
 }

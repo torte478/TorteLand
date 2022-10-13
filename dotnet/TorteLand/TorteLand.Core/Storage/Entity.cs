@@ -1,4 +1,5 @@
-﻿using TorteLand.Core.Contracts;
+﻿using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Storage;
 

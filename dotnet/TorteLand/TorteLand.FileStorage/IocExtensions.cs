@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Storage;
 using TorteLand.FileStorage.Storages;
 
 namespace TorteLand.FileStorage;

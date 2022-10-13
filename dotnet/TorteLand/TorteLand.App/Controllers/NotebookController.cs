@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using SoftwareCraft.Functional;
-using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.App.Controllers;
 

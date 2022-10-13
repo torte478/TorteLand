@@ -1,4 +1,4 @@
-﻿namespace TorteLand.Core.Contracts;
+﻿namespace TorteLand.Core.Contracts.Storage;
 
 public interface IStorage
 {

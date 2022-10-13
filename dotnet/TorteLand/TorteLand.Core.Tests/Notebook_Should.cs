@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 using SoftwareCraft.Functional;
-using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Notebooks;
 
 // ReSharper disable InconsistentNaming

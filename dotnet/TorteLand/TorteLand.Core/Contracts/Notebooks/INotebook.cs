@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using SoftwareCraft.Functional;
-using TorteLand.Core.Contracts;
 
-namespace TorteLand.Core.Notebooks;
+namespace TorteLand.Core.Contracts.Notebooks;
 
-internal interface INotebook : IEnumerable<Unique<Note>>
+public interface INotebook : IEnumerable<Unique<Note>>
 {
     Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment);
     Note ToNote(int key);

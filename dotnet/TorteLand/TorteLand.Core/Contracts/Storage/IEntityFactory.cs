@@ -1,4 +1,6 @@
-﻿namespace TorteLand.Core.Contracts;
+﻿using TorteLand.Core.Contracts.Notebooks;
+
+namespace TorteLand.Core.Contracts.Storage;
 
 public interface IEntityFactory
 {

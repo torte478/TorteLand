@@ -1,4 +1,4 @@
-﻿using TorteLand.Core.Contracts;
+﻿using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.FileStorage.Storages;
 
