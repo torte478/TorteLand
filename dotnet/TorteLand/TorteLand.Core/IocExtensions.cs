@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Core.Notebooks;
 using TorteLand.Core.Storage;
@@ -12,8 +12,8 @@ public static class IocExtensions
     {
         services.AddSingleton<INotebookFactory, NotebookFactory>();
         services.AddSingleton<IEntityFactory, EntityFactory>();
-        services.AddSingleton<IFactory, Factory>();
-        services.AddSingleton<INotebooks, Notebooks.Notebooks>();
+        services.AddSingleton<IPersistedNotebookFactory, PersistedNotebookFactory>();
+        services.AddSingleton<IQuestionableNotebookFactory, QuestionableNotebookFactory>();
 
         return services;
     }

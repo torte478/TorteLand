@@ -2,6 +2,6 @@
 
 namespace TorteLand.Core.Contracts.Storage;
 
-public record Transaction(
+public record Question(
     Guid Id,
     string Text);

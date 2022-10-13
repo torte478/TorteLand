@@ -5,18 +5,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Storage;
 
-internal sealed class PersistedAsyncNotebook : IAsyncNotebook
+internal sealed class PersistedNotebook : IAsyncNotebook
 {
     private readonly IStorage _storage;
 
     private Either<INotebookFactory, INotebook> _origin;
 
-    public PersistedAsyncNotebook(IStorage storage, Either<INotebookFactory, INotebook> origin)
+    public PersistedNotebook(IStorage storage, Either<INotebookFactory, INotebook> origin)
     {
         _storage = storage;
         _origin = origin;
@@ -51,7 +52,7 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
         var clone = origin.Clone();
         var notebook = new Right<INotebookFactory, INotebook>(clone);
 
-        return new PersistedAsyncNotebook(_storage, notebook);
+        return new PersistedNotebook(_storage, notebook);
     }
 
     public async Task<Note> Delete(int key, CancellationToken token)

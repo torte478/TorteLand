@@ -29,11 +29,12 @@ public sealed class NotebookController : ControllerBase
            .Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text));
 
     [HttpPut]
-    public int Create() => _notebooks.Create();
+    public Task<int> Create(string name, CancellationToken token)
+        => _notebooks.Create(name, token);
 
     [HttpPost]
     [Route("start_add")]
-    public async Task<Models.Either<int, Transaction>> Add(
+    public async Task<Models.Either<int, Question>> Add(
         int index,
         string value,
         CancellationToken token)
@@ -44,13 +45,13 @@ public sealed class NotebookController : ControllerBase
                          token);
 
         return result.Match(
-            x => new Models.Either<int, Transaction>(x, default),
-            x => new Models.Either<int, Transaction>(default, x));
+            x => new Models.Either<int, Question>(x, default),
+            x => new Models.Either<int, Question>(default, x));
     }
 
     [HttpPost]
     [Route("continue_add")]
-    public async Task<Models.Either<int, Transaction>> Add(
+    public async Task<Models.Either<int, Question>> Add(
         int index,
         Guid id,
         bool isRight,
@@ -59,8 +60,8 @@ public sealed class NotebookController : ControllerBase
         var result = await _notebooks.Add(index, id, isRight, token);
 
         return result.Match(
-            x => new Models.Either<int, Transaction>(x, default),
-            x => new Models.Either<int, Transaction>(default, x));
+            x => new Models.Either<int, Question>(x, default),
+            x => new Models.Either<int, Question>(default, x));
     }
 
     [HttpPost]

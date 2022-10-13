@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SoftwareCraft.Functional;
+using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 
 namespace TorteLand.Core.Notebooks;
