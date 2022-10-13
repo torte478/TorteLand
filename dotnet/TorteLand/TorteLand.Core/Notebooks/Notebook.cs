@@ -54,7 +54,7 @@ internal sealed class Notebook : INotebook
             _values[i] = _values[i - 1];
         _values[begin] = value;
 
-        return Either.Left<int, Segment>(begin);
+        return new Left<int, Segment>(begin);
     }
 
     private static Either<int, Segment> GetNextSegment(int begin, int end)
@@ -72,6 +72,6 @@ internal sealed class Notebook : INotebook
     private Either<int, Segment> AddToEmpty(string value)
     {
         _values.Add(value);
-        return Either.Left<int, Segment>(0);
+        return new Left<int, Segment>(0);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ public sealed class NotebookController : ControllerBase
 
     [HttpPost]
     [Route("start_add")]
-    public async Task<Models.Either<int, Segment>> Add(
+    public async Task<Models.Either<int, Transaction>> Add(
         int index,
         string value,
         CancellationToken token)
@@ -40,26 +41,25 @@ public sealed class NotebookController : ControllerBase
         var result = await _notebooks.Add(
                          index,
                          value,
-                         Maybe.None<ResolvedSegment>(),
                          token);
 
         return result.Match(
-            x => new Models.Either<int, Segment>(x, default),
-            x => new Models.Either<int, Segment>(default, x));
+            x => new Models.Either<int, Transaction>(x, default),
+            x => new Models.Either<int, Transaction>(default, x));
     }
 
     [HttpPost]
     [Route("continue_add")]
-    public async Task<Models.Either<int, Segment>> Add2(
+    public async Task<Models.Either<int, Transaction>> Add2(
         int index,
-        string value,
-        ResolvedSegment segment,
+        Guid id,
+        bool isRight,
         CancellationToken token)
     {
-        var result = await _notebooks.Add(index, value, Maybe.Some(segment), token);
+        var result = await _notebooks.Add(index, id, isRight, token);
 
         return result.Match(
-            x => new Models.Either<int, Segment>(x, default),
-            x => new Models.Either<int, Segment>(default, x));
+            x => new Models.Either<int, Transaction>(x, default),
+            x => new Models.Either<int, Transaction>(default, x));
     }
 }

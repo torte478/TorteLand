@@ -55,4 +55,7 @@ internal sealed class Transaction : ITransaction
         var json = JsonSerializer.Serialize(_notes.Value);
         return File.WriteAllTextAsync(_path, json, token);
     }
+
+    public IAsyncEnumerable<Note> All(CancellationToken token)
+        => _notes.Value.ToAsyncEnumerable();
 }

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
-using TorteLand.Core.Notebooks;
 
 namespace TorteLand.Core.Contracts;
 
@@ -12,9 +12,6 @@ public interface INotebooks
 
     int Create();
 
-    Task<Either<int, Segment>> Add(
-        int index,
-        string value,
-        Maybe<ResolvedSegment> segment,
-        CancellationToken token);
+    Task<Either<int, Transaction>> Add(int index, string value, CancellationToken token);
+    Task<Either<int, Transaction>> Add(int index, Guid id, bool isRight, CancellationToken token);
 }

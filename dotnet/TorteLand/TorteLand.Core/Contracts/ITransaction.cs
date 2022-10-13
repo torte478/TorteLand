@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TorteLand.Core.Contracts;
@@ -9,4 +10,5 @@ public interface ITransaction
     IEntity ToEntity(Note note);
     void Update(Note note);
     Task Save(CancellationToken token);
+    IAsyncEnumerable<Note> All(CancellationToken token);
 }

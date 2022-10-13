@@ -2,5 +2,5 @@
 
 internal interface IFactory
 {
-    IAsyncNotebook Create();
+    ITransactionNotebook Create();
 }

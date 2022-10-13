@@ -9,6 +9,7 @@ public static class IocExtensions
 {
     public static IServiceCollection AddCoreLogic(this IServiceCollection services)
     {
+        services.AddSingleton<IAsyncNotebookFactory, AsyncNotebookFactory>();
         services.AddSingleton<IEntityFactory, EntityFactory>();
         services.AddSingleton<IFactory, Factory>();
         services.AddSingleton<INotebooks, Notebooks.Notebooks>();

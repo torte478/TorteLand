@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
@@ -17,8 +19,8 @@ internal sealed class AsyncNotebook : IAsyncNotebook
         _origin = origin;
     }
 
-    public IAsyncEnumerator<Unique<Note>> GetAsyncEnumerator(CancellationToken token)
-        => ToAsyncEnumerable().GetAsyncEnumerator(token);
+    public IAsyncEnumerable<Unique<Note>> All(CancellationToken token)
+        => _origin.ToAsyncEnumerable();
 
     public Task<Either<int, Segment>> Add(string value, Maybe<ResolvedSegment> segment, CancellationToken token)
         => _origin
@@ -30,14 +32,14 @@ internal sealed class AsyncNotebook : IAsyncNotebook
             .Clone()
             ._(_ => new AsyncNotebook(_));
 
-    public Task<Note> ToNote(int key)
+    public Task<Note> ToNote(int key, CancellationToken token)
         => _origin
            .ToNote(key)
            ._(Task.FromResult);
 
-    private async IAsyncEnumerable<Unique<Note>> ToAsyncEnumerable()
+    public Task<IAsyncNotebook> Clone(CancellationToken token)
     {
-        foreach (var item in _origin)
-            yield return item;
+        IAsyncNotebook clone = new AsyncNotebook(_origin.Clone());
+        return Task.FromResult(clone);
     }
 }

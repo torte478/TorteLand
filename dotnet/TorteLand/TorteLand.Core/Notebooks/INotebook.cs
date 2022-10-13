@@ -7,6 +7,6 @@ namespace TorteLand.Core.Notebooks;
 internal interface INotebook : IEnumerable<Unique<Note>>
 {
     Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment);
-    INotebook Clone();
     Note ToNote(int key);
+    INotebook Clone();
 }

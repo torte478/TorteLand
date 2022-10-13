@@ -8,17 +8,19 @@ namespace TorteLand.Core.Notebooks;
 internal sealed class Factory : IFactory
 {
     private readonly IStorage _storage;
+    private readonly IAsyncNotebookFactory _factory;
 
-    public Factory(IStorage storage)
+    public Factory(IStorage storage, IAsyncNotebookFactory factory)
     {
         _storage = storage;
+        _factory = factory;
     }
 
-    public IAsyncNotebook Create()
+    public ITransactionNotebook Create()
     {
         var notebook = new Notebook(Maybe.None<List<string>>());
         var asyncNotebook = new AsyncNotebook(notebook);
-        var persisted = new PersistedAsyncNotebook(asyncNotebook, _storage);
-        return persisted;
+        var persisted = new PersistedAsyncNotebook(_storage, new Right<IAsyncNotebookFactory, IAsyncNotebook>(asyncNotebook));
+        return new TransactionNotebook(persisted);
     }
 }
