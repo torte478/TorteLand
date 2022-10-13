@@ -50,7 +50,7 @@ internal sealed class Notebook : INotebook
             return GetNextSegment(begin, end);
 
         _values.Add(value);
-        for (var i = _values.Count - 1; i > begin; ++i)
+        for (var i = _values.Count - 1; i > begin; --i)
             _values[i] = _values[i - 1];
         _values[begin] = value;
 
@@ -67,7 +67,7 @@ internal sealed class Notebook : INotebook
     private static (int, int) ToHalf(Segment segment, bool isRight)
         => isRight
                ? (segment.Border + 1, segment.End)
-               : (segment.Begin + 1, segment.Border);
+               : (segment.Begin, segment.Border);
 
     private Either<int, Segment> AddToEmpty(string value)
     {

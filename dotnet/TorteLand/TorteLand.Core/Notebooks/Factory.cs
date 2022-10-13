@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SoftwareCraft.Functional;
+﻿using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Storage;
 
@@ -18,9 +17,7 @@ internal sealed class Factory : IFactory
 
     public ITransactionNotebook Create()
     {
-        var notebook = new Notebook(Maybe.None<List<string>>());
-        var asyncNotebook = new AsyncNotebook(notebook);
-        var persisted = new PersistedAsyncNotebook(_storage, new Right<IAsyncNotebookFactory, IAsyncNotebook>(asyncNotebook));
+        var persisted = new PersistedAsyncNotebook(_storage, new Left<IAsyncNotebookFactory, IAsyncNotebook>(_factory));
         return new TransactionNotebook(persisted);
     }
 }
