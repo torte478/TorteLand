@@ -37,8 +37,17 @@ internal sealed class Notebook : INotebook
            ._(Maybe.Some)
            ._(_ => new Notebook(_));
 
-    public Note ToNote(int key)
-        => new Note(_values[key], key);
+    public Note Delete(int key)
+    {
+        var deleted = _values[key];
+        var updated = _values.Where((_, i) => i != key).ToArray();
+        _values.Clear();
+        _values.AddRange(updated);
+
+        return new Note(deleted, key);
+    }
+
+    public Note ToNote(int key) => new(_values[key], key);
 
     private Either<int,Segment> AddToExisting(string value, Maybe<ResolvedSegment> segment)
     {

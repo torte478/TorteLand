@@ -41,6 +41,12 @@ internal sealed class TransactionNotebook : ITransactionNotebook
                    token);
     }
 
+    public async Task Delete(int key, CancellationToken token)
+    {
+        await _origin.Delete(key, token);
+        _transactions.Clear();
+    }
+
     private async Task<Either<int, Transaction>> Add(
         string value,
         Maybe<ResolvedSegment> segment,
@@ -50,8 +56,14 @@ internal sealed class TransactionNotebook : ITransactionNotebook
         var result = await _origin.Add(value, segment, token);
 
         return await result.MatchAsync(
-                   _ => _._(Either.Left<int, Transaction>)._(Task.FromResult),
+                   CompleteTransaction,
                    _ => onRight(_, token));
+    }
+
+    private Task<Either<int, Transaction>> CompleteTransaction(int key)
+    {
+        _transactions.Clear();
+        return key._(Either.Left<int, Transaction>)._(Task.FromResult);
     }
 
     private Task<Either<int, Transaction>> UpdateTransaction(Segment segment, Guid id, CancellationToken token)

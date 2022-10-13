@@ -50,7 +50,7 @@ public sealed class NotebookController : ControllerBase
 
     [HttpPost]
     [Route("continue_add")]
-    public async Task<Models.Either<int, Transaction>> Add2(
+    public async Task<Models.Either<int, Transaction>> Add(
         int index,
         Guid id,
         bool isRight,
@@ -62,4 +62,9 @@ public sealed class NotebookController : ControllerBase
             x => new Models.Either<int, Transaction>(x, default),
             x => new Models.Either<int, Transaction>(default, x));
     }
+
+    [HttpPost]
+    [Route("delete")]
+    public Task Delete(int index, int key, CancellationToken token)
+        => _notebooks.Delete(index, key, token);
 }

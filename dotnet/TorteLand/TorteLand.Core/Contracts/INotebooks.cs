@@ -14,4 +14,5 @@ public interface INotebooks
 
     Task<Either<int, Transaction>> Add(int index, string value, CancellationToken token);
     Task<Either<int, Transaction>> Add(int index, Guid id, bool isRight, CancellationToken token);
+    Task Delete(int index, int key, CancellationToken token);
 }

@@ -27,4 +27,7 @@ internal sealed class Notebooks : INotebooks
 
     public Task<Either<int, Transaction>> Add(int index, Guid id, bool isRight, CancellationToken token)
         => _notebook.Add(id, isRight, token);
+
+    public Task Delete(int index, int key, CancellationToken token)
+        => _notebook.Delete(key, token);
 }

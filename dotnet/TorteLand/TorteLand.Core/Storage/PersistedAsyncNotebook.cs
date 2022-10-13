@@ -52,6 +52,27 @@ internal sealed class PersistedAsyncNotebook : IAsyncNotebook
         return new PersistedAsyncNotebook(_storage, notebook);
     }
 
+    public async Task<Note> Delete(int key, CancellationToken token)
+    {
+        var origin = await GetOrigin(token);
+        var copy = await origin.Clone(token);
+        var deleted = await copy.Delete(key, token);
+
+        var transaction = _storage.StartTransaction();
+        var entity = transaction.ToEntity(deleted);
+        entity.Delete();
+
+        await foreach (var note in copy.All(token))
+        {
+            var updated = transaction.ToEntity(note.Value);
+            updated.Update(note.Value.Weight);
+        }
+        await transaction.Save(token);
+
+        _origin = new Right<IAsyncNotebookFactory, IAsyncNotebook>(copy);
+        return deleted;
+    }
+
     public async Task<Note> ToNote(int key, CancellationToken token)
     {
         var origin = await GetOrigin(token);

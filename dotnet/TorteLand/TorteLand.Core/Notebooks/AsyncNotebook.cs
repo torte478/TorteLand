@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
@@ -27,11 +26,6 @@ internal sealed class AsyncNotebook : IAsyncNotebook
            .Add(value, segment)
            ._(Task.FromResult);
 
-    public IAsyncNotebook Clone()
-        => _origin
-            .Clone()
-            ._(_ => new AsyncNotebook(_));
-
     public Task<Note> ToNote(int key, CancellationToken token)
         => _origin
            .ToNote(key)
@@ -42,4 +36,9 @@ internal sealed class AsyncNotebook : IAsyncNotebook
         IAsyncNotebook clone = new AsyncNotebook(_origin.Clone());
         return Task.FromResult(clone);
     }
+
+    public Task<Note> Delete(int key, CancellationToken token)
+        => key
+           ._(_origin.Delete)
+           ._(Task.FromResult);
 }

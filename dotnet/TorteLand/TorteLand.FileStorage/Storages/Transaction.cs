@@ -39,10 +39,7 @@ internal sealed class Transaction : ITransaction
 
     public void Update(Note note)
     {
-        var index = _notes.Value
-              .Select((x, i) => (x, i))
-              .First(_ => _.x.Text == note.Text)
-              .i;
+        var index = GetIndex(note);
 
         _notes.Value[index] = _notes.Value[index] with { Weight = note.Weight };
     }
@@ -58,4 +55,18 @@ internal sealed class Transaction : ITransaction
 
     public IAsyncEnumerable<Note> All(CancellationToken token)
         => _notes.Value.ToAsyncEnumerable();
+
+    public void Delete(Note note)
+    {
+        var index = GetIndex(note);
+        var deleted = _notes.Value.Where((_, i) => i != index).ToArray();
+        _notes.Value.Clear();
+        _notes.Value.AddRange(deleted);
+    }
+
+    private int GetIndex(Note note)
+        => _notes.Value
+                 .Select((n, index) => (n, index))
+                 .First(_ => _.n.Text == note.Text)
+                 .index;
 }

@@ -20,4 +20,9 @@ internal sealed class Entity : IEntity
         _transaction.Update(_note);
         _note = updated;
     }
+
+    public void Delete()
+    {
+        _transaction.Delete(_note);
+    }
 }
