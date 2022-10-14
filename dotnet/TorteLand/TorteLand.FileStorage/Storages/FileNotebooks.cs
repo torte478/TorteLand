@@ -60,8 +60,11 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     public Task Rename(int index, int id, string text, CancellationToken token)
         => _cache[index].Notebook.Rename(id, text, token);
 
-    public Task Delete(int index, int key, CancellationToken token)
-        => _cache[index].Notebook.Delete(key, token);
+    public async Task Delete(int index, int key, CancellationToken token)
+    {
+        await _cache[index].Notebook.Delete(key, token);
+        _cache.Remove(index);
+    }
 
     public async Task Delete(int index, CancellationToken token)
     {
@@ -74,7 +77,7 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
         var old = _cache[index].Path;
         var target = Path.Combine(_path, $"{name}.json");
         File.Copy(old, target);
-        _cache[index] = (target, _cache[index].Notebook);
+        _cache[index] = (target, _factory.Create(target));
         File.Delete(old);
 
         return Task.CompletedTask;
