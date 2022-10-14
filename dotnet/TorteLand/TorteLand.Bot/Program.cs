@@ -1,21 +1,20 @@
-using System;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Telegram.Bot;
 using TorteLand.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureServices(
                    (context, services) =>
                    {
-                       services.AddSingleton<ITelegramBotClient>(
-                           _ =>
-                           {
-                               var token = context.Configuration.GetSection("Bot")["Token"];
-                               Console.WriteLine(token);
-                               return new TelegramBotClient(
-                                   token: token);
-                           });
+                       services.AddHttpClient();
+
+                       services.AddSingleton<IClientFactory>(
+                           _ => new ClientFactory(
+                               context.Configuration.GetSection("TorteLand.App")["Url"],
+                               context.Configuration.GetSection("Bot")["Token"],
+                               _.GetRequiredService<IHttpClientFactory>()));
+
                        services.AddSingleton<IBot, Bot>();
                        services.AddHostedService<Worker>();
                    })

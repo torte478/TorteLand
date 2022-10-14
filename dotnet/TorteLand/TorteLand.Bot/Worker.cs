@@ -17,9 +17,9 @@ internal sealed class Worker : BackgroundService
     private readonly IBot _bot;
     private readonly ILogger<Worker> _logger;
 
-    public Worker(ITelegramBotClient client, IBot bot, ILogger<Worker> logger)
+    public Worker(IClientFactory factory, IBot bot, ILogger<Worker> logger)
     {
-        _client = client;
+        _client = factory.CreateTelegramBotClient();
         _bot = bot;
         _logger = logger;
     }
