@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TorteLand.App.Client\TorteLand.App.Client.csproj" />
+    </ItemGroup>
+
+</Project>

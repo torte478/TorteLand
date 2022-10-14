@@ -19,17 +19,17 @@ public sealed class NotebooksAcrudController : ControllerBase
     }
     
     [HttpGet]
-    [Route("all")]
+    [Route("All")]
     public IAsyncEnumerable<Unique<string>> All(CancellationToken token)
         => _notebooksAcrud.All(token);
 
     [HttpPost]
-    [Route("create")]
+    [Route("Create")]
     public Task<int> Create(string name, CancellationToken token)
         => _notebooksAcrud.Create(name, token);
 
     [HttpPost]
-    [Route("delete")]
+    [Route("Delete")]
     public Task Delete(int index, CancellationToken token)
         => _notebooksAcrud.Delete(index, token);
 }

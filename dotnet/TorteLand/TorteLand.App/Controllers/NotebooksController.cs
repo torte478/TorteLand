@@ -21,7 +21,7 @@ public sealed class NotebooksController : ControllerBase
     }
 
     [HttpGet]
-    [Route("all")]
+    [Route("All")]
     public IAsyncEnumerable<KeyValuePair<int, string>> All(
         int index,
         CancellationToken token)
@@ -30,7 +30,7 @@ public sealed class NotebooksController : ControllerBase
            .Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text));
 
     [HttpPost]
-    [Route("start_add")]
+    [Route("StartAdd")]
     public async Task<Models.Either<int, Question>> Add(
         int index,
         string value,
@@ -47,7 +47,7 @@ public sealed class NotebooksController : ControllerBase
     }
 
     [HttpPost]
-    [Route("continue_add")]
+    [Route("ContinueAdd")]
     public async Task<Models.Either<int, Question>> Add(
         int index,
         Guid id,
@@ -62,7 +62,7 @@ public sealed class NotebooksController : ControllerBase
     }
 
     [HttpPost]
-    [Route("delete")]
+    [Route("Delete")]
     public Task Delete(int index, int key, CancellationToken token)
         => _notebooks.Delete(index, key, token);
 }
