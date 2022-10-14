@@ -186,5 +186,4 @@ FakesAssemblies/
 # My files
 .idea
 /dotnet/TorteLand/TorteLand.App/appsettings.Development.json
-/dotnet/TorteLand/TorteLand.App.Client/NSwagGenerated.cs
 /dotnet/TorteLand/TorteLand.Bot/appsettings.Development.json
