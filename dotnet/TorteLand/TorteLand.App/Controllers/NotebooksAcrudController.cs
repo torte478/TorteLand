@@ -29,6 +29,11 @@ public sealed class NotebooksAcrudController : ControllerBase
         => _notebooksAcrud.Create(name, token);
 
     [HttpPost]
+    [Route("Rename")]
+    public Task Rename(int index, string name, CancellationToken token)
+        => _notebooksAcrud.Rename(index, name, token);
+
+    [HttpPost]
     [Route("Delete")]
     public Task Delete(int index, CancellationToken token)
         => _notebooksAcrud.Delete(index, token);

@@ -1,26 +1,27 @@
-﻿using System;
-using SoftwareCraft.Functional;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace TorteLand.Bot.Logic;
 
 internal sealed class Command : ICommand
 {
-    private readonly Maybe<string> _argument;
+    private readonly IReadOnlyCollection<string> _tokens;
     public string Name { get; }
 
-    public Command(string name, Maybe<string> argument)
+    public Command(string name, IReadOnlyCollection<string> tokens)
     {
         Name = name;
-        _argument = argument;
+        _tokens = tokens;
     }
 
-    public int GetIntArgument()
-        => _argument.Match(
-            int.Parse,
-            () => throw new Exception("Argument is none"));
+    public int GetInt(int index)
+        => _tokens.Skip(index + 1).First()._(int.Parse);
 
-    public string GetStringArgument()
-        => _argument.Match(
-            _ => _,
-            () => throw new Exception("Argument is none"));
+    public string GetString(int index)
+        => _tokens.Skip(index + 1).First();
+
+    public string GetTail(int index)
+        => _tokens
+           .Skip(index + 1)
+           ._(_ => string.Join(' ', _));
 }

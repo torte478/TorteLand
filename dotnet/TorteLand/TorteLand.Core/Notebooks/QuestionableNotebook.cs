@@ -49,8 +49,17 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         _transactions.Clear();
     }
 
-    public Task DeleteAll(CancellationToken token)
-        => _origin.DeleteAll(token);
+    public async Task DeleteAll(CancellationToken token)
+    {
+        await _origin.DeleteAll(token);
+        _transactions.Clear();
+    }
+
+    public async Task Rename(int key, string text, CancellationToken token)
+    {
+        await _origin.Rename(key, text, token);
+        _transactions.Clear();
+    }
 
     private async Task<Either<int, Question>> Add(
         string value,

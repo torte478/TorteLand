@@ -21,13 +21,20 @@ internal sealed class NotebooksState : BaseState
         => command.Name switch
         {
             "all" => All(token),
-            "create" => Create(command.GetStringArgument(), token),
-            "delete" => Delete(command.GetIntArgument(), token),
-            "open" => Open(command.GetIntArgument(), token),
+            "create" => Create(command.GetString(), token),
+            "open" => Open(command.GetInt(), token),
+            "rename" => Rename(command.GetInt(), command.GetTail(1), token),
+            "delete" => Delete(command.GetInt(), token),
             _ => throw new Exception($"Unknown command: {command.Name}")
         };
 
     public override Task<string> Process(CancellationToken token) => All(token);
+
+    private async Task<string> Rename(int id, string text, CancellationToken token)
+    {
+        await _client.RenameAsync(id, text, token);
+        return await All(token);
+    }
 
     private Task<string> Open(int index, CancellationToken token)
     {

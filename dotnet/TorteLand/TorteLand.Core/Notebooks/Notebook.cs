@@ -38,6 +38,11 @@ internal sealed class Notebook : INotebook
            ._(Maybe.Some)
            ._(_ => new Notebook(_));
 
+    public void Rename(int key, string text)
+    {
+        _values[key] = text;
+    }
+
     public Note Delete(int key)
     {
         var deleted = _values[key];

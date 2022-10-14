@@ -7,6 +7,7 @@ public interface INotebook : IEnumerable<Unique<Note>>
 {
     Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment);
     Note ToNote(int key);
-    INotebook Clone();
+    void Rename(int key, string text);
     Note Delete(int key);
+    INotebook Clone();
 }

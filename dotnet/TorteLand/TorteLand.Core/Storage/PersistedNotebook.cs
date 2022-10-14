@@ -55,6 +55,21 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return new PersistedNotebook(_storage, notebook);
     }
 
+    public async Task Rename(int key, string text, CancellationToken token)
+    {
+        var origin = await GetOrigin(token);
+        var copy = origin.Clone();
+        var updated = copy.ToNote(key);
+        copy.Rename(key, text);
+
+        var transaction = _storage.StartTransaction();
+        var entity = transaction.ToEntity(updated);
+        entity.Update(text);
+        await transaction.SaveChanges(token);
+
+        _origin = new Right<INotebookFactory, INotebook>(copy);
+    }
+
     public async Task<Note> Delete(int key, CancellationToken token)
     {
         var origin = await GetOrigin(token);
@@ -70,7 +85,7 @@ internal sealed class PersistedNotebook : IAsyncNotebook
             var updated = transaction.ToEntity(note.Value);
             updated.Update(note.Value.Weight);
         }
-        await transaction.Save(token);
+        await transaction.SaveChanges(token);
 
         _origin = new Right<INotebookFactory, INotebook>(copy);
         return deleted;
@@ -89,7 +104,7 @@ internal sealed class PersistedNotebook : IAsyncNotebook
     {
         var transaction = _storage.StartTransaction();
         WriteChanges(transaction, key, copy);
-        await transaction.Save(token);
+        await transaction.SaveChanges(token);
 
         _origin = new Right<INotebookFactory, INotebook>(copy);
     }

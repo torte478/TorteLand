@@ -62,6 +62,11 @@ public sealed class NotebooksController : ControllerBase
     }
 
     [HttpPost]
+    [Route("Rename")]
+    public Task Rename(int index, int id, string text, CancellationToken token)
+        => _notebooks.Rename(index, id, text, token);
+
+    [HttpPost]
     [Route("Delete")]
     public Task Delete(int index, int key, CancellationToken token)
         => _notebooks.Delete(index, key, token);

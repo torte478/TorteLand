@@ -7,11 +7,11 @@ namespace TorteLand.Core.Contracts.Storage;
 
 public interface ITransaction
 {
-    void Create(Note note);
+    IEntity Create(Note note);
     IEntity ToEntity(Note note);
-    void Update(Note note);
-    Task Save(CancellationToken token);
+    void Update(IEntity entity);
+    Task SaveChanges(CancellationToken token);
     IAsyncEnumerable<Note> All(CancellationToken token);
-    void Delete(Note note);
+    void Delete(IEntity entity);
     Task DeleteAll(CancellationToken token);
 }

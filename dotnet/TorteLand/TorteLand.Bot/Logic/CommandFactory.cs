@@ -1,4 +1,4 @@
-﻿using SoftwareCraft.Functional;
+﻿using System;
 
 namespace TorteLand.Bot.Logic;
 
@@ -6,17 +6,10 @@ internal sealed class CommandFactory : ICommandFactory
 {
     public ICommand Create(string input)
     {
-        var trimmed = input.Trim();
-        var space = trimmed.IndexOf(' ');
+        var tokens = input.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         return new Command(
-            name: (space > -1
-                       ? trimmed[..space]
-                       : trimmed)
-                .ToLowerInvariant(),
-
-            argument: space > -1
-                          ? Maybe.Some(trimmed[(space + 1)..])
-                          : Maybe.None<string>());
+            name: tokens[0].ToLowerInvariant(),
+            tokens: tokens);
     }
 }

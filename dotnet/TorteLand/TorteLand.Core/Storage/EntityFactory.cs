@@ -5,6 +5,6 @@ namespace TorteLand.Core.Storage;
 
 internal sealed class EntityFactory : IEntityFactory
 {
-    public IEntity Create(ITransaction transaction, Note entity)
-        => new Entity(transaction, entity);
+    public IEntity Create(ITransaction transaction, int key, Note entity)
+        => new Entity(transaction, key, entity);
 }

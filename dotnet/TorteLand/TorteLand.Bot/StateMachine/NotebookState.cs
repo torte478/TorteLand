@@ -23,8 +23,9 @@ internal sealed class NotebookState : BaseState
         => command.Name switch
         {
             "all" => All(token),
-            "add" => StartAdd(command.GetStringArgument(), token),
-            "delete" => Delete(command.GetIntArgument(), token),
+            "add" => StartAdd(command.GetString(), token),
+            "rename" => Rename(command.GetInt(), command.GetTail(1), token),
+            "delete" => Delete(command.GetInt(), token),
             "close" => Close(token),
             _ => throw new Exception($"Unknown command: {command.Name}")
         };
@@ -51,7 +52,7 @@ internal sealed class NotebookState : BaseState
         if (response.Right is null)
             return await All(token);
 
-        var guid = response.Right.Id!.Value;
+        var guid = response.Right.Id;
         var item = response.Right.Text;
         var next = new NotebookAddState(_key, note, guid, item, Context, Factory);
         return await Context.SetState(next, token);
@@ -60,6 +61,12 @@ internal sealed class NotebookState : BaseState
     private async Task<string> Delete(int index, CancellationToken token)
     {
         await _client.DeleteAsync(_key, index, token);
+        return await All(token);
+    }
+
+    private async Task<string> Rename(int id, string text, CancellationToken token)
+    {
+        await _client.RenameAsync(_key, id, text, token);
         return await All(token);
     }
 }

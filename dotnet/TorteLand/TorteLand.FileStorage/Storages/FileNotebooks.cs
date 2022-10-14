@@ -50,6 +50,9 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     public Task<Either<int, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
         => _cache[index].Notebook.Add(id, isRight, token);
 
+    public Task Rename(int index, int id, string text, CancellationToken token)
+        => _cache[index].Notebook.Rename(id, text, token);
+
     public Task Delete(int index, int key, CancellationToken token)
         => _cache[index].Notebook.Delete(key, token);
 
@@ -57,6 +60,17 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     {
         await _cache[index].Notebook.DeleteAll(token);
         _cache.Remove(index);
+    }
+
+    public Task Rename(int index, string name, CancellationToken token)
+    {
+        var old = _cache[index].Path;
+        var target = Path.Combine(_path, $"{name}.json");
+        File.Copy(old, target);
+        _cache[index] = (target, _cache[index].Notebook);
+        File.Delete(old);
+
+        return Task.CompletedTask;
     }
 
     private static Dictionary<int, (string Path, IQuestionableNotebook Notebook)> BuildCache(
