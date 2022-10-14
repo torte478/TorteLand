@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.Core", "TorteLand.Core\TorteLand.Core.csproj", "{DD56871F-0A1D-4702-9123-20F99736EAFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.App", "TorteLand.App\TorteLand.App.csproj", "{F9ACF31B-935F-4B28-986E-BE992F020DA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.FileStorage", "TorteLand.FileStorage\TorteLand.FileStorage.csproj", "{595FAAB5-77E8-4F8A-ACBB-66CE5C808FFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand", "TorteLand\TorteLand.csproj", "{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.Core.Tests", "TorteLand.Core.Tests\TorteLand.Core.Tests.csproj", "{78D28379-B250-4837-9B73-02F2ABB4F940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.App.Client", "TorteLand.App.Client\TorteLand.App.Client.csproj", "{8A5A4EDF-2B8A-4E7A-A3C5-865A3CCC5BE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.Bot", "TorteLand.Bot\TorteLand.Bot.csproj", "{AE7C0B2B-5D91-4C00-BD54-4408B102A113}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD56871F-0A1D-4702-9123-20F99736EAFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD56871F-0A1D-4702-9123-20F99736EAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD56871F-0A1D-4702-9123-20F99736EAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD56871F-0A1D-4702-9123-20F99736EAFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9ACF31B-935F-4B28-986E-BE992F020DA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9ACF31B-935F-4B28-986E-BE992F020DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9ACF31B-935F-4B28-986E-BE992F020DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9ACF31B-935F-4B28-986E-BE992F020DA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{595FAAB5-77E8-4F8A-ACBB-66CE5C808FFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{595FAAB5-77E8-4F8A-ACBB-66CE5C808FFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{595FAAB5-77E8-4F8A-ACBB-66CE5C808FFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{595FAAB5-77E8-4F8A-ACBB-66CE5C808FFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E56DF16C-411C-4A01-8CFA-08E7D2022A7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78D28379-B250-4837-9B73-02F2ABB4F940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A5A4EDF-2B8A-4E7A-A3C5-865A3CCC5BE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A5A4EDF-2B8A-4E7A-A3C5-865A3CCC5BE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A5A4EDF-2B8A-4E7A-A3C5-865A3CCC5BE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A5A4EDF-2B8A-4E7A-A3C5-865A3CCC5BE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

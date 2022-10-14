@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>dotnet-TorteLand.Bot-01212033-E9DE-4E8D-9A49-6281FB382482</UserSecretsId>
+        <IsPackable>false</IsPackable>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Http" />
+        <PackageReference Include="SoftwareCraft.Maybe" />
+        <PackageReference Include="Telegram.Bot" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TorteLand.App.Client\TorteLand.App.Client.csproj" />
+      <ProjectReference Include="..\TorteLand\TorteLand.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="appsettings.json" />
+      <None Include="appsettings.json" />
+    </ItemGroup>
+</Project>
