@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 
-namespace TorteLand.Bot;
+namespace TorteLand.Bot.Bot;
 
 internal interface IBot
 {
