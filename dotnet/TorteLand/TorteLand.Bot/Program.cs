@@ -1,12 +1,24 @@
-﻿// See https://aka.ms/new-console-template for more information
-
 using System;
-using System.Net.Http;
-using TorteLand.App.Client;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Telegram.Bot;
+using TorteLand.Bot;
 
-using var httpClient = new HttpClient();
-var client = new NotebooksAcrudClient("https://localhost:7083", httpClient);
-var texts = await client.AllAsync();
-foreach (var t in texts)
-    Console.WriteLine($"{t.Id} {t.Value}");
+var host = Host.CreateDefaultBuilder(args)
+               .ConfigureServices(
+                   (context, services) =>
+                   {
+                       services.AddSingleton<ITelegramBotClient>(
+                           _ =>
+                           {
+                               var token = context.Configuration.GetSection("Bot")["Token"];
+                               Console.WriteLine(token);
+                               return new TelegramBotClient(
+                                   token: token);
+                           });
+                       services.AddSingleton<IBot, Bot>();
+                       services.AddHostedService<Worker>();
+                   })
+               .Build();
 
+await host.RunAsync();
