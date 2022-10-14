@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  app_service:
+    container_name: app
+    build:
+      dockerfile: ./TorteLand.App/Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - myvol:/app/data
+
+  bot_service:
+    container_name: bot
+    build:
+      dockerfile: ./TorteLand.Bot/Dockerfile
+    depends_on:
+      - app_service
+
+volumes:
+  myvol:

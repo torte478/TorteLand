@@ -16,4 +16,9 @@
       <ProjectReference Include="..\TorteLand.FileStorage\TorteLand.FileStorage.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Remove="appsettings.json" />
+      <None Include="appsettings.json" />
+    </ItemGroup>
+
 </Project>

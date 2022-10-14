@@ -189,3 +189,4 @@ FakesAssemblies/
 /dotnet/TorteLand/TorteLand.App.Client/NSwagGenerated.cs
 /dotnet/TorteLand/TorteLand.Bot/appsettings.Development.json
 /dotnet/TorteLand/TorteLand.Bot/docker_config
+/dotnet/TorteLand/TorteLand.App/docker_config
