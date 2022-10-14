@@ -1,6 +1,5 @@
 <Project>
 	<ItemGroup>
-		<PackageVersion Include="Appccelerate.StateMachine" Version="5.1.0" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
 		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.0"/>
 		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.1"/>

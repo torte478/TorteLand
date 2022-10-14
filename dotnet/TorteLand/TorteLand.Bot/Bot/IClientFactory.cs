@@ -6,5 +6,6 @@ namespace TorteLand.Bot.Bot;
 internal interface IClientFactory
 {
     INotebooksAcrudClient CreateNotebooksAcrudClient();
+    INotebooksClient CreateNotebooksClient();
     ITelegramBotClient CreateTelegramBotClient();
 }

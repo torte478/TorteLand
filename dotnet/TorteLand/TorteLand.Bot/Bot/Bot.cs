@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
-using TorteLand.App.Client;
+using TorteLand.Bot.StateMachine;
 
 namespace TorteLand.Bot.Bot;
 
 internal sealed class Bot : IBot
 {
-    private const string Undefined = "~";
+    private readonly ICommandFactory _factory;
+    private readonly IStateMachine _machine;
 
-    private readonly INotebooksAcrudClient _client;
-
-    public Bot(IClientFactory factory)
+    public Bot(IStateMachineFactory stateMachineFactory, ICommandFactory factory)
     {
-        _client = factory.CreateNotebooksAcrudClient();
+        _factory = factory;
+        _machine = stateMachineFactory.Create();
     }
 
     public async Task<Maybe<string>> Process(string input, CancellationToken token)
@@ -24,51 +23,15 @@ internal sealed class Bot : IBot
         if (converted is not { Length: >= 1 and <= 2 })
             throw new Exception($"Wrong command format: '{input}'");
 
-        var command = converted[0].ToLowerInvariant();
-        var arg = converted.Length > 1 ? converted[1] : Undefined;
+        var command = _factory.Create(
+            name: converted[0].ToLowerInvariant(),
+            argument: converted.Length > 1
+                          ? Maybe.Some(converted[1])
+                          : Maybe.None<string>());
 
-        var response = await ProcessInternal(command, arg, token);
+        var response = await _machine.Process(command, token);
 
         return (response is { Length: > 0 } ? response : "{}")
             ._(Maybe.Some);
-    }
-
-    private Task<string> ProcessInternal(string input, string argument, CancellationToken token)
-        => input switch
-        {
-            "status" => Task.FromResult("running"),
-            "all" => All(token),
-            "create" => Create(argument, token),
-            "delete" => Delete(argument, token),
-            _ => Task.FromResult("unknown command")
-        };
-
-    private async Task<string> Delete(string argument, CancellationToken token)
-    {
-        if (argument == Undefined)
-            throw new Exception("Missing argument");
-
-        var index = int.Parse(argument);
-        await _client.DeleteAsync(index, token);
-
-        return "deleted";
-    }
-
-    private async Task<string> Create(string argument, CancellationToken token)
-    {
-        if (argument == Undefined)
-            throw new Exception("Missing argument");
-
-        var id = await _client.CreateAsync(argument, token);
-        return $"created: {id}";
-    }
-
-    private async Task<string> All(CancellationToken token)
-    {
-        var all = await _client.AllAsync(token);
-
-        return all
-               .Select(_ => $"{_.Id}. {_.Value}")
-               ._(_ => string.Join(Environment.NewLine, _));
     }
 }

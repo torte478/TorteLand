@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TorteLand.Bot;
 using TorteLand.Bot.Bot;
+using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -17,6 +18,8 @@ var host = Host.CreateDefaultBuilder(args)
                                context.Configuration.GetSection("Bot")["Token"],
                                _.GetRequiredService<IHttpClientFactory>()));
 
+                       services.AddSingleton<ICommandFactory, CommandFactory>();
+                       services.AddSingleton<IStateMachineFactory, StateMachineFactory>();
                        services.AddSingleton<IBot, Bot>();
                        services.AddSingleton<IClock, Clock>();
                        services.AddHostedService<Worker>();
