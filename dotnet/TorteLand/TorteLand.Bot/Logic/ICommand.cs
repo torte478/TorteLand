@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace TorteLand.Bot.Bot;
+﻿namespace TorteLand.Bot.Logic;
 
 internal interface ICommand
 {

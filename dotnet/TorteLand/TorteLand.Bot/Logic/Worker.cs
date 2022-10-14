@@ -8,26 +8,32 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using TorteLand.Bot.Bot;
+using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
 
-namespace TorteLand.Bot;
+namespace TorteLand.Bot.Logic;
 
 internal sealed class Worker : BackgroundService
 {
     private readonly DateTime _start;
 
     private readonly ITelegramBotClient _client;
-    private readonly IBot _bot;
+    private readonly ICommandFactory _commands;
+    private readonly IStateMachine _logic;
     private readonly ILogger<Worker> _logger;
 
-    public Worker(IClientFactory factory, IBot bot, IClock clock, ILogger<Worker> logger)
+    public Worker(
+        IClientFactory clientFactory,
+        ICommandFactory commands,
+        IStateMachineFactory stateMachineFactory,
+        IClock clock,
+        ILogger<Worker> logger)
     {
-        _client = factory.CreateTelegramBotClient();
-        _bot = bot;
-        _logger = logger;
-
         _start = clock.Now();
+        _client = clientFactory.CreateTelegramBotClient();
+        _commands = commands;
+        _logic = stateMachineFactory.Create();
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -52,16 +58,12 @@ internal sealed class Worker : BackgroundService
         if (message.Date < _start)
             return;
 
-        Console.WriteLine(update.Message.Date);
+        var result = await ProcessCommand(text, token);
 
-        var response = await _bot.Process(text, token);
-
-        await response.MatchAsync(
-            _ => client.SendTextMessageAsync(
-                chatId: message.Chat.Id,
-                text: _,
-                cancellationToken: token),
-            () => Task.CompletedTask);
+        await client.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: result,
+            cancellationToken: token);
     }
 
     private Task OnError(ITelegramBotClient client, Exception exception, CancellationToken token)
@@ -78,5 +80,20 @@ internal sealed class Worker : BackgroundService
 
         _logger.Log(LogLevel.Error, message);
         return Task.CompletedTask;
+    }
+
+    private async Task<string> ProcessCommand(string text, CancellationToken token)
+    {
+        try
+        {
+            var command = _commands.Create(text);
+            var response = await _logic.Process(command, token);
+            return response is { Length: > 0 } ? response : "{}";
+        }
+        catch (Exception ex)
+        {
+            _logger.Log(LogLevel.Error, ex.Message);
+            return ex.Message;
+        }
     }
 }

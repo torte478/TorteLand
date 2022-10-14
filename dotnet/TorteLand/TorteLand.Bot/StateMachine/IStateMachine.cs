@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using TorteLand.Bot.Bot;
+using TorteLand.Bot.Logic;
 
 namespace TorteLand.Bot.StateMachine;
 

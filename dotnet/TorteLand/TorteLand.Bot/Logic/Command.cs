@@ -1,7 +1,7 @@
 ﻿using System;
 using SoftwareCraft.Functional;
 
-namespace TorteLand.Bot.Bot;
+namespace TorteLand.Bot.Logic;
 
 internal sealed class Command : ICommand
 {

@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot;
 using TorteLand.App.Client;
 
-namespace TorteLand.Bot.Bot;
+namespace TorteLand.Bot.Logic;
 
 internal interface IClientFactory
 {

@@ -3,25 +3,21 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.App.Client;
-using TorteLand.Bot.Bot;
+using TorteLand.Bot.Logic;
 
 namespace TorteLand.Bot.StateMachine;
 
-internal sealed class NotebooksState : IState
+internal sealed class NotebooksState : BaseState
 {
-    private readonly IStateMachine _context;
-    private readonly IClientFactory _factory;
     private readonly INotebooksAcrudClient _client;
 
     public NotebooksState(IStateMachine context, IClientFactory factory)
+        : base(context, factory)
     {
-        _context = context;
-        _factory = factory;
-
         _client = factory.CreateNotebooksAcrudClient();
     }
 
-    public Task<string> Process(ICommand command, CancellationToken token)
+    public override Task<string> Process(ICommand command, CancellationToken token)
         => command.Name switch
         {
             "all" => All(token),
@@ -31,19 +27,18 @@ internal sealed class NotebooksState : IState
             _ => throw new Exception($"Unknown command: {command.Name}")
         };
 
-    public Task<string> Process(CancellationToken token) => All(token);
+    public override Task<string> Process(CancellationToken token) => All(token);
 
     private Task<string> Open(int index, CancellationToken token)
     {
-        var next = new NotebookState(index, _context, _factory);
-        return _context.SetState(next, token);
+        var next = new NotebookState(index, Context, Factory);
+        return Context.SetState(next, token);
     }
 
     private async Task<string> Delete(int index, CancellationToken token)
     {
         await _client.DeleteAsync(index, token);
-
-        return "deleted";
+        return await All(token);
     }
 
     private async Task<string> Create(string name, CancellationToken token)
