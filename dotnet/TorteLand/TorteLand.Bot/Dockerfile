@@ -15,5 +15,5 @@ RUN dotnet publish "TorteLand.Bot.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ADD TorteLand.Bot/docker_config/appsettings.json /app
+ADD TorteLand.Secret/TorteLand.Bot/appsettings.json /app
 ENTRYPOINT ["dotnet", "TorteLand.Bot.dll"]

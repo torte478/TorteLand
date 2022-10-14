@@ -16,5 +16,5 @@ FROM base AS final
 WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
-ADD TorteLand.App/docker_config/appsettings.json /app
+ADD TorteLand.Secret/TorteLand.App/appsettings.json /app
 ENTRYPOINT ["dotnet", "TorteLand.App.dll"]
