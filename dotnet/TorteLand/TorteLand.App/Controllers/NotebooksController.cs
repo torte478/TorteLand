@@ -5,7 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TorteLand.Core.Contracts.Notebooks;
-using TorteLand.Core.Contracts.Storage;
+
+using AddResult = TorteLand.App.Models.Either<
+    System.Collections.Generic.IReadOnlyCollection<int>,
+    TorteLand.Core.Contracts.Storage.Question>;
 
 namespace TorteLand.App.Controllers;
 
@@ -31,24 +34,24 @@ public sealed class NotebooksController : ControllerBase
 
     [HttpPost]
     [Route("StartAdd")]
-    public async Task<Models.Either<int, Question>> Add(
+    public async Task<AddResult> Add(
         int index,
-        string value,
+        IReadOnlyCollection<string> values,
         CancellationToken token)
     {
         var result = await _notebooks.Add(
                          index,
-                         value,
+                         values,
                          token);
 
         return result.Match(
-            x => new Models.Either<int, Question>(x, default),
-            x => new Models.Either<int, Question>(default, x));
+            x => new AddResult(x, default),
+            x => new AddResult(default, x));
     }
 
     [HttpPost]
     [Route("ContinueAdd")]
-    public async Task<Models.Either<int, Question>> Add(
+    public async Task<AddResult> Add(
         int index,
         Guid id,
         bool isRight,
@@ -57,8 +60,8 @@ public sealed class NotebooksController : ControllerBase
         var result = await _notebooks.Add(index, id, isRight, token);
 
         return result.Match(
-            x => new Models.Either<int, Question>(x, default),
-            x => new Models.Either<int, Question>(default, x));
+            x => new AddResult(x, default),
+            x => new AddResult(default, x));
     }
 
     [HttpPost]

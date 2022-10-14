@@ -23,7 +23,7 @@ internal sealed class NotebookState : BaseState
         => command.Name switch
         {
             "all" => All(token),
-            "add" => StartAdd(command.GetString(), token),
+            "add" => StartAdd(command.GetTail(), token),
             "rename" => Rename(command.GetInt(), command.GetTail(1), token),
             "delete" => Delete(command.GetInt(), token),
             "close" => Close(token),
@@ -46,15 +46,17 @@ internal sealed class NotebookState : BaseState
                ._(_ => string.Join(Environment.NewLine, _)); // TODO: to string builder
     }
 
-    private async Task<string> StartAdd(string note, CancellationToken token)
+    private async Task<string> StartAdd(string text, CancellationToken token)
     {
-        var response = await _client.StartAddAsync(_key, note, token);
+        var notes = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+        var response = await _client.StartAddAsync(_key, notes, token);
         if (response.Right is null)
             return await All(token);
 
         var guid = response.Right.Id;
         var item = response.Right.Text;
-        var next = new NotebookAddState(_key, note, guid, item, Context, Factory);
+        var next = new NotebookAddState(_key, notes, guid, item, Context, Factory);
         return await Context.SetState(next, token);
     }
 

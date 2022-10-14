@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TorteLand.Bot.Logic;
@@ -23,5 +24,5 @@ internal sealed class Command : ICommand
     public string GetTail(int index)
         => _tokens
            .Skip(index + 1)
-           ._(_ => string.Join(' ', _));
+           ._(_ => string.Join(Environment.NewLine, _));
 }

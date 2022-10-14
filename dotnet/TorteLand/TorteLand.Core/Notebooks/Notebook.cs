@@ -25,11 +25,11 @@ internal sealed class Notebook : INotebook
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment)
+    public Either<IReadOnlyCollection<int>, Segment> Add(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment)
         => _values switch
         {
-            { Count: 0 } => AddToEmpty(value),
-            _ => AddToExisting(value, segment)
+            { Count: 0 } => AddToEmpty(values),
+            _ => AddToExisting(values, segment)
         };
 
     public INotebook Clone()
@@ -55,7 +55,9 @@ internal sealed class Notebook : INotebook
 
     public Note ToNote(int key) => new(_values[key], key);
 
-    private Either<int,Segment> AddToExisting(string value, Maybe<ResolvedSegment> segment)
+    private Either<IReadOnlyCollection<int>, Segment> AddToExisting(
+        IReadOnlyCollection<string> values,
+        Maybe<ResolvedSegment> segment)
     {
         var (begin, end) = segment.Match(
             _ => ToHalf(_.Segment, _.IsRight),
@@ -64,29 +66,39 @@ internal sealed class Notebook : INotebook
         if (begin < end)
             return GetNextSegment(begin, end);
 
-        _values.Add(value);
-        for (var i = _values.Count - 1; i > begin; --i)
-            _values[i] = _values[i - 1];
-        _values[begin] = value;
+        var updated = _values
+                      .Take(begin)
+                      .Concat(values)
+                      .Concat(_values.Skip(begin))
+                      .ToArray();
 
-        return new Left<int, Segment>(begin);
+        _values.Clear();
+        _values.AddRange(updated);
+
+        return Enumerable
+               .Range(begin, values.Count)
+               .ToArray()
+               ._(Either.Left<IReadOnlyCollection<int>, Segment>);
     }
 
-    private static Either<int, Segment> GetNextSegment(int begin, int end)
+    private static Either<IReadOnlyCollection<int>, Segment> GetNextSegment(int begin, int end)
         => new Segment(
                 Begin: begin,
                 Border: (begin + end) / 2,
                 End: end)
-            ._(Either.Right<int, Segment>);
+            ._(Either.Right<IReadOnlyCollection<int>, Segment>);
 
     private static (int, int) ToHalf(Segment segment, bool isRight)
         => isRight
                ? (segment.Border + 1, segment.End)
                : (segment.Begin, segment.Border);
 
-    private Either<int, Segment> AddToEmpty(string value)
+    private Either<IReadOnlyCollection<int>, Segment> AddToEmpty(IReadOnlyCollection<string> values)
     {
-        _values.Add(value);
-        return new Left<int, Segment>(0);
+        _values.AddRange(values);
+        return Enumerable
+               .Range(0, values.Count)
+               .ToArray()
+               ._(Either.Left<IReadOnlyCollection<int>, Segment>);
     }
 }

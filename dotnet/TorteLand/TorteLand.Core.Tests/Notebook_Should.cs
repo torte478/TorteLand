@@ -11,41 +11,48 @@ namespace TorteLand.Core.Tests;
 internal sealed class Notebook_Should
 {
     [Test]
-    public void AddElemToEnd_WhenNotebookIsNotEmpty()
+    [TestCaseSource(nameof(_testCaseSource))]
+    public void CorrectInsertElements(
+        string name,
+        IReadOnlyCollection<string> init,
+        IReadOnlyCollection<string> toAdd,
+        ResolvedSegment segment,
+        IReadOnlyCollection<string> expected)
     {
-        var notebook = new Notebook(Maybe.None<List<string>>())
+        var notebook = new Notebook(Maybe.Some(init.ToList()))
                        {
-                           { "a", Maybe.None<ResolvedSegment>() },
-                           { "b", Maybe.None<ResolvedSegment>() }
+                           { toAdd, Maybe.Some(segment) }
                        };
 
-        var segment = new Segment(0, 0, 1);
-        var halfSegment = new ResolvedSegment(segment, true);
-
-        var actual = notebook.Add("b", Maybe.Some(halfSegment));
-
-        var index = actual.Match(_ => _, _ => -1);
-        Assert.That(index, Is.EqualTo(1));
+        var actual = notebook.Select(_ => _.Value.Text);
+        Assert.That(actual, Is.EquivalentTo(expected), () => name);
     }
 
-    [Test]
-    public void AddElemToBegin_WhenNotebookIsNotEmpty()
-    {
-        var notebook = new Notebook(Maybe.None<List<string>>())
-                       {
-                           { "a", Maybe.None<ResolvedSegment>() },
-                           { "b", Maybe.None<ResolvedSegment>() },
-                           { "b", Maybe.Some(new ResolvedSegment(new Segment(0, 0, 1), true)) },
-                           { "c", Maybe.None<ResolvedSegment>() },
-                           { "c", Maybe.Some(new ResolvedSegment(new Segment(0, 1, 3), false)) },
-                       };
-
-        var segment = new Segment(0, 0, 1);
-        var halfSegment = new ResolvedSegment(segment, false);
-
-        var actual = notebook.Add("c", Maybe.Some(halfSegment));
-
-        var index = actual.Match(_ => _, _ => -1);
-        Assert.That(index, Is.EqualTo(0));
-    }
+    private static object[] _testCaseSource
+        = {
+              new object[]
+              {
+                  "insert to end",
+                  new[] { "a" },
+                  new[] { "Z" },
+                  new ResolvedSegment(new Segment(0, 0, 1), true),
+                  new[] { "a", "Z" }
+              },
+              new object[]
+              {
+                  "insert to begin",
+                  new[] { "a", "b" },
+                  new[] { "Z" },
+                  new ResolvedSegment(new Segment(0, 0, 1), false),
+                  new[] { "Z", "a", "b" }
+              },
+                new object[]
+                {
+                    "insert range to middle",
+                    new[] { "a", "b", "c", "d"},
+                    new[] { "Y", "Z" },
+                    new ResolvedSegment(new Segment(3, 3, 4), false),
+                    new[] { "a", "b", "c", "Y", "Z", "d"}
+                }
+          };
 }

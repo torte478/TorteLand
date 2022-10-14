@@ -44,10 +44,17 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
         return Task.FromResult(key);
     }
 
-    public Task<Either<int, Question>> Add(int index, string value, CancellationToken token)
-        => _cache[index].Notebook.Add(value, token);
+    public Task<Either<IReadOnlyCollection<int>, Question>> Add(
+        int index,
+        IReadOnlyCollection<string> values,
+        CancellationToken token)
+        => _cache[index].Notebook.Add(values, token);
 
-    public Task<Either<int, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
+    public Task<Either<IReadOnlyCollection<int>, Question>> Add(
+        int index,
+        Guid id,
+        bool isRight,
+        CancellationToken token)
         => _cache[index].Notebook.Add(id, isRight, token);
 
     public Task Rename(int index, int id, string text, CancellationToken token)

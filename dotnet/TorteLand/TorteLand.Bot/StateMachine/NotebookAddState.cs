@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.App.Client;
@@ -15,14 +17,17 @@ internal sealed class NotebookAddState : BaseState
 
     private string _note;
 
-    public NotebookAddState(int key, string origin, Guid transaction, string note, IStateMachine context, IClientFactory factory)
+    public NotebookAddState(int key, IReadOnlyCollection<string> notes, Guid transaction, string note, IStateMachine context, IClientFactory factory)
         : base(context, factory)
     {
         _key = key;
-        _origin = origin;
         _transaction = transaction;
         _note = note;
         _client = factory.CreateNotebooksClient();
+
+        _origin = notes.Count > 1
+                      ? $"[..{notes.Last()}]"
+                      : notes.Last();
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)
@@ -55,5 +60,5 @@ internal sealed class NotebookAddState : BaseState
     }
 
     private string GetQuestion()
-        => string.Format("\"{0}\"{1}is greater than{1}\"{2}\"", _origin, Environment.NewLine, _note);
+        => string.Format("{0}{1}is greater than{1}{1}{2}", _origin, Environment.NewLine, _note);
 }
