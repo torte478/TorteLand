@@ -76,6 +76,9 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return deleted;
     }
 
+    public Task DeleteAll(CancellationToken token)
+        => _storage.StartTransaction().DeleteAll(token);
+
     public async Task<Note> ToNote(int key, CancellationToken token)
     {
         var origin = await GetOrigin(token);

@@ -13,4 +13,5 @@ public interface ITransaction
     Task Save(CancellationToken token);
     IAsyncEnumerable<Note> All(CancellationToken token);
     void Delete(Note note);
+    Task DeleteAll(CancellationToken token);
 }

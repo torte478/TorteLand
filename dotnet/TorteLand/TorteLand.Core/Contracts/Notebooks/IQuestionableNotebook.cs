@@ -13,4 +13,5 @@ public interface IQuestionableNotebook
     Task<Either<int, Question>> Add(string value, CancellationToken token);
     Task<Either<int, Question>> Add(Guid id, bool isRight, CancellationToken token);
     Task Delete(int key, CancellationToken token);
+    Task DeleteAll(CancellationToken token);
 }

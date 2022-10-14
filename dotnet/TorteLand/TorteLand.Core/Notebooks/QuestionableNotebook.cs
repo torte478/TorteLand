@@ -49,6 +49,9 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         _transactions.Clear();
     }
 
+    public Task DeleteAll(CancellationToken token)
+        => _origin.DeleteAll(token);
+
     private async Task<Either<int, Question>> Add(
         string value,
         Maybe<ResolvedSegment> segment,

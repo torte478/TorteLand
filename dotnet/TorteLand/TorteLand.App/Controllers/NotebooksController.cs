@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Storage;
 
@@ -12,33 +11,23 @@ namespace TorteLand.App.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public sealed class NotebookController : ControllerBase
+public sealed class NotebooksController : ControllerBase
 {
     private readonly INotebooks _notebooks;
 
-    public NotebookController(INotebooks notebooks)
+    public NotebooksController(INotebooks notebooks)
     {
         _notebooks = notebooks;
     }
 
     [HttpGet]
-    [Route("read_notebook")]
-    public IAsyncEnumerable<KeyValuePair<int, string>> ReadNotebook(
+    [Route("all")]
+    public IAsyncEnumerable<KeyValuePair<int, string>> All(
         int index,
         CancellationToken token)
         => _notebooks
            .Read(index, token)
            .Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text));
-
-    [HttpGet]
-    [Route("all_notebooks")]
-    public IAsyncEnumerable<Unique<string>> AllNotebooks(CancellationToken token)
-        => _notebooks.All(token);
-
-    [HttpPost]
-    [Route("create_notebook")]
-    public Task<int> Create(string name, CancellationToken token)
-        => _notebooks.Create(name, token);
 
     [HttpPost]
     [Route("start_add")]

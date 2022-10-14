@@ -13,10 +13,13 @@ public static class IocExtensions
         services.AddSingleton<IStorageFactory, StorageFactory>();
         services.AddSingleton<INotebookFactory, NotebookFactory>();
 
-        services.AddSingleton<INotebooks>(
+        services.AddSingleton(
             provider => new FileNotebooks(
                 path: configuration.GetSection("FileStorage")["Path"],
                 factory: provider.GetRequiredService<INotebookFactory>()));
+
+        services.AddSingleton<INotebooks>(_ => _.GetRequiredService<FileNotebooks>());
+        services.AddSingleton<INotebooksAcrud>(_ => _.GetRequiredService<FileNotebooks>());
 
         return services;
     }

@@ -6,7 +6,7 @@ using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.FileStorage.Storages;
 
-internal sealed class FileNotebooks : INotebooks
+internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
 {
     private readonly Dictionary<int, (string Path, IQuestionableNotebook Notebook)> _cache;
 
@@ -36,7 +36,9 @@ internal sealed class FileNotebooks : INotebooks
             throw new Exception($"File exists: {path}");
 
         var notebook = _factory.Create(path);
-        var key = _cache.Keys.Max() + 1;
+        var key = _cache.Count > 0
+                      ? _cache.Keys.Max() + 1
+                      : 0;
         _cache.Add(key, (path, notebook));
 
         return Task.FromResult(key);
@@ -50,6 +52,12 @@ internal sealed class FileNotebooks : INotebooks
 
     public Task Delete(int index, int key, CancellationToken token)
         => _cache[index].Notebook.Delete(key, token);
+
+    public async Task Delete(int index, CancellationToken token)
+    {
+        await _cache[index].Notebook.DeleteAll(token);
+        _cache.Remove(index);
+    }
 
     private static Dictionary<int, (string Path, IQuestionableNotebook Notebook)> BuildCache(
         string path,

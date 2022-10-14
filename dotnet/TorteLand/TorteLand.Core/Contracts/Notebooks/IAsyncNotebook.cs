@@ -12,4 +12,5 @@ public interface IAsyncNotebook
     Task<Note> ToNote(int key, CancellationToken token);
     Task<IAsyncNotebook> Clone(CancellationToken token);
     Task<Note> Delete(int key, CancellationToken token);
+    Task DeleteAll(CancellationToken token);
 }

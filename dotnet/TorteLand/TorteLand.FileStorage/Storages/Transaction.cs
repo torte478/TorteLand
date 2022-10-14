@@ -65,6 +65,16 @@ internal sealed class Transaction : ITransaction
         _notes.Value.AddRange(deleted);
     }
 
+    public Task DeleteAll(CancellationToken token)
+    {
+        File.Delete(_path);
+
+        if (_notes.IsValueCreated)
+            _notes.Value.Clear();
+
+        return Task.CompletedTask;
+    }
+
     private int GetIndex(Note note)
         => _notes.Value
                  .Select((n, index) => (n, index))
