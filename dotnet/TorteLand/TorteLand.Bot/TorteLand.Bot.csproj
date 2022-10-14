@@ -19,4 +19,9 @@
       <ProjectReference Include="..\TorteLand.App.Client\TorteLand.App.Client.csproj" />
       <ProjectReference Include="..\TorteLand\TorteLand.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="appsettings.json" />
+      <None Include="appsettings.json" />
+    </ItemGroup>
 </Project>
