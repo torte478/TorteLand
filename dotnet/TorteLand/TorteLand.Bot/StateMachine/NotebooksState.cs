@@ -11,10 +11,10 @@ internal sealed class NotebooksState : BaseState
 {
     private readonly INotebooksAcrudClient _client;
 
-    public NotebooksState(IStateMachine context, IClientFactory factory)
-        : base(context, factory)
+    public NotebooksState(INotebooksAcrudClient client, IStateMachine context)
+        : base(context)
     {
-        _client = factory.CreateNotebooksAcrudClient();
+        _client = client;
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)
@@ -37,10 +37,7 @@ internal sealed class NotebooksState : BaseState
     }
 
     private Task<string> Open(int index, CancellationToken token)
-    {
-        var next = new NotebookState(index, Context, Factory);
-        return Context.SetState(next, token);
-    }
+        => Context.ToNotebookState(index, token);
 
     private async Task<string> Delete(int index, CancellationToken token)
     {

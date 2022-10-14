@@ -9,6 +9,9 @@ var host = Host.CreateDefaultBuilder(args)
                .ConfigureServices(
                    (context, services) =>
                    {
+                       services.AddSingleton<IClock, Clock>();
+                       services.AddSingleton<IRandom, Random>();
+
                        services.AddHttpClient();
 
                        services.AddSingleton<IClientFactory>(
@@ -19,7 +22,6 @@ var host = Host.CreateDefaultBuilder(args)
 
                        services.AddSingleton<ICommandFactory, CommandFactory>();
                        services.AddSingleton<IStateMachineFactory, StateMachineFactory>();
-                       services.AddSingleton<IClock, Clock>();
                        services.AddHostedService<Worker>();
                    })
                .Build();

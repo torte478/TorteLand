@@ -12,18 +12,18 @@ internal sealed class NotebookState : BaseState
     private readonly int _key;
     private readonly INotebooksClient _client;
 
-    public NotebookState(int key, IStateMachine context, IClientFactory factory)
-        : base(context, factory)
+    public NotebookState(int key, INotebooksClient client, IStateMachine context)
+        : base(context)
     {
         _key = key;
-        _client = factory.CreateNotebooksClient();
+        _client = client;
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)
         => command.Name switch
         {
             "all" => All(token),
-            "add" => StartAdd(command.GetTail(), token),
+            "add" or "доб" => StartAdd(command.GetTail(), token),
             "rename" => Rename(command.GetInt(), command.GetTail(1), token),
             "delete" => Delete(command.GetInt(), token),
             "close" => Close(token),
@@ -33,10 +33,7 @@ internal sealed class NotebookState : BaseState
     public override Task<string> Process(CancellationToken token) => All(token);
 
     private Task<string> Close(CancellationToken token)
-    {
-        var next = new NotebooksState(Context, Factory);
-        return Context.SetState(next, token);
-    }
+        => Context.ToNotebooksState(token);
 
     private async Task<string> All(CancellationToken token)
     {
@@ -56,8 +53,7 @@ internal sealed class NotebookState : BaseState
 
         var guid = response.Right.Id;
         var item = response.Right.Text;
-        var next = new NotebookAddState(_key, notes, guid, item, Context, Factory);
-        return await Context.SetState(next, token);
+        return await Context.ToNotebookAddState(_key, notes, guid, item, token);
     }
 
     private async Task<string> Delete(int index, CancellationToken token)
