@@ -18,11 +18,7 @@ internal sealed class Notebook : INotebook
             () => new List<string>());
     }
 
-    public IEnumerator<Unique<Note>> GetEnumerator()
-        => _values
-           .Select((x, i) => new Unique<Note>(i, new Note(x, i)))
-           .GetEnumerator();
-
+    public IEnumerator<Unique<Note>> GetEnumerator() => Enumerate().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public Either<IReadOnlyCollection<int>, Segment> Add(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment)
@@ -100,5 +96,11 @@ internal sealed class Notebook : INotebook
                .Range(0, values.Count)
                .ToArray()
                ._(Either.Left<IReadOnlyCollection<int>, Segment>);
+    }
+
+    private IEnumerable<Unique<Note>> Enumerate()
+    {
+        for (var i = _values.Count - 1; i >= 0; --i)
+            yield return new Unique<Note>(i, new Note(_values[i], i));
     }
 }

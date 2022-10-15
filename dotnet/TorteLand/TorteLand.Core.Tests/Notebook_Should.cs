@@ -11,6 +11,16 @@ namespace TorteLand.Core.Tests;
 internal sealed class Notebook_Should
 {
     [Test]
+    public void GetDescentOrder_OnEnumerate()
+    {
+        var notebook = new Notebook(Maybe.Some(new List<string> { "1", "2" }));
+
+        var actual = notebook.ToArray();
+
+        Assert.That(actual[0].Value.Text, Is.EqualTo("2"));
+    }
+
+    [Test]
     [TestCaseSource(nameof(_testCaseSource))]
     public void CorrectInsertElements(
         string name,
@@ -25,7 +35,7 @@ internal sealed class Notebook_Should
                        };
 
         var actual = notebook.Select(_ => _.Value.Text);
-        Assert.That(actual, Is.EquivalentTo(expected), () => name);
+        Assert.That(actual.SequenceEqual(expected), Is.True);
     }
 
     private static object[] _testCaseSource
@@ -36,7 +46,7 @@ internal sealed class Notebook_Should
                   new[] { "a" },
                   new[] { "Z" },
                   new ResolvedSegment(new Segment(0, 0, 1), true),
-                  new[] { "a", "Z" }
+                  new[] { "Z", "a" }
               },
               new object[]
               {
@@ -44,7 +54,7 @@ internal sealed class Notebook_Should
                   new[] { "a", "b" },
                   new[] { "Z" },
                   new ResolvedSegment(new Segment(0, 0, 1), false),
-                  new[] { "Z", "a", "b" }
+                  new[] { "b", "a", "Z" }
               },
                 new object[]
                 {
@@ -52,7 +62,7 @@ internal sealed class Notebook_Should
                     new[] { "a", "b", "c", "d"},
                     new[] { "Y", "Z" },
                     new ResolvedSegment(new Segment(3, 3, 4), false),
-                    new[] { "a", "b", "c", "Y", "Z", "d"}
+                    new[] { "d", "Z", "Y", "c", "b", "a"}
                 }
           };
 }

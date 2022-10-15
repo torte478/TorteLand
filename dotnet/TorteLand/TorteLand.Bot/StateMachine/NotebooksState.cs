@@ -21,9 +21,9 @@ internal sealed class NotebooksState : BaseState
         => command.Name switch
         {
             "all" => All(token),
-            "create" => Create(command.GetString(), token),
+            "create" => Create(command.GetLine(), token),
             "open" => Open(command.GetInt(), token),
-            "rename" => Rename(command.GetInt(), command.GetTail(1), token),
+            "rename" => Rename(command.GetInt(), command.GetLine(1), token),
             "delete" => Delete(command.GetInt(), token),
             _ => throw new Exception($"Unknown command: {command.Name}")
         };

@@ -1,28 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace TorteLand.Bot.Logic;
 
 internal sealed class Command : ICommand
 {
-    private readonly IReadOnlyCollection<string> _tokens;
+    private readonly IReadOnlyCollection<string> _lines;
     public string Name { get; }
 
-    public Command(string name, IReadOnlyCollection<string> tokens)
+    public Command(string name, IReadOnlyCollection<string> lines)
     {
         Name = name;
-        _tokens = tokens;
+        _lines = lines;
     }
 
     public int GetInt(int index)
-        => _tokens.Skip(index + 1).First()._(int.Parse);
+        => GetLine(0).Split(' ')[index]._(int.Parse);
 
-    public string GetString(int index)
-        => _tokens.Skip(index + 1).First();
+    public string GetLine(int index)
+        => _lines.Skip(index).First();
 
-    public string GetTail(int index)
-        => _tokens
-           .Skip(index + 1)
-           ._(_ => string.Join(Environment.NewLine, _));
+    public IReadOnlyCollection<string> GetLines(int index)
+        => _lines
+           .Skip(index)
+           .ToArray();
 }

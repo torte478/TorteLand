@@ -92,7 +92,7 @@ internal sealed class Worker : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.Log(LogLevel.Error, ex.Message);
+            _logger.Log(LogLevel.Error, ex.ToString());
             return ex.Message;
         }
     }

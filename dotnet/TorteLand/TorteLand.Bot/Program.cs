@@ -1,6 +1,8 @@
 using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http;
 using TorteLand.Bot.Logic;
 using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
@@ -12,7 +14,8 @@ var host = Host.CreateDefaultBuilder(args)
                        services.AddSingleton<IClock, Clock>();
                        services.AddSingleton<IRandom, Random>();
 
-                       services.AddHttpClient();
+                       services.AddHttpClient()
+                               .RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
                        services.AddSingleton<IClientFactory>(
                            _ => new ClientFactory(

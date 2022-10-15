@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,8 +24,8 @@ internal sealed class NotebookState : BaseState
         => command.Name switch
         {
             "all" => All(token),
-            "add" or "доб" => StartAdd(command.GetTail(), token),
-            "rename" => Rename(command.GetInt(), command.GetTail(1), token),
+            "add" or "доб" => StartAdd(command.GetLines(), token),
+            "rename" => Rename(command.GetInt(), command.GetLine(1), token),
             "delete" => Delete(command.GetInt(), token),
             "close" => Close(token),
             _ => throw new Exception($"Unknown command: {command.Name}")
@@ -43,10 +44,8 @@ internal sealed class NotebookState : BaseState
                ._(_ => string.Join(Environment.NewLine, _)); // TODO: to string builder
     }
 
-    private async Task<string> StartAdd(string text, CancellationToken token)
+    private async Task<string> StartAdd(IReadOnlyCollection<string> notes, CancellationToken token)
     {
-        var notes = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
         var response = await _client.StartAddAsync(_key, notes, token);
         if (response.Right is null)
             return await All(token);

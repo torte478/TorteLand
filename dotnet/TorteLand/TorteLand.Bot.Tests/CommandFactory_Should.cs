@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using TorteLand.Bot.Logic;
 
 // ReSharper disable InconsistentNaming
@@ -22,7 +21,7 @@ internal sealed class CommandFactory_Should
     {
         var command = _factory.Create("add\nfirst\nsecond");
 
-        Assert.That(command.GetString(), Is.EqualTo("first"));
+        Assert.That(command.GetLine(), Is.EqualTo("first"));
     }
 
     [Test]
@@ -30,7 +29,7 @@ internal sealed class CommandFactory_Should
     {
         var command = _factory.Create("add\n1 2\n3");
 
-        Assert.That(command.GetString(1), Is.EqualTo("3"));
+        Assert.That(command.GetLine(1), Is.EqualTo("3"));
     }
 
     [Test]
@@ -39,5 +38,13 @@ internal sealed class CommandFactory_Should
         var command = _factory.Create("open 1");
 
         Assert.That(command.GetInt(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void CreateCommand_OnSingleWord()
+    {
+        var command = _factory.Create("all");
+
+        Assert.That(command.Name, Is.EqualTo("all"));
     }
 }
