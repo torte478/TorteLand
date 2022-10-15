@@ -23,11 +23,10 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         _origin = origin;
     }
 
-    public async IAsyncEnumerable<Unique<Note>> All([EnumeratorCancellation] CancellationToken token)
+    public async Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        foreach (var note in origin)
-            yield return note;
+        return origin.All(pagination);
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Segment>> Add(

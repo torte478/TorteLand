@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using SoftwareCraft.Functional;
+using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
 
 using AddResult = TorteLand.App.Models.Either<
@@ -25,12 +27,27 @@ public sealed class NotebooksController : ControllerBase
 
     [HttpGet]
     [Route("All")]
-    public IAsyncEnumerable<KeyValuePair<int, string>> All(
+    public async Task<Page<KeyValuePair<int, string>>> All(
         int index,
+        int? count,
+        int? offset,
         CancellationToken token)
-        => _notebooks
-           .Read(index, token)
-           .Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text));
+    {
+        var pagination = count is { } || offset is { }
+                             ? new Pagination(
+                                     Offset: offset.ToMaybe(),
+                                     Count: count.ToMaybe())
+                                 ._(Maybe.Some)
+                             : Maybe.None<Pagination>();
+
+        var page = await _notebooks.Read(index, pagination, token);
+
+        return new Page<KeyValuePair<int, string>>(
+            Items: page.Items.Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text)).ToArray(),
+            CurrentIndex: page.CurrentIndex,
+            TotalItems: page.TotalItems);
+    }
+
 
     [HttpPost]
     [Route("StartAdd")]

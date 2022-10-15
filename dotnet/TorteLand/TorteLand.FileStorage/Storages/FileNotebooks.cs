@@ -21,13 +21,14 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
         _cache = BuildCache(_path, factory);
     }
 
-    public IAsyncEnumerable<Unique<Note>> Read(int index, CancellationToken token)
-        => _cache[index].Notebook.All(token);
+    public Task<Page<Unique<Note>>> Read(int index, Maybe<Pagination> pagination, CancellationToken token)
+        => _cache[index].Notebook.All(pagination, token);
 
-    public IAsyncEnumerable<Unique<string>> All(CancellationToken token)
+    public Task<Page<Unique<string>>> All(Maybe<Pagination> pagination, CancellationToken token)
         => _cache
            .Select(_ => new Unique<string>(_.Key, Path.GetFileNameWithoutExtension(_.Value.Path)))
-           .ToAsyncEnumerable();
+           .Paginate(pagination, _cache.Count)
+           ._(Task.FromResult);
 
     public Task<int> Create(string name, CancellationToken token)
     {

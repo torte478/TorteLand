@@ -7,9 +7,10 @@ using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 
+// TODO : duplicates IAsyncNotebook
 public interface IQuestionableNotebook
 {
-    IAsyncEnumerable<Unique<Note>> All(CancellationToken token);
+    Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token);
     Task<Either<IReadOnlyCollection<int>, Question>> Add(IReadOnlyCollection<string> values, CancellationToken token);
     Task<Either<IReadOnlyCollection<int>, Question>> Add(Guid id, bool isRight, CancellationToken token);
     Task Delete(int key, CancellationToken token);

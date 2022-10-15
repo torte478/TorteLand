@@ -21,6 +21,9 @@ internal sealed class Notebook : INotebook
     public IEnumerator<Unique<Note>> GetEnumerator() => Enumerate().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    public Page<Unique<Note>> All(Maybe<Pagination> pagination)
+        => Enumerate().Paginate(pagination, _values.Count);
+
     public Either<IReadOnlyCollection<int>, Segment> Add(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment)
         => _values switch
         {

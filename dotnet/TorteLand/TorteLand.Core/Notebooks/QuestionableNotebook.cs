@@ -22,8 +22,8 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         _origin = origin;
     }
 
-    public IAsyncEnumerable<Unique<Note>> All(CancellationToken token)
-        => _origin.All(token);
+    public Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
+        => _origin.All(pagination, token);
 
     public Task<Either<Added, Question>> Add(IReadOnlyCollection<string> values, CancellationToken token)
         => Add(

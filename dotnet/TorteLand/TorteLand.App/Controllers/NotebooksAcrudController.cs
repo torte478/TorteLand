@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
 
@@ -17,11 +18,20 @@ public sealed class NotebooksAcrudController : ControllerBase
     {
         _notebooksAcrud = notebooksAcrud;
     }
-    
+
     [HttpGet]
     [Route("All")]
-    public IAsyncEnumerable<Unique<string>> All(CancellationToken token)
-        => _notebooksAcrud.All(token);
+    public Task<Page<Unique<string>>> All(int? count, int? offset, CancellationToken token)
+    {
+        var pagination = count is { } || offset is { }
+                             ? new Pagination(
+                                     Offset: offset.ToMaybe(),
+                                     Count: count.ToMaybe())
+                                 ._(Maybe.Some)
+                             : Maybe.None<Pagination>();
+
+        return _notebooksAcrud.All(pagination, token);
+    }
 
     [HttpPost]
     [Route("Create")]
