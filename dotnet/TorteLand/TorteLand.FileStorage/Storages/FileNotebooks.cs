@@ -61,11 +61,8 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     public Task Rename(int index, int id, string text, CancellationToken token)
         => _cache[index].Notebook.Rename(id, text, token);
 
-    public async Task Delete(int index, int key, CancellationToken token)
-    {
-        await _cache[index].Notebook.Delete(key, token);
-        _cache.Remove(index);
-    }
+    public Task Delete(int index, int key, CancellationToken token)
+        => _cache[index].Notebook.Delete(key, token);
 
     public async Task Delete(int index, CancellationToken token)
     {

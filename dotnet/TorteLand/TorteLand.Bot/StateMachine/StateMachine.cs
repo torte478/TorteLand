@@ -11,13 +11,15 @@ internal sealed class StateMachine : IStateMachine
 {
     private readonly IClientFactory _factory;
     private readonly IRandom _random;
+    private readonly int _pageSize;
 
     private IState _state = null!;
 
-    public StateMachine(IClientFactory factory, IRandom random)
+    public StateMachine(int pageSize, IClientFactory factory, IRandom random)
     {
         _factory = factory;
         _random = random;
+        _pageSize = pageSize;
     }
 
     public void SetState(IState state)
@@ -30,13 +32,13 @@ internal sealed class StateMachine : IStateMachine
 
     public Task<string> ToNotebooksState(CancellationToken token)
     {
-        var next = new NotebooksState(_factory.CreateNotebooksAcrudClient(), this);
+        var next = new NotebooksState(_pageSize, _factory.CreateNotebooksAcrudClient(), this);
         return SetState(next, token);
     }
 
     public Task<string> ToNotebookState(int index, CancellationToken token)
     {
-        var next = new NotebookState(index, _factory.CreateNotebooksClient(), this);
+        var next = new NotebookState(index, _pageSize, _factory.CreateNotebooksClient(), this);
         return SetState(next, token);
     }
 

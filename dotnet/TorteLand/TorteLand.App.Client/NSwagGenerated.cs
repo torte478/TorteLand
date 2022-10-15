@@ -22,12 +22,12 @@ namespace TorteLand.App.Client
     {
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Int32StringKeyValuePair>> AllAsync(int? index);
+        System.Threading.Tasks.Task<Int32StringKeyValuePairPage> AllAsync(int? index, int? count, int? offset);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Int32StringKeyValuePair>> AllAsync(int? index, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Int32StringKeyValuePairPage> AllAsync(int? index, int? count, int? offset, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -104,21 +104,29 @@ namespace TorteLand.App.Client
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Int32StringKeyValuePair>> AllAsync(int? index)
+        public virtual System.Threading.Tasks.Task<Int32StringKeyValuePairPage> AllAsync(int? index, int? count, int? offset)
         {
-            return AllAsync(index, System.Threading.CancellationToken.None);
+            return AllAsync(index, count, offset, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Int32StringKeyValuePair>> AllAsync(int? index, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Int32StringKeyValuePairPage> AllAsync(int? index, int? count, int? offset, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Notebooks/All?");
             if (index != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("index") + "=").Append(System.Uri.EscapeDataString(ConvertToString(index, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (count != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("count") + "=").Append(System.Uri.EscapeDataString(ConvertToString(count, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (offset != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("offset") + "=").Append(System.Uri.EscapeDataString(ConvertToString(offset, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
 
@@ -154,7 +162,7 @@ namespace TorteLand.App.Client
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Int32StringKeyValuePair>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<Int32StringKeyValuePairPage>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -617,12 +625,12 @@ namespace TorteLand.App.Client
     {
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<StringUnique>> AllAsync();
+        System.Threading.Tasks.Task<StringUniquePage> AllAsync(int? count, int? offset);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<StringUnique>> AllAsync(System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<StringUniquePage> AllAsync(int? count, int? offset, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -690,18 +698,27 @@ namespace TorteLand.App.Client
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<StringUnique>> AllAsync()
+        public virtual System.Threading.Tasks.Task<StringUniquePage> AllAsync(int? count, int? offset)
         {
-            return AllAsync(System.Threading.CancellationToken.None);
+            return AllAsync(count, offset, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<StringUnique>> AllAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<StringUniquePage> AllAsync(int? count, int? offset, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/NotebooksAcrud/All");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/NotebooksAcrud/All?");
+            if (count != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("count") + "=").Append(System.Uri.EscapeDataString(ConvertToString(count, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (offset != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("offset") + "=").Append(System.Uri.EscapeDataString(ConvertToString(offset, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -735,7 +752,7 @@ namespace TorteLand.App.Client
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<StringUnique>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<StringUniquePage>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1127,6 +1144,27 @@ namespace TorteLand.App.Client
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.17.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class Int32StringKeyValuePairPage
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("items")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public System.Collections.Generic.ICollection<Int32StringKeyValuePair> Items { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("currentIndex")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public int CurrentIndex { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalItems")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public int TotalItems { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.17.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class Question
     {
 
@@ -1153,8 +1191,29 @@ namespace TorteLand.App.Client
 
         [System.Text.Json.Serialization.JsonPropertyName("value")]
 
-        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]   
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
         public string Value { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.17.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class StringUniquePage
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("items")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public System.Collections.Generic.ICollection<StringUnique> Items { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("currentIndex")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public int CurrentIndex { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("totalItems")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public int TotalItems { get; set; }
 
     }
 
