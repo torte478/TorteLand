@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,37 +23,52 @@ internal sealed class NotebooksState : BaseState
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)
-        => command.Name switch
+    {
+        var (name, arguments) = command.ToName();
+        return name switch
         {
             "all" => All(_offset, token),
             "next" => All(_offset + 1, token),
             "back" => All(_offset - 1, token),
-            "create" => Create(command.GetLine(), token),
-            "open" => Open(command.GetInt(), token),
-            "rename" => Rename(command.GetInt(), command.GetLine(1), token),
-            "delete" or "remove" => Delete(command.GetInt(), token),
-            _ => throw new Exception($"Unknown command: {command.Name}")
+
+            "create" => Create(arguments, token),
+            "open" => Open(arguments, token),
+            "rename" => Rename(arguments, token),
+            "delete" or "remove" => Delete(arguments, token),
+
+            _ => throw new Exception($"Unknown command: {name}")
         };
+    }
 
     public override Task<string> Process(CancellationToken token) => All(_offset, token);
 
-    private async Task<string> Rename(int id, string text, CancellationToken token)
+    private async Task<string> Rename(ICommand command, CancellationToken token)
     {
+        var (id, tail) = command.ToInt();
+        var (text, _) = tail.ToLine();
+
         await _client.RenameAsync(id, text, token);
         return await All(_offset, token);
     }
 
-    private Task<string> Open(int index, CancellationToken token)
-        => Context.ToNotebookState(index, token);
-
-    private async Task<string> Delete(int index, CancellationToken token)
+    private Task<string> Open(ICommand command, CancellationToken token)
     {
+        var (index, _) = command.ToInt();
+        return Context.ToNotebookState(index, token);
+    }
+
+    private async Task<string> Delete(ICommand command, CancellationToken token)
+    {
+        var (index, _) = command.ToInt();
+
         await _client.DeleteAsync(index, token);
         return await All(_offset, token);
     }
 
-    private async Task<string> Create(string name, CancellationToken token)
+    private async Task<string> Create(ICommand command, CancellationToken token)
     {
+        var (name, _) = command.ToLine();
+
         var id = await _client.CreateAsync(name, token);
         return $"created: {id}";
     }

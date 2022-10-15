@@ -42,14 +42,17 @@ internal sealed class NotebookAddState : BaseState
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)
-    => command.Name switch
     {
-        "y" or "д" => Add(true, token),
-        "n" or "н" => Add(false, token),
-        "?" => Add(_random.Next(2) == 0, token),
-        "cancel" or "отмена" => GoBack(token),
-        _ => throw new Exception($"Unknown command: {command.Name}")
-    };
+        var (name, _) = command.ToName();
+        return name switch
+        {
+            "y" or "д" => Add(true, token),
+            "n" or "н" => Add(false, token),
+            "?" => Add(_random.Next(2) == 0, token),
+            "cancel" or "отмена" => GoBack(token),
+            _ => throw new Exception($"Unknown command: {name}")
+        };
+    }
 
     public override Task<string> Process(CancellationToken token)
         => GetQuestion()._(Task.FromResult);

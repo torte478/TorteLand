@@ -74,6 +74,13 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     {
         var old = _cache[index].Path;
         var target = Path.Combine(_path, $"{name}.json");
+
+        if (!File.Exists(old))
+        {
+            _cache[index] = (target, _cache[index].Notebook);
+            return Task.CompletedTask;
+        }
+
         File.Copy(old, target);
         _cache[index] = (target, _factory.Create(target));
         File.Delete(old);

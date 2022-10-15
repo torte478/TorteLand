@@ -1,30 +1,62 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TorteLand.Bot.Logic;
 
-// TODO: refactor command logic
 internal sealed class Command : ICommand
 {
-    private readonly IReadOnlyCollection<string> _lines;
-    public string Name { get; }
+    private readonly string _raw;
 
-    public Command(string name, IReadOnlyCollection<string> lines)
+    public Command(string raw)
     {
-        Name = name;
-        _lines = lines;
+        _raw = raw.Trim();
     }
 
-    public int GetInt(int index)
-        => GetLine(0).Split(' ')[index]._(int.Parse);
+    public (string Name, ICommand Tail) ToName()
+    {
+        var _ = Cut();
+        return (_.Head.Trim().ToLowerInvariant(), new Command(_.Tail));
+    }
 
-    public string GetLine(int index)
-        => _lines.Count > 1
-               ? _lines.Skip(index).First()
-               : _lines.First().Split(' ')[index];
+    public (string Word, ICommand Tail) ToWord()
+    {
+        var _ = Cut();
+        return (_.Head, new Command(_.Tail));
+    }
 
-    public IReadOnlyCollection<string> GetLines(int index)
-        => _lines
-           .Skip(index)
-           .ToArray();
+    public (int Value, ICommand Tail) ToInt()
+    {
+        var _ = Cut();
+
+        return (_.Head._(int.Parse), new Command(_.Tail));
+    }
+
+    public (string Line, ICommand Tail) ToLine()
+    {
+        var lines = ToLines();
+        var first = lines.First();
+
+        var tail = first.Length == _raw.Length
+                       ? string.Empty
+                       : _raw[(first.Length + 1)..];
+
+        return (first, new Command(tail));
+    }
+
+    public IReadOnlyCollection<string> ToLines()
+        => _raw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+    private (string Head, string Tail) Cut()
+    {
+        var space = new[] { ' ', '\r', '\n' }
+                       .Select(_ => _raw.IndexOf(_))
+                       .Select(_ => _ == -1 ? int.MaxValue : _)
+                       .Min();
+
+        var head = space == int.MaxValue ? _raw : _raw[..space];
+        var tail = space == int.MaxValue ? string.Empty : _raw[(space + 1)..];
+
+        return (head, tail);
+    }
 }

@@ -9,32 +9,51 @@ namespace TorteLand.Bot.Tests;
 internal sealed class Command_Should
 {
     [Test]
-    public void ReturnFirstInt_OnDefaultIndex()
+    public void ReturnInt_AfterName()
     {
-        var command = new Command("name", new[] { "1", "second" });
+        var command = new Command("name 1");
 
-        var actual = command.GetInt(0);
+        var (_, arguments) = command.ToName();
+        var (actual, _) = arguments.ToInt();
 
         Assert.That(actual, Is.EqualTo(1));
     }
 
     [Test]
-    public void ReturnFirstString_OnDefaultIndex()
+    [TestCase("name a", "a")]
+    [TestCase("name b c", "b c")]
+    public void ReturnString_AfterName(string raw, string expected)
     {
-        var command = new Command("name", new[] { "first", "2" });
+        var command = new Command(raw);
 
-        var actual = command.GetLine(0);
+        var (_, arguments) = command.ToName();
+        var (actual, _) = arguments.ToLine();
 
-        Assert.That(actual, Is.EqualTo("first"));
+        Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
-    public void ReturnLines_OnGetLines()
+    public void ReturnLines_AfterName()
     {
-        var command = new Command("name", new[] { "1", "2" });
+        var command = new Command($"name a{Environment.NewLine}b");
 
-        var actual = command.GetLines(0);
+        var (_, arguments) = command.ToName();
+        var actual = arguments.ToLines();
 
-        Assert.That(actual, Is.EquivalentTo(new[] { "1", "2" }));
+        Assert.That(actual, Is.EquivalentTo(new[] { "a", "b" }));
+    }
+
+    [Test]
+    [TestCase("all", "all")]
+    [TestCase("create test", "create")]
+    [TestCase("add\r\nfirst\r\nsecond", "add")]
+    [TestCase("add\nfirst\nsecond", "add")]
+    public void ReturnName_BeforeArguments(string raw, string expected)
+    {
+        var command = new Command(raw);
+
+        var (actual, _) = command.ToName();
+
+        Assert.That(actual, Is.EqualTo(expected));
     }
 }
