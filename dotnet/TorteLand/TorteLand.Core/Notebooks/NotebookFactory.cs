@@ -10,9 +10,9 @@ internal sealed class NotebookFactory : INotebookFactory
 {
     public INotebook Create(IReadOnlyCollection<Note> notes)
         => notes
-           .OrderBy(x => x.Weight)
+           .OrderByDescending(x => x.Weight)
            .Select(x => x.Text)
            .ToList()
-           ._(Maybe.Some)
+           ._(Maybe.Some<IReadOnlyCollection<string>>)
            ._(_ => new Notebook(_));
 }

@@ -30,22 +30,21 @@ internal sealed class Transaction : ITransaction
         return JsonSerializer.Deserialize<List<Note>>(text)!;
     }
 
-    public void Create(Note note)
+    public IEntity Create(Note note)
     {
         _notes.Value.Add(note);
+        return ToEntity(note);
     }
 
     public IEntity ToEntity(Note note)
-        => _factory.Create(this, note);
+        => _factory.Create(this, GetIndex(note), note);
 
-    public void Update(Note note)
+    public void Update(IEntity entity)
     {
-        var index = GetIndex(note);
-
-        _notes.Value[index] = _notes.Value[index] with { Weight = note.Weight };
+        _notes.Value[entity.Key] = entity.Value;
     }
 
-    public Task Save(CancellationToken token)
+    public Task SaveChanges(CancellationToken token)
     {
         if (!_notes.IsValueCreated)
             return Task.CompletedTask;
@@ -57,10 +56,9 @@ internal sealed class Transaction : ITransaction
     public IAsyncEnumerable<Note> All(CancellationToken token)
         => _notes.Value.ToAsyncEnumerable();
 
-    public void Delete(Note note)
+    public void Delete(IEntity entity)
     {
-        var index = GetIndex(note);
-        var deleted = _notes.Value.Where((_, i) => i != index).ToArray();
+        var deleted = _notes.Value.Where((_, i) => i != entity.Key).ToArray();
         _notes.Value.Clear();
         _notes.Value.AddRange(deleted);
     }

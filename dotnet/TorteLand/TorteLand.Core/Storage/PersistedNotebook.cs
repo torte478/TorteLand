@@ -23,21 +23,20 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         _origin = origin;
     }
 
-    public async IAsyncEnumerable<Unique<Note>> All([EnumeratorCancellation] CancellationToken token)
+    public async Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        foreach (var note in origin)
-            yield return note;
+        return origin.All(pagination);
     }
 
-    public async Task<Either<int, Segment>> Add(
-        string value,
+    public async Task<Either<IReadOnlyCollection<int>, Segment>> Add(
+        IReadOnlyCollection<string> values,
         Maybe<ResolvedSegment> segment,
         CancellationToken token)
     {
         var origin = await GetOrigin(token);
         var copy = origin.Clone();
-        var added = copy.Add(value, segment);
+        var added = copy.Add(values, segment);
 
         await added.MatchAsync(
             _ => SaveChanges(_, copy, token),
@@ -46,13 +45,19 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return added;
     }
 
-    public async Task<IAsyncNotebook> Clone(CancellationToken token)
+    public async Task Rename(int key, string text, CancellationToken token)
     {
         var origin = await GetOrigin(token);
-        var clone = origin.Clone();
-        var notebook = new Right<INotebookFactory, INotebook>(clone);
+        var copy = origin.Clone();
+        var updated = copy.ToNote(key);
+        copy.Rename(key, text);
 
-        return new PersistedNotebook(_storage, notebook);
+        var transaction = _storage.StartTransaction();
+        var entity = transaction.ToEntity(updated);
+        entity.Update(text);
+        await transaction.SaveChanges(token);
+
+        _origin = new Right<INotebookFactory, INotebook>(copy);
     }
 
     public async Task<Note> Delete(int key, CancellationToken token)
@@ -70,7 +75,7 @@ internal sealed class PersistedNotebook : IAsyncNotebook
             var updated = transaction.ToEntity(note.Value);
             updated.Update(note.Value.Weight);
         }
-        await transaction.Save(token);
+        await transaction.SaveChanges(token);
 
         _origin = new Right<INotebookFactory, INotebook>(copy);
         return deleted;
@@ -85,25 +90,28 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return origin.ToNote(key);
     }
 
-    private async Task SaveChanges(int key, INotebook copy, CancellationToken token)
+    private async Task SaveChanges(IReadOnlyCollection<int> keys, INotebook copy, CancellationToken token)
     {
         var transaction = _storage.StartTransaction();
-        WriteChanges(transaction, key, copy);
-        await transaction.Save(token);
+        WriteChanges(transaction, keys, copy);
+        await transaction.SaveChanges(token);
 
         _origin = new Right<INotebookFactory, INotebook>(copy);
     }
 
     private static void WriteChanges(
         ITransaction transaction,
-        int key,
+        IReadOnlyCollection<int> keys,
         INotebook copy)
     {
-        var created = copy.ToNote(key);
+        foreach (var key in keys)
+            key
+                ._(copy.ToNote)
+                ._(transaction.Create);
 
-        transaction.Create(created);
+        var max = keys.Max();
 
-        var changes = copy.Where(_ => _.Id.CompareTo(key) > 0);
+        var changes = copy.Where(_ => _.Id > max);
 
         foreach (var change in changes)
         {

@@ -21,13 +21,14 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
         _cache = BuildCache(_path, factory);
     }
 
-    public IAsyncEnumerable<Unique<Note>> Read(int index, CancellationToken token)
-        => _cache[index].Notebook.All(token);
+    public Task<Page<Unique<Note>>> Read(int index, Maybe<Pagination> pagination, CancellationToken token)
+        => _cache[index].Notebook.All(pagination, token);
 
-    public IAsyncEnumerable<Unique<string>> All(CancellationToken token)
+    public Task<Page<Unique<string>>> All(Maybe<Pagination> pagination, CancellationToken token)
         => _cache
            .Select(_ => new Unique<string>(_.Key, Path.GetFileNameWithoutExtension(_.Value.Path)))
-           .ToAsyncEnumerable();
+           .Paginate(pagination, _cache.Count)
+           ._(Task.FromResult);
 
     public Task<int> Create(string name, CancellationToken token)
     {
@@ -44,11 +45,21 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
         return Task.FromResult(key);
     }
 
-    public Task<Either<int, Question>> Add(int index, string value, CancellationToken token)
-        => _cache[index].Notebook.Add(value, token);
+    public Task<Either<IReadOnlyCollection<int>, Question>> Add(
+        int index,
+        IReadOnlyCollection<string> values,
+        CancellationToken token)
+        => _cache[index].Notebook.Add(values, token);
 
-    public Task<Either<int, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
+    public Task<Either<IReadOnlyCollection<int>, Question>> Add(
+        int index,
+        Guid id,
+        bool isRight,
+        CancellationToken token)
         => _cache[index].Notebook.Add(id, isRight, token);
+
+    public Task Rename(int index, int id, string text, CancellationToken token)
+        => _cache[index].Notebook.Rename(id, text, token);
 
     public Task Delete(int index, int key, CancellationToken token)
         => _cache[index].Notebook.Delete(key, token);
@@ -57,6 +68,24 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     {
         await _cache[index].Notebook.DeleteAll(token);
         _cache.Remove(index);
+    }
+
+    public Task Rename(int index, string name, CancellationToken token)
+    {
+        var old = _cache[index].Path;
+        var target = Path.Combine(_path, $"{name}.json");
+
+        if (!File.Exists(old))
+        {
+            _cache[index] = (target, _cache[index].Notebook);
+            return Task.CompletedTask;
+        }
+
+        File.Copy(old, target);
+        _cache[index] = (target, _factory.Create(target));
+        File.Delete(old);
+
+        return Task.CompletedTask;
     }
 
     private static Dictionary<int, (string Path, IQuestionableNotebook Notebook)> BuildCache(

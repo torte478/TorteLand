@@ -4,5 +4,5 @@ namespace TorteLand.Core.Contracts.Storage;
 
 public interface IEntityFactory
 {
-    IEntity Create(ITransaction transaction, Note entity);
+    IEntity Create(ITransaction transaction, int key, Note entity);
 }

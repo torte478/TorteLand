@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SoftwareCraft.Functional;
@@ -11,32 +12,39 @@ internal sealed class Notebook : INotebook
 {
     private readonly List<string> _values;
 
-    public Notebook(Maybe<List<string>> values)
+    public Notebook(Maybe<IReadOnlyCollection<string>> values)
     {
         _values = values.Match(
-            _ => _,
-            () => new List<string>());
+                            _ => _,
+                            () => ArraySegment<string>.Empty)
+                        .Reverse()
+                        ._(_ => new List<string>(_));
     }
 
-    public IEnumerator<Unique<Note>> GetEnumerator()
-        => _values
-           .Select((x, i) => new Unique<Note>(i, new Note(x, i)))
-           .GetEnumerator();
-
+    public IEnumerator<Unique<Note>> GetEnumerator() => Enumerate().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public Either<int, Segment> Add(string value, Maybe<ResolvedSegment> segment)
+    public Page<Unique<Note>> All(Maybe<Pagination> pagination)
+        => Enumerate().Paginate(pagination, _values.Count);
+
+    public Either<IReadOnlyCollection<int>, Segment> Add(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment)
         => _values switch
         {
-            { Count: 0 } => AddToEmpty(value),
-            _ => AddToExisting(value, segment)
+            { Count: 0 } => AddToEmpty(values),
+            _ => AddToExisting(values, segment)
         };
 
     public INotebook Clone()
         => _values
-           .ToList()
-           ._(Maybe.Some)
+           ._(Enumerable.Reverse)
+           .ToArray()
+           ._(Maybe.Some<IReadOnlyCollection<string>>)
            ._(_ => new Notebook(_));
+
+    public void Rename(int key, string text)
+    {
+        _values[key] = text;
+    }
 
     public Note Delete(int key)
     {
@@ -50,7 +58,9 @@ internal sealed class Notebook : INotebook
 
     public Note ToNote(int key) => new(_values[key], key);
 
-    private Either<int,Segment> AddToExisting(string value, Maybe<ResolvedSegment> segment)
+    private Either<IReadOnlyCollection<int>, Segment> AddToExisting(
+        IReadOnlyCollection<string> values,
+        Maybe<ResolvedSegment> segment)
     {
         var (begin, end) = segment.Match(
             _ => ToHalf(_.Segment, _.IsRight),
@@ -59,29 +69,45 @@ internal sealed class Notebook : INotebook
         if (begin < end)
             return GetNextSegment(begin, end);
 
-        _values.Add(value);
-        for (var i = _values.Count - 1; i > begin; --i)
-            _values[i] = _values[i - 1];
-        _values[begin] = value;
+        var updated = _values
+                      .Take(begin)
+                      .Concat(values.Reverse())
+                      .Concat(_values.Skip(begin))
+                      .ToArray();
 
-        return new Left<int, Segment>(begin);
+        _values.Clear();
+        _values.AddRange(updated);
+
+        return Enumerable
+               .Range(begin, values.Count)
+               .ToArray()
+               ._(Either.Left<IReadOnlyCollection<int>, Segment>);
     }
 
-    private static Either<int, Segment> GetNextSegment(int begin, int end)
+    private static Either<IReadOnlyCollection<int>, Segment> GetNextSegment(int begin, int end)
         => new Segment(
                 Begin: begin,
                 Border: (begin + end) / 2,
                 End: end)
-            ._(Either.Right<int, Segment>);
+            ._(Either.Right<IReadOnlyCollection<int>, Segment>);
 
     private static (int, int) ToHalf(Segment segment, bool isRight)
         => isRight
                ? (segment.Border + 1, segment.End)
                : (segment.Begin, segment.Border);
 
-    private Either<int, Segment> AddToEmpty(string value)
+    private Either<IReadOnlyCollection<int>, Segment> AddToEmpty(IReadOnlyCollection<string> values)
     {
-        _values.Add(value);
-        return new Left<int, Segment>(0);
+        _values.AddRange(values.Reverse());
+        return Enumerable
+               .Range(0, values.Count)
+               .ToArray()
+               ._(Either.Left<IReadOnlyCollection<int>, Segment>);
+    }
+
+    private IEnumerable<Unique<Note>> Enumerate()
+    {
+        for (var i = _values.Count - 1; i >= 0; --i)
+            yield return new Unique<Note>(i, new Note(_values[i], i));
     }
 }

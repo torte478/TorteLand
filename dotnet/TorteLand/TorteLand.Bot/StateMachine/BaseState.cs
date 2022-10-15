@@ -7,12 +7,10 @@ namespace TorteLand.Bot.StateMachine;
 internal abstract class BaseState : IState
 {
     protected IStateMachine Context { get; }
-    protected IClientFactory Factory { get; }
 
-    protected BaseState(IStateMachine context, IClientFactory factory)
+    protected BaseState(IStateMachine context)
     {
         Context = context;
-        Factory = factory;
     }
 
     public abstract Task<string> Process(ICommand command, CancellationToken token);

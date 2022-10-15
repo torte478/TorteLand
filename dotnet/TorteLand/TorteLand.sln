@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.App.Client", "Tor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.Bot", "TorteLand.Bot\TorteLand.Bot.csproj", "{AE7C0B2B-5D91-4C00-BD54-4408B102A113}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorteLand.Bot.Tests", "TorteLand.Bot.Tests\TorteLand.Bot.Tests.csproj", "{2383AD60-B05D-4EFC-8236-27179FF25CEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE7C0B2B-5D91-4C00-BD54-4408B102A113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2383AD60-B05D-4EFC-8236-27179FF25CEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2383AD60-B05D-4EFC-8236-27179FF25CEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2383AD60-B05D-4EFC-8236-27179FF25CEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2383AD60-B05D-4EFC-8236-27179FF25CEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

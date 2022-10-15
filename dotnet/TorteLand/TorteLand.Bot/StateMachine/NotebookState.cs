@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.App.Client;
@@ -11,55 +12,93 @@ internal sealed class NotebookState : BaseState
 {
     private readonly int _key;
     private readonly INotebooksClient _client;
+    private readonly int _pageSize;
 
-    public NotebookState(int key, IStateMachine context, IClientFactory factory)
-        : base(context, factory)
+    private int _offset;
+
+    public NotebookState(int key, int pageSize, INotebooksClient client, IStateMachine context)
+        : base(context)
     {
         _key = key;
-        _client = factory.CreateNotebooksClient();
+        _client = client;
+        _pageSize = pageSize;
+        _offset = 0;
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)
-        => command.Name switch
+    {
+        var (name, arguments) = command.ToName();
+        return name switch
         {
-            "all" => All(token),
-            "add" => StartAdd(command.GetStringArgument(), token),
-            "delete" => Delete(command.GetIntArgument(), token),
+            "all" => All(_offset, token),
+            "next" => All(_offset + 1, token),
+            "back" => All(_offset - 1, token),
+            "add" or "доб" => StartAdd(arguments, token),
+            "rename" => Rename(arguments, token),
+            "delete" or "remove" => Delete(arguments, token),
             "close" => Close(token),
-            _ => throw new Exception($"Unknown command: {command.Name}")
+            _ => throw new Exception($"Unknown command: {name}")
         };
+    }
 
-    public override Task<string> Process(CancellationToken token) => All(token);
+    public override Task<string> Process(CancellationToken token) => All(_offset, token);
 
     private Task<string> Close(CancellationToken token)
+        => Context.ToNotebooksState(token);
+
+    private async Task<string> All(int offset, CancellationToken token)
     {
-        var next = new NotebooksState(Context, Factory);
-        return Context.SetState(next, token);
+        offset = Math.Max(offset, 0);
+
+        var page = await _client.AllAsync(_key, _pageSize, offset * _pageSize,  token);
+
+        if (page.Items.Count > 0)
+            _offset = offset;
+
+        var result = new StringBuilder();
+
+        if (page.Items.Count < page.TotalItems && page.Items.Count > 0)
+            string.Format(
+                      "{0}..{1} from {2}",
+                      _offset * _pageSize,
+                      _offset * _pageSize + page.Items.Count,
+                      page.TotalItems)
+                  ._(result.AppendLine)
+                  .AppendLine();
+
+        foreach (var line in page.Items.Select(_ => $"{_.Key}. {_.Value}"))
+            result.AppendLine(line);
+
+        return result.ToString();
     }
 
-    private async Task<string> All(CancellationToken token)
+    private async Task<string> StartAdd(ICommand command, CancellationToken token)
     {
-        var all = await _client.AllAsync(_key, token);
-        return all
-               .Select(_ => $"{_.Key}. {_.Value}")
-               ._(_ => string.Join(Environment.NewLine, _)); // TODO: to string builder
-    }
+        var notes = command.ToLines();
 
-    private async Task<string> StartAdd(string note, CancellationToken token)
-    {
-        var response = await _client.StartAddAsync(_key, note, token);
+        var response = await _client.StartAddAsync(_key, notes, token);
         if (response.Right is null)
-            return await All(token);
+            return await All(_offset, token);
 
-        var guid = response.Right.Id!.Value;
+        var guid = response.Right.Id;
         var item = response.Right.Text;
-        var next = new NotebookAddState(_key, note, guid, item, Context, Factory);
-        return await Context.SetState(next, token);
+        return await Context.ToNotebookAddState(_key, notes, guid, item, token);
     }
 
-    private async Task<string> Delete(int index, CancellationToken token)
+    private async Task<string> Delete(ICommand command, CancellationToken token)
     {
+        var (index, _) = command.ToInt();
+
         await _client.DeleteAsync(_key, index, token);
-        return await All(token);
+        return await All(_offset, token);
+    }
+
+    private async Task<string> Rename(ICommand command, CancellationToken token)
+    {
+        var (id, tail) = command.ToInt();
+        var (text, _) = tail.ToLine();
+
+        await _client.RenameAsync(_key, id, text, token);
+        return await All(_offset, token);
     }
 }
