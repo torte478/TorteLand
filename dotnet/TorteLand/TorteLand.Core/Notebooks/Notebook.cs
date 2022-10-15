@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SoftwareCraft.Functional;
@@ -11,11 +12,13 @@ internal sealed class Notebook : INotebook
 {
     private readonly List<string> _values;
 
-    public Notebook(Maybe<List<string>> values)
+    public Notebook(Maybe<IReadOnlyCollection<string>> values)
     {
         _values = values.Match(
-            _ => _,
-            () => new List<string>());
+                            _ => _,
+                            () => ArraySegment<string>.Empty)
+                        .Reverse()
+                        ._(_ => new List<string>(_));
     }
 
     public IEnumerator<Unique<Note>> GetEnumerator() => Enumerate().GetEnumerator();
@@ -33,8 +36,9 @@ internal sealed class Notebook : INotebook
 
     public INotebook Clone()
         => _values
-           .ToList()
-           ._(Maybe.Some)
+           ._(Enumerable.Reverse)
+           .ToArray()
+           ._(Maybe.Some<IReadOnlyCollection<string>>)
            ._(_ => new Notebook(_));
 
     public void Rename(int key, string text)
@@ -67,7 +71,7 @@ internal sealed class Notebook : INotebook
 
         var updated = _values
                       .Take(begin)
-                      .Concat(values)
+                      .Concat(values.Reverse())
                       .Concat(_values.Skip(begin))
                       .ToArray();
 
@@ -94,7 +98,7 @@ internal sealed class Notebook : INotebook
 
     private Either<IReadOnlyCollection<int>, Segment> AddToEmpty(IReadOnlyCollection<string> values)
     {
-        _values.AddRange(values);
+        _values.AddRange(values.Reverse());
         return Enumerable
                .Range(0, values.Count)
                .ToArray()

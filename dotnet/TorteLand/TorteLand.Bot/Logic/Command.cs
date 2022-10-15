@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace TorteLand.Bot.Logic;
 
+// TODO: refactor command logic
 internal sealed class Command : ICommand
 {
     private readonly IReadOnlyCollection<string> _lines;
@@ -18,7 +19,9 @@ internal sealed class Command : ICommand
         => GetLine(0).Split(' ')[index]._(int.Parse);
 
     public string GetLine(int index)
-        => _lines.Skip(index).First();
+        => _lines.Count > 1
+               ? _lines.Skip(index).First()
+               : _lines.First().Split(' ')[index];
 
     public IReadOnlyCollection<string> GetLines(int index)
         => _lines

@@ -13,6 +13,6 @@ internal sealed class NotebookFactory : INotebookFactory
            .OrderBy(x => x.Weight)
            .Select(x => x.Text)
            .ToList()
-           ._(Maybe.Some)
+           ._(Maybe.Some<IReadOnlyCollection<string>>)
            ._(_ => new Notebook(_));
 }

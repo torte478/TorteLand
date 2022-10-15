@@ -47,4 +47,12 @@ internal sealed class CommandFactory_Should
 
         Assert.That(command.Name, Is.EqualTo("all"));
     }
+
+    [Test]
+    public void CreateDifferentArguments_OnSingleLine()
+    {
+        var command = _factory.Create("rename 1 text");
+
+        Assert.That(command.GetLine(1), Is.EqualTo("text"));
+    }
 }

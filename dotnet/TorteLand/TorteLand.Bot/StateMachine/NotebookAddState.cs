@@ -37,8 +37,8 @@ internal sealed class NotebookAddState : BaseState
         _random = random;
 
         _origin = notes.Count > 1
-                      ? $"[..{notes.Last()}]"
-                      : notes.Last();
+                      ? $"[..{notes.First()}]"
+                      : notes.First();
     }
 
     public override Task<string> Process(ICommand command, CancellationToken token)

@@ -34,7 +34,7 @@ internal sealed class NotebookState : BaseState
             "back" => All(_offset - 1, token),
             "add" or "доб" => StartAdd(command.GetLines(), token),
             "rename" => Rename(command.GetInt(), command.GetLine(1), token),
-            "delete" => Delete(command.GetInt(), token),
+            "delete" or "remove" => Delete(command.GetInt(), token),
             "close" => Close(token),
             _ => throw new Exception($"Unknown command: {command.Name}")
         };
