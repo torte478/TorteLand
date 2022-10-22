@@ -1,17 +1,52 @@
-﻿namespace TorteLand.Firebase;
+﻿using System.Reflection;
+using System.Text.Json;
+using Microsoft.Extensions.Hosting;
+using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Firebase.Integration;
+
+namespace TorteLand.Firebase;
 
 // TODO : remove after using
-public sealed class FileStorageToFirebaseMigration
+internal sealed class FileStorageToFirebaseMigration : IHostedService
 {
     private readonly string _path;
+    private readonly AsyncLazy<INotebookEntityAcrud> _acrud;
 
-    public FileStorageToFirebaseMigration(string path)
+    public FileStorageToFirebaseMigration(string path, INotebookEntityAcrudFactory factory)
     {
         _path = path;
+        _acrud = new AsyncLazy<INotebookEntityAcrud>(factory.Create);
     }
 
-    public Task Run(CancellationToken token)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var acrud = await _acrud;
+
+        var existing = await acrud.All();
+
+        var directory = Assembly
+                        .GetExecutingAssembly()
+                        .Location
+                        ._(Path.GetDirectoryName)
+                        !._(Path.Combine, _path);
+
+        foreach (var file in Directory.EnumerateFiles(directory))
+        {
+            var name = Path.GetFileNameWithoutExtension(file);
+            if (existing.Any(_ => _.Name == name))
+                continue;
+
+            var text = await File.ReadAllTextAsync(file, cancellationToken);
+            var notes = (JsonSerializer.Deserialize<Note[]>(text) ?? Array.Empty<Note>())
+                        .OrderByDescending(_ => _.Weight)
+                        .Select(_ => _.Text)
+                        .ToArray();
+
+            var id = await acrud.Create(name);
+            await acrud.Update(id, new NotebookEntity(name, notes));
+        }
     }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+        => Task.CompletedTask;
 }

@@ -29,9 +29,10 @@ public static class IocExtensions
         services.AddSingleton<INotebooksAcrud, NotebooksAcrud>();
         services.AddSingleton<INotebookFactory, NotebookFactory>();
 
-        services.AddSingleton(
+        services.AddHostedService(
             _ => new FileStorageToFirebaseMigration(
-                path: configuration.GetSection("FileStorage")["Path"]));
+                path: configuration.GetSection("FileStorage")["Path"],
+                factory: _.GetRequiredService<INotebookEntityAcrudFactory>()));
 
         return services;
     }
