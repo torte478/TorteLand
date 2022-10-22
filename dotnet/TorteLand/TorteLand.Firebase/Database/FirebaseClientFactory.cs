@@ -14,7 +14,7 @@ internal sealed class FirebaseClientFactory : IFirebaseClientFactory, IDisposabl
         _credentials = credentials;
     }
 
-    public async ValueTask<FirebaseClient> Create()
+    public async Task<FirebaseClient> Create()
         => _client ??= await CreateClient();
 
     private async Task<FirebaseClient> CreateClient()

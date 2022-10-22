@@ -23,7 +23,7 @@ public static class IocExtensions
             });
 
         services.AddSingleton<INotebooks, Notebooks>();
-        services.AddSingleton<INotebooksAcrud, NotebooksAcrud>();
+        services.AddSingleton<INotebooksAcrudFactory, NotebooksAcrudFactory>();
 
         services.AddSingleton(
             _ => new FileStorageToFirebaseMigration(

@@ -11,17 +11,21 @@ namespace TorteLand.App.Controllers;
 [Route("[controller]")]
 public sealed class NotebooksAcrudController : ControllerBase
 {
-    private readonly INotebooksAcrud _notebooksAcrud;
+    private readonly INotebooksAcrudFactory _factory;
 
-    public NotebooksAcrudController(INotebooksAcrud notebooksAcrud)
+    private INotebooksAcrud? _notebooksAcrud;
+
+    public NotebooksAcrudController(INotebooksAcrudFactory factory)
     {
-        _notebooksAcrud = notebooksAcrud;
+        _factory = factory;
     }
 
     [HttpGet]
     [Route("All")]
-    public Task<Page<Unique<string>>> All(int? count, int? offset, CancellationToken token)
+    public async Task<Page<Unique<string>>> All(int? count, int? offset, CancellationToken token)
     {
+        var acrud = await GetAcrud();
+
         var pagination = count is { } || offset is { }
                              ? new Pagination(
                                      Offset: offset.ToMaybe(),
@@ -29,21 +33,33 @@ public sealed class NotebooksAcrudController : ControllerBase
                                  ._(Maybe.Some)
                              : Maybe.None<Pagination>();
 
-        return _notebooksAcrud.All(pagination, token);
+        return await acrud.All(pagination, token);
     }
 
     [HttpPost]
     [Route("Create")]
-    public Task<int> Create(string name, CancellationToken token)
-        => _notebooksAcrud.Create(name, token);
+    public async Task<int> Create(string name, CancellationToken token)
+    {
+        var acrud = await GetAcrud();
+        return await acrud.Create(name, token);
+    }
 
     [HttpPost]
     [Route("Rename")]
     public Task Rename(int index, string name, CancellationToken token)
-        => _notebooksAcrud.Rename(index, name, token);
+        => GetAcrud()
+            .ContinueWith(
+                _ => _.Result.Rename(index, name, token),
+                token);
 
     [HttpPost]
     [Route("Delete")]
     public Task Delete(int index, CancellationToken token)
-        => _notebooksAcrud.Delete(index, token);
+        => GetAcrud()
+            .ContinueWith(
+                _ => _.Result.Delete(index, token),
+                token);
+
+    private async Task<INotebooksAcrud> GetAcrud()
+        => _notebooksAcrud ??= await _factory.Create();
 }

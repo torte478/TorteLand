@@ -4,5 +4,5 @@ namespace TorteLand.Firebase.Database;
 
 internal interface IFirebaseClientFactory
 {
-    ValueTask<FirebaseClient> Create();
+    Task<FirebaseClient> Create();
 }

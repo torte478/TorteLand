@@ -6,40 +6,68 @@ using TorteLand.Core.Contracts.Notebooks;
 
 namespace TorteLand.Firebase.Database;
 
+// TODO : add cache
 internal sealed class NotebooksAcrud : INotebooksAcrud
 {
-    private const string Notebooks = "notebooks";
+    private const string Notebooks = "notebooks"; // TODO : to config
 
-    private readonly IFirebaseClientFactory _factory;
-    private FirebaseClient? _client;
+    private readonly FirebaseClient _client;
 
-    public NotebooksAcrud(IFirebaseClientFactory factory)
+    public NotebooksAcrud(FirebaseClient client)
     {
-        _factory = factory;
+        _client = client;
     }
 
-    public Task<Page<Unique<string>>> All(Maybe<Pagination> pagination, CancellationToken token)
+    public async Task<Page<Unique<string>>> All(Maybe<Pagination> pagination, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var entities = await Load();
+
+        return entities
+               .Select((x, i) => new Unique<string>(i, x.Object.Name))
+               .Paginate(pagination, entities.Count);
     }
 
     public async Task<int> Create(string name, CancellationToken token)
     {
-        var client = await GetClient();
-        await _client!.Child(Notebooks).PostAsync(new TempNotebook(name, new TempNote[] { new TempNote("NoteName", 42)}));
-        return 0;
+        var created = await _client
+              .Child(Notebooks)
+              .PostAsync(new NamedEntity(name));
+
+        var entities = await Load();
+
+        return entities
+               .Select((x, i) => (x, i))
+               .First(_ => _.x.Key == created.Key)
+               .i;
     }
 
-    public Task Delete(int index, CancellationToken token)
+    public async Task Delete(int index, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var entities = await Load();
+        var key = entities.ElementAt(index).Key;
+
+        await _client
+              .Child(Notebooks)
+              .Child(key)
+              .DeleteAsync();
     }
 
-    public Task Rename(int index, string name, CancellationToken token)
+    public async Task Rename(int index, string name, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var entities = await Load();
+        var key = entities.ElementAt(index).Key;
+
+        var notebook = await _client.Child(Notebooks).Child(key).OnceSingleAsync<NotebookEntity>();
+        var renamed = notebook with { Name = name };
+
+        await _client
+              .Child(Notebooks)
+              .Child(key)
+              .PutAsync(renamed);
     }
 
-    private async ValueTask<FirebaseClient> GetClient()
-        => _client ??= await _factory.Create();
+    private Task<IReadOnlyCollection<FirebaseObject<NamedEntity>>> Load()
+        => _client
+           .Child(Notebooks)
+           .OnceAsync<NamedEntity>();
 }
