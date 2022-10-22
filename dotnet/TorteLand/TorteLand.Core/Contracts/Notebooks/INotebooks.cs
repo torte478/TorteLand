@@ -13,5 +13,5 @@ public interface INotebooks
     Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, IReadOnlyCollection<string> values, CancellationToken token);
     Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Guid id, bool isRight, CancellationToken token);
     Task Rename(int index, int id, string text, CancellationToken token);
-    Task Delete(int index, int key, CancellationToken token);
+    Task Delete(int index, int id, CancellationToken token);
 }

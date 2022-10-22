@@ -6,7 +6,7 @@ using TorteLand.Core.Contracts.Notebooks;
 
 namespace TorteLand.Firebase.Database;
 
-// TODO : add cache
+// TODO : optimize
 internal sealed class NotebooksAcrud : INotebooksAcrud
 {
     private const string Notebooks = "notebooks"; // TODO : to config
@@ -39,6 +39,12 @@ internal sealed class NotebooksAcrud : INotebooksAcrud
                .Select((x, i) => (x, i))
                .First(_ => _.x.Key == created.Key)
                .i;
+    }
+
+    public async Task<string> Read(int index, CancellationToken token)
+    {
+        var entities = await Load();
+        return entities.ElementAt(index).Object.Name;
     }
 
     public async Task Delete(int index, CancellationToken token)

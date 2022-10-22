@@ -45,6 +45,11 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
         return Task.FromResult(key);
     }
 
+    public Task<string> Read(int index, CancellationToken token)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Either<IReadOnlyCollection<int>, Question>> Add(
         int index,
         IReadOnlyCollection<string> values,
@@ -61,8 +66,8 @@ internal sealed class FileNotebooks : INotebooksAcrud, INotebooks
     public Task Rename(int index, int id, string text, CancellationToken token)
         => _cache[index].Notebook.Rename(id, text, token);
 
-    public Task Delete(int index, int key, CancellationToken token)
-        => _cache[index].Notebook.Delete(key, token);
+    public Task Delete(int index, int id, CancellationToken token)
+        => _cache[index].Notebook.Delete(id, token);
 
     public async Task Delete(int index, CancellationToken token)
     {
