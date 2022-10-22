@@ -6,6 +6,8 @@ using TorteLand.Firebase.Integration;
 
 namespace TorteLand.Firebase.Database;
 
+// TODO: to immutable
+// TODO: refactor reverse logic
 internal sealed class Notebooks : INotebooks
 {
     private readonly Dictionary<string, IQuestionableNotebook> _notebooks = new();

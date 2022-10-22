@@ -18,7 +18,7 @@ internal sealed class NotebookEntityAcrud : INotebookEntityAcrud
     {
         var entities = await _client
                        .Child(_root)
-                       .OnceAsListAsync<NamedEntity>();
+                       .OnceAsync<NamedEntity>();
 
         return entities
                .Select(_ => (_.Key, _.Object.Name))
@@ -36,18 +36,25 @@ internal sealed class NotebookEntityAcrud : INotebookEntityAcrud
     {
         var entities = await _client
                              .Child(_root)
-                             .OnceAsListAsync<NamedEntity>();
+                             .OnceAsync<NamedEntity>();
 
         return entities
                .ElementAt(index)
                ._(_ => (_.Key, _.Object.Name));
     }
 
-    public Task<NotebookEntity> Read(string id)
-        => _client
-           .Child(_root)
-           .Child(id)
-           .OnceSingleAsync<NotebookEntity>();
+    public async Task<NotebookEntity> Read(string id)
+    {
+        var entity = await _client
+                           .Child(_root)
+                           .Child(id)
+                           .OnceSingleAsync<NotebookEntity>();
+
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        return entity.Notes is { }
+                   ? entity
+                   : entity with { Notes = Array.Empty<string>() };
+    }
 
     public Task Update(string id, NotebookEntity entity)
         => _client
