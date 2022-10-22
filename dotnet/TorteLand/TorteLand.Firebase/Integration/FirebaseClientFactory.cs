@@ -1,7 +1,7 @@
 ﻿using Firebase.Auth;
 using Firebase.Database;
 
-namespace TorteLand.Firebase.Database;
+namespace TorteLand.Firebase.Integration;
 
 internal sealed class FirebaseClientFactory : IFirebaseClientFactory, IDisposable
 {
@@ -21,6 +21,7 @@ internal sealed class FirebaseClientFactory : IFirebaseClientFactory, IDisposabl
     {
         var auth = new FirebaseAuthProvider(new FirebaseConfig(_credentials.ApiKey));
         var token = await auth.SignInWithEmailAndPasswordAsync(_credentials.Email, _credentials.Password);
+
         return new FirebaseClient(
             baseUrl: _credentials.Url,
             options: new FirebaseOptions

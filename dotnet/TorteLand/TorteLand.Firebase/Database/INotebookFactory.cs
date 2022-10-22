@@ -4,5 +4,5 @@ namespace TorteLand.Firebase.Database;
 
 internal interface INotebookFactory
 {
-    Task<IQuestionableNotebook> Create(string key);
+    Task<IQuestionableNotebook> Create(string id);
 }

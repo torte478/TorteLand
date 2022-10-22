@@ -1,0 +1,63 @@
+﻿using Firebase.Database;
+using Firebase.Database.Query;
+
+namespace TorteLand.Firebase.Integration;
+
+internal sealed class NotebookEntityAcrud : INotebookEntityAcrud
+{
+    private readonly string _root;
+    private readonly FirebaseClient _client;
+
+    public NotebookEntityAcrud(string root, FirebaseClient client)
+    {
+        _root = root;
+        _client = client;
+    }
+
+    public async Task<IReadOnlyCollection<(string Id, string Name)>> All()
+    {
+        var entities = await _client
+                       .Child(_root)
+                       .OnceAsListAsync<NamedEntity>();
+
+        return entities
+               .Select(_ => (_.Key, _.Object.Name))
+               .ToArray();
+    }
+
+    public async Task<string> Create(string name)
+    {
+        var entity = new NamedEntity(name);
+        var created = await _client.Child(_root).PostAsync(entity);
+        return created.Key;
+    }
+
+    public async Task<(string Id, string Name)> Read(int index)
+    {
+        var entities = await _client
+                             .Child(_root)
+                             .OnceAsListAsync<NamedEntity>();
+
+        return entities
+               .ElementAt(index)
+               ._(_ => (_.Key, _.Object.Name));
+    }
+
+    public Task<NotebookEntity> Read(string id)
+        => _client
+           .Child(_root)
+           .Child(id)
+           .OnceSingleAsync<NotebookEntity>();
+
+    public Task Update(string id, NotebookEntity entity)
+        => _client
+           .Child(_root)
+           .Child(id)
+           .PutAsync(entity);
+
+    public Task Delete(string id)
+        => _client
+           .Child(_root)
+           .Child(id)
+           .DeleteAsync();
+}

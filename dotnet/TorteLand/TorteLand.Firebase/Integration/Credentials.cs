@@ -1,4 +1,4 @@
-﻿namespace TorteLand.Firebase.Database;
+﻿namespace TorteLand.Firebase.Integration;
 
 internal record Credentials(
     string Url,
