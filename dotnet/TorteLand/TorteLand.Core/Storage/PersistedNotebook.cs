@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
@@ -82,7 +81,10 @@ internal sealed class PersistedNotebook : IAsyncNotebook
     }
 
     public Task DeleteAll(CancellationToken token)
-        => _storage.StartTransaction().DeleteAll(token);
+    {
+        _storage.StartTransaction().DeleteAll(token);
+        return Task.CompletedTask;
+    }
 
     public async Task<Note> ToNote(int key, CancellationToken token)
     {
