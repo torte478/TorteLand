@@ -1,6 +1,6 @@
 ﻿namespace TorteLand.Firebase.Integration;
 
-internal interface INotebookEntityAcrud
+internal interface IEntityAcrud
 {
     Task<IReadOnlyCollection<(string Id, string Name)>> All();
     Task<string> Create(string name);

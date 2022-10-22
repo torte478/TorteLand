@@ -8,24 +8,24 @@ namespace TorteLand.Firebase.Database;
 internal sealed class Storage : IStorage
 {
     private readonly string _id;
-    private readonly INotebookEntityAcrud _notebookEntityAcrud;
+    private readonly IEntityAcrud _entityAcrud;
 
-    public Storage(string id, INotebookEntityAcrud notebookEntityAcrud)
+    public Storage(string id, IEntityAcrud entityAcrud)
     {
         _id = id;
-        _notebookEntityAcrud = notebookEntityAcrud;
+        _entityAcrud = entityAcrud;
     }
 
     public async Task Save(IReadOnlyCollection<Unique<Note>> notes)
     {
-        var notebook = await _notebookEntityAcrud.Read(_id);
+        var notebook = await _entityAcrud.Read(_id);
 
         await notes
             .OrderBy(_ => _.Value.Weight)
             .Select(_ => _.Value.Text)
             .ToArray()
             ._(_ => notebook with { Notes = _ })
-            ._(_ => _notebookEntityAcrud.Update(_id, _));
+            ._(_ => _entityAcrud.Update(_id, _));
     }
 
     public Task DeleteAll()
@@ -33,7 +33,7 @@ internal sealed class Storage : IStorage
 
     public async Task<IReadOnlyCollection<Note>> All()
     {
-        var notebook = await _notebookEntityAcrud.Read(_id);
+        var notebook = await _entityAcrud.Read(_id);
 
         return notebook
                .Notes

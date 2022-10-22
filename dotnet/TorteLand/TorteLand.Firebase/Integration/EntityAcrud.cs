@@ -3,12 +3,12 @@ using Firebase.Database.Query;
 
 namespace TorteLand.Firebase.Integration;
 
-internal sealed class NotebookEntityAcrud : INotebookEntityAcrud
+internal sealed class EntityAcrud : IEntityAcrud
 {
     private readonly string _root;
     private readonly FirebaseClient _client;
 
-    public NotebookEntityAcrud(string root, FirebaseClient client)
+    public EntityAcrud(string root, FirebaseClient client)
     {
         _root = root;
         _client = client;

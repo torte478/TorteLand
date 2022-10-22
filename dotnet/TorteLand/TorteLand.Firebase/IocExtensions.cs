@@ -20,8 +20,8 @@ public static class IocExtensions
                     Password: config["Password"],
                     ApiKey: config["ApiKey"])));
 
-        services.AddSingleton<INotebookEntityAcrudFactory>(
-            _ => new NotebookEntityAcrudFactory(
+        services.AddSingleton<IEntityAcrudFactory>(
+            _ => new EntityAcrudFactory(
                 root: config["Root"],
                 factory: _.GetRequiredService<IFirebaseClientFactory>()));
 
@@ -32,7 +32,7 @@ public static class IocExtensions
         services.AddHostedService(
             _ => new FileStorageToFirebaseMigration(
                 path: configuration.GetSection("FileStorage")["Path"],
-                factory: _.GetRequiredService<INotebookEntityAcrudFactory>()));
+                factory: _.GetRequiredService<IEntityAcrudFactory>()));
 
         return services;
     }

@@ -8,11 +8,11 @@ namespace TorteLand.Firebase.Database;
 // TODO : optimize
 internal sealed class NotebooksAcrud : INotebooksAcrud
 {
-    private readonly AsyncLazy<INotebookEntityAcrud> _acrud;
+    private readonly AsyncLazy<IEntityAcrud> _acrud;
 
-    public NotebooksAcrud(INotebookEntityAcrudFactory factory)
+    public NotebooksAcrud(IEntityAcrudFactory factory)
     {
-        _acrud = new AsyncLazy<INotebookEntityAcrud>(factory.Create);
+        _acrud = new AsyncLazy<IEntityAcrud>(factory.Create);
     }
 
     public async Task<Page<Unique<string>>> All(Maybe<Pagination> pagination, CancellationToken token)

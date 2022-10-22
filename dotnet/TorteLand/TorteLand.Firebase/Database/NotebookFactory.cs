@@ -7,7 +7,7 @@ namespace TorteLand.Firebase.Database;
 
 internal sealed class NotebookFactory : INotebookFactory
 {
-    private readonly INotebookEntityAcrudFactory _entityAcrudFactory;
+    private readonly IEntityAcrudFactory _entityAcrudFactory;
     private readonly Core.Contracts.Factories.INotebookFactory _notebookFactory;
     private readonly IPersistedNotebookFactory _persistedNotebookFactory;
     private readonly IQuestionableNotebookFactory _questionableNotebookFactory;
@@ -16,7 +16,7 @@ internal sealed class NotebookFactory : INotebookFactory
         Core.Contracts.Factories.INotebookFactory notebookFactory,
         IPersistedNotebookFactory persistedNotebookFactory,
         IQuestionableNotebookFactory questionableNotebookFactory,
-        INotebookEntityAcrudFactory entityAcrudFactory)
+        IEntityAcrudFactory entityAcrudFactory)
     {
         _questionableNotebookFactory = questionableNotebookFactory;
         _entityAcrudFactory = entityAcrudFactory;

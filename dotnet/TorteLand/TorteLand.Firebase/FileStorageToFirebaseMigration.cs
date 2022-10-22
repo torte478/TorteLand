@@ -10,12 +10,12 @@ namespace TorteLand.Firebase;
 internal sealed class FileStorageToFirebaseMigration : IHostedService
 {
     private readonly string _path;
-    private readonly AsyncLazy<INotebookEntityAcrud> _acrud;
+    private readonly AsyncLazy<IEntityAcrud> _acrud;
 
-    public FileStorageToFirebaseMigration(string path, INotebookEntityAcrudFactory factory)
+    public FileStorageToFirebaseMigration(string path, IEntityAcrudFactory factory)
     {
         _path = path;
-        _acrud = new AsyncLazy<INotebookEntityAcrud>(factory.Create);
+        _acrud = new AsyncLazy<IEntityAcrud>(factory.Create);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

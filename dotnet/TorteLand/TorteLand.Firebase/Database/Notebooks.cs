@@ -13,12 +13,12 @@ internal sealed class Notebooks : INotebooks
     private readonly Dictionary<string, IQuestionableNotebook> _notebooks = new();
 
     private readonly INotebookFactory _factory;
-    private readonly AsyncLazy<INotebookEntityAcrud> _acrud;
+    private readonly AsyncLazy<IEntityAcrud> _acrud;
 
-    public Notebooks(INotebookFactory factory, INotebookEntityAcrudFactory acrudFactory)
+    public Notebooks(INotebookFactory factory, IEntityAcrudFactory acrudFactory)
     {
         _factory = factory;
-        _acrud = new AsyncLazy<INotebookEntityAcrud>(acrudFactory.Create);
+        _acrud = new AsyncLazy<IEntityAcrud>(acrudFactory.Create);
     }
 
     public async Task<Page<Unique<Note>>> Read(int index, Maybe<Pagination> pagination, CancellationToken token)
