@@ -8,6 +8,8 @@ using TorteLand.Core.Contracts.Notebooks;
 
 namespace TorteLand.Core.Notebooks;
 
+// TODO: to immutable
+// TODO: refactor reverse logic
 internal sealed class Notebook : INotebook
 {
     private readonly List<string> _values;

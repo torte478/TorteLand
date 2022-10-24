@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SoftwareCraft.Functional;
@@ -12,16 +11,16 @@ namespace TorteLand.App.Controllers;
 [Route("[controller]")]
 public sealed class NotebooksAcrudController : ControllerBase
 {
-    private readonly INotebooksAcrud _notebooksAcrud;
+    private readonly INotebooksAcrud _acrud;
 
-    public NotebooksAcrudController(INotebooksAcrud notebooksAcrud)
+    public NotebooksAcrudController(INotebooksAcrud acrud)
     {
-        _notebooksAcrud = notebooksAcrud;
+        _acrud = acrud;
     }
 
     [HttpGet]
     [Route("All")]
-    public Task<Page<Unique<string>>> All(int? count, int? offset, CancellationToken token)
+    public async Task<Page<Unique<string>>> All(int? count, int? offset, CancellationToken token)
     {
         var pagination = count is { } || offset is { }
                              ? new Pagination(
@@ -30,21 +29,21 @@ public sealed class NotebooksAcrudController : ControllerBase
                                  ._(Maybe.Some)
                              : Maybe.None<Pagination>();
 
-        return _notebooksAcrud.All(pagination, token);
+        return await _acrud.All(pagination, token);
     }
 
     [HttpPost]
     [Route("Create")]
     public Task<int> Create(string name, CancellationToken token)
-        => _notebooksAcrud.Create(name, token);
+        => _acrud.Create(name, token);
 
     [HttpPost]
     [Route("Rename")]
     public Task Rename(int index, string name, CancellationToken token)
-        => _notebooksAcrud.Rename(index, name, token);
+        => _acrud.Rename(index, name, token);
 
     [HttpPost]
     [Route("Delete")]
     public Task Delete(int index, CancellationToken token)
-        => _notebooksAcrud.Delete(index, token);
+        => _acrud.Delete(index, token);
 }

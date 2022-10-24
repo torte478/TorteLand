@@ -8,8 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FirebaseAuthentication.net" />
+        <PackageReference Include="FirebaseDatabase.net" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
     </ItemGroup>
 
     <ItemGroup>

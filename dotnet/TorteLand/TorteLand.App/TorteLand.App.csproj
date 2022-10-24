@@ -13,7 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TorteLand.Core\TorteLand.Core.csproj" />
-      <ProjectReference Include="..\TorteLand.FileStorage\TorteLand.FileStorage.csproj" />
+      <ProjectReference Include="..\TorteLand.Firebase\TorteLand.Firebase.csproj" />
     </ItemGroup>
 
     <ItemGroup>
