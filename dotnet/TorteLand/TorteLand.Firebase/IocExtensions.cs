@@ -12,6 +12,7 @@ public static class IocExtensions
     {
         var config = configuration.GetSection("Firebase");
 
+        // TODO : to IOptions
         services.AddSingleton<IFirebaseClientFactory>(
             _ => new FirebaseClientFactory(
                 new Credentials(

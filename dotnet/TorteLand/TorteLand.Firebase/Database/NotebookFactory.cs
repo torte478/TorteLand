@@ -29,6 +29,8 @@ internal sealed class NotebookFactory : INotebookFactory
     {
         var acrud = await _entityAcrudFactory.Create();
         var storage = new Storage(id, acrud);
+
+        // TODO: can be replace to TorteLand.Core
         var factory = new Left<Core.Contracts.Factories.INotebookFactory, INotebook>(_notebookFactory);
         var persisted = _persistedNotebookFactory.Create(storage, factory);
         return _questionableNotebookFactory.Create(persisted);

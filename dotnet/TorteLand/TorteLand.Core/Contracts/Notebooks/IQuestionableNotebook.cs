@@ -7,7 +7,7 @@ using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 
-// TODO : duplicates IAsyncNotebook
+// TODO : duplicates IAsyncNotebook, remove async
 public interface IQuestionableNotebook
 {
     Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token);
