@@ -38,7 +38,7 @@ internal sealed class FileStorageToFirebaseMigration : IHostedService
 
             var text = await File.ReadAllTextAsync(file, cancellationToken);
             var notes = (JsonSerializer.Deserialize<Note[]>(text) ?? Array.Empty<Note>())
-                        .OrderByDescending(_ => _.Weight)
+                        .OrderBy(_ => _.Weight)
                         .Select(_ => _.Text)
                         .ToArray();
 
