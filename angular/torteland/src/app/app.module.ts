@@ -1,16 +1,25 @@
-import { NgModule } from '@angular/core';
+import { InjectionToken, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
+import { BASE_URL_TOKEN, NotebooksAcrudClient } from './services/generated';
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: BASE_URL_TOKEN,
+      useValue: 'api'
+    },
+    NotebooksAcrudClient
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
