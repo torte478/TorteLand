@@ -8,6 +8,7 @@ import { MatButtonModule} from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 
 import { AppComponent } from './components/app.component';
 import { BASE_URL_TOKEN, NotebooksAcrudClient } from './services/generated';
@@ -28,7 +29,8 @@ import { TextDialogComponent } from './components/dialogs/text-dialog/text-dialo
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
+    MatListModule
   ],
   providers: [
     {

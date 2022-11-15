@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { filter, map, mergeMap } from 'rxjs';
+import { filter, mergeMap } from 'rxjs';
 import { NotebooksAcrudClient } from 'src/app/services/generated';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
 
@@ -12,6 +12,7 @@ import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.componen
 export class NotebooksAcrudComponent implements OnInit {
 
   notebooks: string[] | undefined;
+  selection: string[] = [];
 
   constructor(
     private client: NotebooksAcrudClient,
@@ -33,6 +34,10 @@ export class NotebooksAcrudComponent implements OnInit {
         mergeMap((name) => this.client.create(name))
       )
       .subscribe(_ => this.reload());
+  }
+
+  onRenameClick() {
+    console.log(this.selection);
   }
 
   private reload(): void {
