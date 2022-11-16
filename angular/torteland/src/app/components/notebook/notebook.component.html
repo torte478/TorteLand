@@ -1,0 +1,9 @@
+<h2>{{name}}</h2>
+
+<mat-selection-list [(ngModel)]="selection" [multiple]="false">
+    <mat-list-option *ngFor="let note of notes" [value]="note">
+      {{note.value}}
+    </mat-list-option>
+</mat-selection-list>
+
+<button mat-raised-button (click)="onBackClick()">Back</button>

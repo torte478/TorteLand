@@ -11,17 +11,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 
 import { AppComponent } from './components/app.component';
-import { BASE_URL_TOKEN, NotebooksAcrudClient } from './services/generated';
+import { BASE_URL_TOKEN, NotebooksAcrudClient, NotebooksClient } from './services/generated';
 import { NotebooksAcrudComponent } from './components/notebooks-acrud/notebooks-acrud.component';
 import { TextDialogComponent } from './components/dialogs/text-dialog/text-dialog.component';
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
+import { NotebookComponent } from './components/notebook/notebook.component';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
     AppComponent,
     NotebooksAcrudComponent,
     TextDialogComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    NotebookComponent
   ],
   imports: [
     BrowserModule,
@@ -32,14 +35,16 @@ import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/conf
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
-    MatListModule
+    MatListModule,
+    AppRoutingModule
   ],
   providers: [
     {
       provide: BASE_URL_TOKEN,
       useValue: 'api'
     },
-    NotebooksAcrudClient
+    NotebooksAcrudClient,
+    NotebooksClient
   ],
   bootstrap: [AppComponent]
 })

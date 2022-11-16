@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { filter, mergeMap } from 'rxjs';
 import { NotebooksAcrudClient, StringUnique } from 'src/app/services/generated';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
@@ -17,6 +18,7 @@ export class NotebooksAcrudComponent implements OnInit {
 
   constructor(
     private client: NotebooksAcrudClient,
+    private route: Router,
     public dialog: MatDialog) {}
 
   ngOnInit(): void {
@@ -36,10 +38,9 @@ export class NotebooksAcrudComponent implements OnInit {
   }
 
   onRenameClick() {
-    if (this.selection.length !== 1)
+    const selected = this.getSelected();
+    if (!selected)
       return;
-
-    const selected = this.selection[0];
 
     this.dialog
       .open(TextDialogComponent, {
@@ -54,10 +55,9 @@ export class NotebooksAcrudComponent implements OnInit {
   }
 
   onDeleteClick() {
-    if (this.selection.length !== 1)
+    const selected = this.getSelected();
+    if (!selected)
       return;
-
-    const selected = this.selection[0];
 
     this.dialog
       .open(ConfirmDialogComponent, {
@@ -69,6 +69,20 @@ export class NotebooksAcrudComponent implements OnInit {
         mergeMap(_ => this.client.delete(selected.id))
       )
       .subscribe(_ => this.reload());
+  }
+
+  onOpenClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    this.route.navigateByUrl(`notebooks/${selected.id}`);
+  }
+
+  private getSelected()  {
+    return this.selection.length === 1
+    ? this.selection[0]
+    : null;
   }
 
   private reload(): void {
