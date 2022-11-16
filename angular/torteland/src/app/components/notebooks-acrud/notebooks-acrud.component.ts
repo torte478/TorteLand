@@ -61,7 +61,7 @@ export class NotebooksAcrudComponent implements OnInit {
 
     this.dialog
       .open(ConfirmDialogComponent, {
-        data: { title: `Delete '${selected.value}'?` }
+        data: { title: `Delete '${selected.value}' ?` }
       })
       .afterClosed()
       .pipe(
