@@ -14,12 +14,14 @@ import { AppComponent } from './components/app.component';
 import { BASE_URL_TOKEN, NotebooksAcrudClient } from './services/generated';
 import { NotebooksAcrudComponent } from './components/notebooks-acrud/notebooks-acrud.component';
 import { TextDialogComponent } from './components/dialogs/text-dialog/text-dialog.component';
+import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NotebooksAcrudComponent,
-    TextDialogComponent
+    TextDialogComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     BrowserModule,

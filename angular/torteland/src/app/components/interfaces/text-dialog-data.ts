@@ -1,3 +1,3 @@
-export interface TextDialogData {
+export interface TitleDialogData {
     title: string;
 }

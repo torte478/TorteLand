@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { TextDialogData } from '../../interfaces/text-dialog-data';
+import { TitleDialogData } from '../../interfaces/text-dialog-data';
 
 @Component({
   selector: 'app-text-dialog',
@@ -13,7 +13,7 @@ export class TextDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<TextDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public input: TextDialogData
+    @Inject(MAT_DIALOG_DATA) public input: TitleDialogData
   ) { 
   }
 }
