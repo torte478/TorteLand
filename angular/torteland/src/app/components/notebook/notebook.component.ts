@@ -2,8 +2,12 @@ import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, mergeMap } from 'rxjs/operators';
-import { Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
+import { Observable } from 'rxjs';
+import { filter, map, mergeMap, takeUntil, takeWhile } from 'rxjs/operators';
+import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
+import { AddNoteDialogData } from 'src/app/interfaces/add-note-dialog-data';
+import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
+import { AddNoteDialogComponent } from '../add-note-dialog/add-note-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
 
@@ -81,6 +85,39 @@ export class NotebookComponent implements OnInit {
       .subscribe(_ => this.reload());
   }
 
+  onCreateClick() {
+    this.dialog
+      .open(TextDialogComponent, {
+        data: { title: 'Add new note' }
+      })
+      .afterClosed()
+      .pipe(
+        mergeMap(name => this.Foo(name)))
+      .subscribe(_ => this.reload());
+  }
+
+  private Foo(name: string) {
+    return this.client.startAdd(this.id, [name])
+      .pipe(
+        filter(_ => !!_.right),
+        mergeMap(_ => this.Bar({ added: name, note: _.right?.text}, _.right?.id)),
+        mergeMap(_ => this.client.continueAdd(this.id, _.transactionId, _.isRight)),
+      );
+  }
+
+  private Bar(data: AddNoteDialogData, transactionId?: string): Observable<FooBar> {
+    return this.dialog
+      .open(AddNoteDialogComponent, {data: data})
+      .afterClosed()
+      .pipe(
+        map(res => { return {
+          transactionId: transactionId,
+          isRight: res === AddNoteDialogResult.Yes 
+                   || (res === AddNoteDialogResult.Random && Math.random() >= 0.5)
+        }})
+      );
+  }
+
   private getSelected()  {
     return this.selection.length === 1
     ? this.selection[0]
@@ -94,4 +131,9 @@ export class NotebookComponent implements OnInit {
     this.client.all(this.id, undefined, undefined)
       .subscribe(page => this.notes = page.items)
   }
+}
+
+interface FooBar {
+  transactionId?: string,
+  isRight: boolean
 }

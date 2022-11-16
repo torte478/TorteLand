@@ -17,6 +17,7 @@ import { TextDialogComponent } from './components/dialogs/text-dialog/text-dialo
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
 import { NotebookComponent } from './components/notebook/notebook.component';
 import { AppRoutingModule } from './app-routing.module';
+import { AddNoteDialogComponent } from './components/add-note-dialog/add-note-dialog.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { AppRoutingModule } from './app-routing.module';
     NotebooksAcrudComponent,
     TextDialogComponent,
     ConfirmDialogComponent,
-    NotebookComponent
+    NotebookComponent,
+    AddNoteDialogComponent
   ],
   imports: [
     BrowserModule,
