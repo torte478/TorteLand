@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { filter, mergeMap } from 'rxjs';
-import { NotebooksAcrudClient } from 'src/app/services/generated';
+import { NotebooksAcrudClient, StringUnique, StringUniquePage } from 'src/app/services/generated';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
 
 @Component({
@@ -11,8 +11,8 @@ import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.componen
 })
 export class NotebooksAcrudComponent implements OnInit {
 
-  notebooks: string[] | undefined;
-  selection: string[] = [];
+  notebooks: StringUnique[] | undefined;
+  selection: StringUnique[] = [];
 
   constructor(
     private client: NotebooksAcrudClient,
@@ -23,26 +23,38 @@ export class NotebooksAcrudComponent implements OnInit {
   }
 
   onCreateClick() : void {
-    const createDialog = this.dialog.open(TextDialogComponent, {
+    this.dialog.open(TextDialogComponent, {
       data: { title: 'New notebook name' }
-    });
-
-    createDialog
+      })
       .afterClosed()
       .pipe(
-        filter((name) => !!name),
-        mergeMap((name) => this.client.create(name))
+        filter(name => !!name),
+        mergeMap(name => this.client.create(name))
       )
       .subscribe(_ => this.reload());
   }
 
   onRenameClick() {
-    console.log(this.selection);
+    if (this.selection.length !== 1)
+      return;
+
+    const selected = this.selection[0];
+
+    this.dialog
+      .open(TextDialogComponent, {
+        data: { title: `Rename '${selected.value}'` }
+      })
+      .afterClosed()
+      .pipe(
+        filter(name => !!name),
+        mergeMap(name => this.client.rename(selected.id, name))
+      )
+      .subscribe(_ => this.reload());
   }
 
   private reload(): void {
     this.client.all(undefined, undefined)
       .subscribe(
-        (data) => this.notebooks = data.items?.map(x => x.value!));    
+        (data) => this.notebooks = data.items);    
   }
 }
