@@ -4,13 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { provideProtractorTestingSupport } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { EMPTY, iif, Observable, of } from 'rxjs';
-import { expand, filter, map, mergeMap, switchMap, takeUntil, takeWhile, withLatestFrom } from 'rxjs/operators';
+import { expand, filter, map, mergeMap, switchMap, takeUntil, takeWhile, tap, withLatestFrom } from 'rxjs/operators';
 import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
 import { AddNoteDialogData } from 'src/app/interfaces/add-note-dialog-data';
 import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
-import { ContinueAddNoteDialogComponent } from '../add-note-dialog/continue-add-note-dialog.component';
+import { ContinueAddNoteDialogComponent } from '../continue-add-note-dialog/continue-add-note-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
+import { StartAddNoteDialogComponent } from '../start-add-note-dialog/start-add-note-dialog.component';
 
 @Component({
   selector: 'app-notebook',
@@ -88,14 +89,15 @@ export class NotebookComponent implements OnInit {
 
   onCreateClick() {
     const getAdded = this.dialog
-      .open(TextDialogComponent, {
-        data: { title: 'Add new note' }
-      })
+      .open(StartAddNoteDialogComponent)
       .afterClosed();
 
     getAdded
       .pipe(
-        mergeMap(name => this.client.startAdd(this.notebookId, [ name ])),
+        filter(names => !!names),
+        map((names: string[]) => names.filter(x => !!x)),
+        filter(names => !!names.length),
+        mergeMap(names => this.client.startAdd(this.notebookId, names)),
         withLatestFrom(getAdded),
         expand(([addResult, added]) => {
             if (!addResult.right)
@@ -109,13 +111,13 @@ export class NotebookComponent implements OnInit {
       .subscribe({ complete: () => this.reload() });
   }
 
-  private continueAdd(name: string, either: Int32IReadOnlyCollectionQuestionEither) {
+  private continueAdd(names: string[], either: Int32IReadOnlyCollectionQuestionEither) {
     if (!either.right)
       return of(either);
 
     return this.dialog
       .open(ContinueAddNoteDialogComponent, {
-        data: { added: name, note: either.right.text }
+        data: { added: names[0], note: either.right.text }
       })
       .afterClosed()
       .pipe(
