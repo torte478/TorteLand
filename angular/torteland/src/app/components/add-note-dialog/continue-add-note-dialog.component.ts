@@ -4,14 +4,14 @@ import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
 import { AddNoteDialogData } from '../../interfaces/add-note-dialog-data';
 
 @Component({
-  selector: 'app-add-note-dialog',
-  templateUrl: './add-note-dialog.component.html',
-  styleUrls: ['./add-note-dialog.component.css']
+  selector: 'continue-add-note-dialog.component',
+  templateUrl: './continue-add-note-dialog.component.html',
+  styleUrls: ['./continue-add-note-dialog.component.css']
 })
-export class AddNoteDialogComponent {
+export class ContinueAddNoteDialogComponent {
 
   constructor(
-    public dialogRef: MatDialogRef<AddNoteDialogComponent>,
+    public dialogRef: MatDialogRef<ContinueAddNoteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public input: AddNoteDialogData
   ) {}
 

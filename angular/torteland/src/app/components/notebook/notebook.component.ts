@@ -8,7 +8,7 @@ import { expand, filter, map, mergeMap, switchMap, takeUntil, takeWhile, withLat
 import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
 import { AddNoteDialogData } from 'src/app/interfaces/add-note-dialog-data';
 import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
-import { AddNoteDialogComponent } from '../add-note-dialog/add-note-dialog.component';
+import { ContinueAddNoteDialogComponent } from '../add-note-dialog/continue-add-note-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
 
@@ -114,12 +114,15 @@ export class NotebookComponent implements OnInit {
       return of(either);
 
     return this.dialog
-      .open(AddNoteDialogComponent, {
+      .open(ContinueAddNoteDialogComponent, {
         data: { added: name, note: either.right.text }
       })
       .afterClosed()
       .pipe(
         mergeMap(res => {
+          if (!res)
+            return EMPTY;
+
           const isRight = res === AddNoteDialogResult.Yes 
                           || (res === AddNoteDialogResult.Random && Math.random() >= 0.5);
 

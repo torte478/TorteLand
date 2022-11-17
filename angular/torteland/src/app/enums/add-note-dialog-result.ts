@@ -1,5 +1,5 @@
 export enum AddNoteDialogResult {
-    Yes,
-    No,
-    Random
+    Yes = 1,
+    No = 2,
+    Random = 3
 }

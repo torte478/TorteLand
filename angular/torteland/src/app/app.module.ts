@@ -17,7 +17,7 @@ import { TextDialogComponent } from './components/dialogs/text-dialog/text-dialo
 import { ConfirmDialogComponent } from './components/dialogs/confirm-dialog/confirm-dialog.component';
 import { NotebookComponent } from './components/notebook/notebook.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AddNoteDialogComponent } from './components/add-note-dialog/add-note-dialog.component';
+import { ContinueAddNoteDialogComponent } from './components/add-note-dialog/continue-add-note-dialog.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +26,7 @@ import { AddNoteDialogComponent } from './components/add-note-dialog/add-note-di
     TextDialogComponent,
     ConfirmDialogComponent,
     NotebookComponent,
-    AddNoteDialogComponent
+    ContinueAddNoteDialogComponent
   ],
   imports: [
     BrowserModule,
