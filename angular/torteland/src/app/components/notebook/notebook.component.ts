@@ -1,9 +1,10 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { provideProtractorTestingSupport } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { filter, map, mergeMap, takeUntil, takeWhile } from 'rxjs/operators';
+import { EMPTY, iif, Observable, of } from 'rxjs';
+import { expand, filter, map, mergeMap, switchMap, takeUntil, takeWhile, withLatestFrom } from 'rxjs/operators';
 import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
 import { AddNoteDialogData } from 'src/app/interfaces/add-note-dialog-data';
 import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
@@ -18,7 +19,7 @@ import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.componen
 })
 export class NotebookComponent implements OnInit {
 
-  id?: number;
+  notebookId?: number;
   name?: string;
   notes?: Int32StringKeyValuePair[];
   selection: Int32StringKeyValuePair[] = [];
@@ -32,15 +33,15 @@ export class NotebookComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const notebookId = Number(this.route.snapshot.paramMap.get('id'));
 
     this.acrudClient.all(undefined, undefined)
       .pipe(
         map(page => {
-          const item = page.items?.filter(x => x.id === id);
+          const item = page.items?.filter(x => x.id === notebookId);
           if (!!item)
           {
-            this.id = id;
+            this.notebookId = notebookId;
             this.name = item[0].value;
           }
         }))
@@ -63,7 +64,7 @@ export class NotebookComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(name => !!name),
-        mergeMap(name => this.client.rename(this.id, selected.key, name))
+        mergeMap(name => this.client.rename(this.notebookId, selected.key, name))
       )
       .subscribe(_ => this.reload());
   }
@@ -80,42 +81,51 @@ export class NotebookComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(res => !!res),
-        mergeMap(_ => this.client.delete(this.id, selected.key))
+        mergeMap(_ => this.client.delete(this.notebookId, selected.key))
       )
       .subscribe(_ => this.reload());
   }
 
   onCreateClick() {
-    this.dialog
+    const getAdded = this.dialog
       .open(TextDialogComponent, {
         data: { title: 'Add new note' }
       })
-      .afterClosed()
+      .afterClosed();
+
+    getAdded
       .pipe(
-        mergeMap(name => this.Foo(name)))
-      .subscribe(_ => this.reload());
+        mergeMap(name => this.client.startAdd(this.notebookId, [ name ])),
+        withLatestFrom(getAdded),
+        expand(([addResult, added]) => {
+            if (!addResult.right)
+              return EMPTY;
+
+            return this.continueAdd(added, addResult)
+              .pipe(
+                map(_ => [_, added]));
+        })
+      )
+      .subscribe({ complete: () => this.reload() });
   }
 
-  private Foo(name: string) {
-    return this.client.startAdd(this.id, [name])
-      .pipe(
-        filter(_ => !!_.right),
-        mergeMap(_ => this.Bar({ added: name, note: _.right?.text}, _.right?.id)),
-        mergeMap(_ => this.client.continueAdd(this.id, _.transactionId, _.isRight)),
-      );
-  }
+  private continueAdd(name: string, either: Int32IReadOnlyCollectionQuestionEither) {
+    if (!either.right)
+      return of(either);
 
-  private Bar(data: AddNoteDialogData, transactionId?: string): Observable<FooBar> {
     return this.dialog
-      .open(AddNoteDialogComponent, {data: data})
+      .open(AddNoteDialogComponent, {
+        data: { added: name, note: either.right.text }
+      })
       .afterClosed()
       .pipe(
-        map(res => { return {
-          transactionId: transactionId,
-          isRight: res === AddNoteDialogResult.Yes 
-                   || (res === AddNoteDialogResult.Random && Math.random() >= 0.5)
-        }})
-      );
+        mergeMap(res => {
+          const isRight = res === AddNoteDialogResult.Yes 
+                          || (res === AddNoteDialogResult.Random && Math.random() >= 0.5);
+
+          return this.client.continueAdd(this.notebookId, either.right?.id, isRight)
+        })
+      )
   }
 
   private getSelected()  {
@@ -125,10 +135,10 @@ export class NotebookComponent implements OnInit {
   }
 
   private reload() {
-    if (this.id === null)
+    if (this.notebookId === null)
       return;
 
-    this.client.all(this.id, undefined, undefined)
+    this.client.all(this.notebookId, undefined, undefined)
       .subscribe(page => this.notes = page.items)
   }
 }
