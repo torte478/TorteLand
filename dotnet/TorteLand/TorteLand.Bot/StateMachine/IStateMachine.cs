@@ -20,4 +20,6 @@ internal interface IStateMachine
         Guid transaction,
         string note,
         CancellationToken token);
+
+    Task<string> ToRemoveNotebookState(int index, string name, CancellationToken token);
 }

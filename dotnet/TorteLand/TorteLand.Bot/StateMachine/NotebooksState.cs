@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +12,8 @@ internal sealed class NotebooksState : BaseState
 {
     private readonly INotebooksAcrudClient _client;
     private readonly int _pageSize;
+    private readonly Dictionary<int, string> _cache = new();
+    
     private int _offset;
 
     public NotebooksState(int pageSize, INotebooksAcrudClient client, IStateMachine context)
@@ -57,12 +59,12 @@ internal sealed class NotebooksState : BaseState
         return Context.ToNotebookState(index, token);
     }
 
-    private async Task<string> Delete(ICommand command, CancellationToken token)
+    private Task<string> Delete(ICommand command, CancellationToken token)
     {
         var (index, _) = command.ToInt();
+        var name = _cache[index];
 
-        await _client.DeleteAsync(index, token);
-        return await All(_offset, token);
+        return Context.ToRemoveNotebookState(index, name, token);
     }
 
     private async Task<string> Create(ICommand command, CancellationToken token)
@@ -75,6 +77,12 @@ internal sealed class NotebooksState : BaseState
 
     private async Task<string> All(int offset, CancellationToken token)
     {
+        var page = await Reload(offset, token);
+        return All(page);
+    }
+
+    private async Task<StringUniquePage> Reload(int offset, CancellationToken token)
+    {
         offset = Math.Max(0, offset);
 
         var page = await _client.AllAsync(_pageSize, offset * _pageSize, token);
@@ -82,6 +90,16 @@ internal sealed class NotebooksState : BaseState
         if (page.Items.Count > 0)
             _offset = offset;
 
+        _cache.Clear();
+
+        foreach (var line in page.Items)
+            _cache.Add(line.Id, line.Value);
+
+        return page;
+    }
+
+    private string All(StringUniquePage page)
+    {
         var result = new StringBuilder();
 
         if (page.Items.Count < page.TotalItems && page.Items.Count > 0)
@@ -93,9 +111,9 @@ internal sealed class NotebooksState : BaseState
                   ._(result.AppendLine)
                   .AppendLine();
 
-        foreach (var line in page.Items.Select(_ => $"{_.Id}. {_.Value}"))
-            result.AppendLine(line);
+        foreach (var line in page.Items)
+            result.AppendLine($"{line.Id}. {line.Value}");
 
-        return result.ToString();
+        return result.ToString();       
     }
 }

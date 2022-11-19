@@ -49,7 +49,20 @@ internal sealed class StateMachine : IStateMachine
         string note,
         CancellationToken token)
     {
-        var next = new NotebookAddState(key, notes, transaction, note, _factory.CreateNotebooksClient(), _random, this);
+        var next = new NotebookAddState(
+            key,
+            notes,
+            transaction,
+            note,
+            _factory.CreateNotebooksClient(),
+            _random,
+            this);
+        return SetState(next, token);
+    }
+
+    public Task<string> ToRemoveNotebookState(int index, string name, CancellationToken token)
+    {
+        var next = new RemoveNotebookState(index, name, _factory.CreateNotebooksAcrudClient(),this);
         return SetState(next, token);
     }
 

@@ -18,7 +18,7 @@ internal sealed class StateMachineFactory : IStateMachineFactory
 
     public IStateMachine Create()
     {
-        var machine = new StateMachine(_pageSize, _factory, _random);
+        IStateMachine machine = new StateMachine(_pageSize, _factory, _random);
         var start = new NotebooksState(_pageSize, _factory.CreateNotebooksAcrudClient(), machine);
         machine.SetState(start);
         return machine;
