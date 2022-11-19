@@ -14,6 +14,5 @@ export class TextDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<TextDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public input: TitleDialogData
-  ) { 
-  }
+  ) {}
 }

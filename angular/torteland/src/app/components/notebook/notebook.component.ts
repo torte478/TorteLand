@@ -1,12 +1,11 @@
+import { ComponentType } from '@angular/cdk/portal';
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { provideProtractorTestingSupport } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
-import { EMPTY, iif, Observable, of } from 'rxjs';
-import { expand, filter, map, mergeMap, switchMap, takeUntil, takeWhile, tap, withLatestFrom } from 'rxjs/operators';
+import { EMPTY, Observable, of } from 'rxjs';
+import { expand, filter, map, mergeMap, tap, withLatestFrom } from 'rxjs/operators';
 import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
-import { AddNoteDialogData } from 'src/app/interfaces/add-note-dialog-data';
 import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
 import { ContinueAddNoteDialogComponent } from '../continue-add-note-dialog/continue-add-note-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
@@ -59,17 +58,15 @@ export class NotebookComponent implements OnInit {
     if (!selected)
       return;
 
-    this.dialog
-      .open(TextDialogComponent, {
-        data: { title: `Rename '${selected.value}'` }
-      })
-      .afterClosed()
-      .pipe(
-        filter(name => !!name),
-        tap(_ => this.isBusy = true),
-        mergeMap(name => this.client.rename(this.notebookId, selected.key, name))
-      )
-      .subscribe(_ => this.reload());
+    this.RunWithDialog(
+      TextDialogComponent,
+      `Rename ${selected.value}`,
+      _ => _.pipe(
+        mergeMap(name => this.client.rename(
+          this.notebookId, 
+          selected.key, 
+          name as string))
+    ));
   }
 
   onDeleteClick() {
@@ -77,18 +74,13 @@ export class NotebookComponent implements OnInit {
     if (!selected)
       return;
 
-    this.dialog
-      .open(ConfirmDialogComponent, {
-        data: { title: `Delete '${selected.value}' ?` }
-      })
-      .afterClosed()
-      .pipe(
-        filter(res => !!res),
-        tap(_ => this.isBusy = true),
+    this.RunWithDialog(
+      ConfirmDialogComponent,
+      `Delete '${selected.value}' ?`,
+      _ => _.pipe(
         mergeMap(_ => this.client.delete(this.notebookId, selected.key)),
         tap(_ => this.selection = [])
-      )
-      .subscribe(_ => this.reload());
+    ));
   }
 
   onCreateClick() {
@@ -116,13 +108,18 @@ export class NotebookComponent implements OnInit {
       .subscribe({ complete: () => this.reload() });
   }
 
-  private continueAdd(names: string[], either: Int32IReadOnlyCollectionQuestionEither) {
+  private continueAdd(
+    names: string[], 
+    either: Int32IReadOnlyCollectionQuestionEither) {
+
     if (!either.right)
       return of(either);
 
     return this.dialog
       .open(ContinueAddNoteDialogComponent, {
-        data: { added: names[0], note: either.right.text }
+        data: { 
+          added: names[0], 
+          note: either.right.text }
       })
       .afterClosed()
       .pipe(
@@ -131,11 +128,31 @@ export class NotebookComponent implements OnInit {
             return EMPTY;
 
           const isRight = res === AddNoteDialogResult.Yes 
-                          || (res === AddNoteDialogResult.Random && Math.random() >= 0.5);
+                          || (res === AddNoteDialogResult.Random 
+                              && Math.random() >= 0.5);
 
           return this.client.continueAdd(this.notebookId, either.right?.id, isRight)
         })
       )
+  }
+
+  private RunWithDialog<TDialog, TDialogResult, TOut>(
+    dialogType: ComponentType<TDialog>, 
+    title: string, 
+    fn: (x: Observable<TDialogResult>) => Observable<TOut>) {
+
+    const dialogResult = this.dialog
+      .open(dialogType, {
+        data: { title: title }
+      })
+      .afterClosed()
+      .pipe(
+        filter(res => !!res),
+        tap(_ => this.isBusy = true)
+      );
+
+    fn(dialogResult)
+      .subscribe(_ => this.reload());
   }
 
   private getSelected()  {
@@ -154,9 +171,4 @@ export class NotebookComponent implements OnInit {
         this.isBusy = false;
       });
   }
-}
-
-interface FooBar {
-  transactionId?: string,
-  isRight: boolean
 }

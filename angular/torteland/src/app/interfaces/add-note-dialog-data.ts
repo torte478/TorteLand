@@ -1,4 +1,4 @@
 export interface AddNoteDialogData {
     added: string,
-    note?: string
+    note: string
 }

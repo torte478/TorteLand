@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
 
@@ -20,7 +20,7 @@ export class StartAddNoteDialogComponent {
       this.notes.push('');
     }
 
-    trackByFn(index: any, item: any) {
+    trackByFn(index: any) {
       return index;
     }
 }
