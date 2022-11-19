@@ -70,7 +70,8 @@ export class NotebooksAcrudComponent implements OnInit {
       .pipe(
         filter(res => !!res),
         tap(_ => this.isBusy = true),
-        mergeMap(_ => this.client.delete(selected.id))
+        mergeMap(_ => this.client.delete(selected.id)),
+        tap(_ => this.selection = [])
       )
       .subscribe(_ => this.reload());
   }

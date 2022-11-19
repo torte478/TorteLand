@@ -85,7 +85,8 @@ export class NotebookComponent implements OnInit {
       .pipe(
         filter(res => !!res),
         tap(_ => this.isBusy = true),
-        mergeMap(_ => this.client.delete(this.notebookId, selected.key))
+        mergeMap(_ => this.client.delete(this.notebookId, selected.key)),
+        tap(_ => this.selection = [])
       )
       .subscribe(_ => this.reload());
   }
