@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { filter, mergeMap } from 'rxjs';
+import { filter, mergeMap, tap } from 'rxjs';
 import { NotebooksAcrudClient, StringUnique } from 'src/app/services/generated';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
@@ -15,6 +15,7 @@ export class NotebooksAcrudComponent implements OnInit {
 
   notebooks: StringUnique[] | undefined;
   selection: StringUnique[] = [];
+  isBusy: Boolean = true;
 
   constructor(
     private client: NotebooksAcrudClient,
@@ -32,6 +33,7 @@ export class NotebooksAcrudComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(name => !!name),
+        tap(_ => this.isBusy = true),
         mergeMap(name => this.client.create(name))
       )
       .subscribe(_ => this.reload());
@@ -49,6 +51,7 @@ export class NotebooksAcrudComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(name => !!name),
+        tap(_ => this.isBusy = true),
         mergeMap(name => this.client.rename(selected.id, name))
       )
       .subscribe(_ => this.reload());
@@ -66,6 +69,7 @@ export class NotebooksAcrudComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(res => !!res),
+        tap(_ => this.isBusy = true),
         mergeMap(_ => this.client.delete(selected.id))
       )
       .subscribe(_ => this.reload());
@@ -88,6 +92,9 @@ export class NotebooksAcrudComponent implements OnInit {
   private reload(): void {
     this.client.all(undefined, undefined)
       .subscribe(
-        (data) => this.notebooks = data.items);    
+        (data) => {
+          this.notebooks = data.items;
+          this.isBusy = false;
+        });    
   }
 }

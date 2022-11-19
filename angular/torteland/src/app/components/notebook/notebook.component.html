@@ -1,10 +1,10 @@
 <h2>{{name}}</h2>
 
-<button mat-raised-button (click)="onCreateClick()">Create</button>
+<button mat-raised-button (click)="onCreateClick()" [disabled]="isBusy">Create</button>
 
 <div>
-  <button mat-raised-button (click)="onRenameClick()">Rename</button>
-  <button mat-raised-button (click)="onDeleteClick()">Delete</button>
+  <button mat-raised-button (click)="onRenameClick()" [disabled]="isBusy">Rename</button>
+  <button mat-raised-button (click)="onDeleteClick()" [disabled]="isBusy">Delete</button>
 </div>
 
 <mat-selection-list [(ngModel)]="selection" [multiple]="false">
@@ -13,4 +13,4 @@
     </mat-list-option>
 </mat-selection-list>
 
-<button mat-raised-button (click)="onBackClick()">Back</button>
+<button mat-raised-button (click)="onBackClick()" [disabled]="isBusy">Back</button>

@@ -24,6 +24,7 @@ export class NotebookComponent implements OnInit {
   name?: string;
   notes?: Int32StringKeyValuePair[];
   selection: Int32StringKeyValuePair[] = [];
+  isBusy: Boolean = true;
 
   constructor(
     private acrudClient: NotebooksAcrudClient,
@@ -65,6 +66,7 @@ export class NotebookComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(name => !!name),
+        tap(_ => this.isBusy = true),
         mergeMap(name => this.client.rename(this.notebookId, selected.key, name))
       )
       .subscribe(_ => this.reload());
@@ -82,6 +84,7 @@ export class NotebookComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(res => !!res),
+        tap(_ => this.isBusy = true),
         mergeMap(_ => this.client.delete(this.notebookId, selected.key))
       )
       .subscribe(_ => this.reload());
@@ -97,6 +100,7 @@ export class NotebookComponent implements OnInit {
         filter(names => !!names),
         map((names: string[]) => names.filter(x => !!x)),
         filter(names => !!names.length),
+        tap(_ => this.isBusy = true),
         mergeMap(names => this.client.startAdd(this.notebookId, names)),
         withLatestFrom(getAdded),
         expand(([addResult, added]) => {
@@ -144,7 +148,10 @@ export class NotebookComponent implements OnInit {
       return;
 
     this.client.all(this.notebookId, undefined, undefined)
-      .subscribe(page => this.notes = page.items)
+      .subscribe(page => {
+        this.notes = page.items;
+        this.isBusy = false;
+      });
   }
 }
 
