@@ -1,4 +1,7 @@
-﻿namespace TorteLand.Firebase.Integration;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace TorteLand.Firebase.Integration;
 
 internal interface IEntityAcrud
 {

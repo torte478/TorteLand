@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Firebase.Database;
 using TorteLand.Firebase.Integration;
@@ -12,6 +15,9 @@ public static class IocExtensions
     {
         var config = configuration.GetSection("Firebase");
 
+        services.AddHttpClient()
+                .RemoveAll<IHttpMessageHandlerBuilderFilter>();
+        
         // TODO : to IOptions
         services.AddSingleton<IFirebaseClientFactory>(
             _ => new FirebaseClientFactory(
@@ -19,7 +25,8 @@ public static class IocExtensions
                     Url: config["Url"],
                     Email: config["Email"],
                     Password: config["Password"],
-                    ApiKey: config["ApiKey"])));
+                    ApiKey: config["ApiKey"]),
+                _.GetRequiredService<IHttpClientFactory>()));
 
         services.AddSingleton<IEntityAcrudFactory>(
             _ => new EntityAcrudFactory(
