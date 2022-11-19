@@ -1,12 +1,29 @@
-<div>
-    <button mat-raised-button (click)="onCreateClick()" [disabled]="isBusy">Create</button>
-</div>
+    <div class="button-row">
+        <button mat-raised-button (click)="onCreateClick()" [disabled]="isBusy">Create</button>
+    </div>
 
-<div>
-    <button mat-raised-button (click)="onOpenClick()" [disabled]="isBusy">Open</button>
-    <button mat-raised-button (click)="onRenameClick()" [disabled]="isBusy">Rename</button>
-    <button mat-raised-button (click)="onDeleteClick()" [disabled]="isBusy">Delete</button>
-</div>
+    <div class="button-row">
+        <button
+            mat-raised-button 
+            (click)="onOpenClick()" 
+            [disabled]="isBusy || !selection.length">
+            Open
+        </button>
+
+        <button 
+            mat-raised-button 
+            (click)="onRenameClick()" 
+            [disabled]="isBusy || !selection.length">
+            Rename
+        </button>
+
+        <button 
+            mat-raised-button 
+            (click)="onDeleteClick()" 
+            [disabled]="isBusy || !selection.length">
+            Delete
+        </button>
+    </div>
 
 <mat-selection-list [(ngModel)]="selection" [multiple]="false">
     <mat-list-option *ngFor="let notebook of notebooks" [value]="notebook">

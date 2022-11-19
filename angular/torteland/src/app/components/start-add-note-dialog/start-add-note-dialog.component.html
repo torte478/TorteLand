@@ -3,7 +3,9 @@
 <div mat-dialog-content>
     <ul>
         <li *ngFor="let note of notes; let i = index; trackBy: trackByFn">
-            <input matInput [(ngModel)]="notes[i]">
+            <mat-form-field appearance="fill">
+                <input matInput [(ngModel)]="notes[i]">
+            </mat-form-field>
         </li>
     </ul>
 </div>
