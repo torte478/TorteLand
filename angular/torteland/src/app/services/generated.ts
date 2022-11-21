@@ -470,11 +470,67 @@ export class NotebooksAcrudClient {
 
     /**
      * @param index (optional) 
+     * @return Success
+     */
+    read(index: number | undefined): Observable<StringMaybe> {
+        let url_ = this.baseUrl + "/NotebooksAcrud/Read?";
+        if (index === null)
+            throw new Error("The parameter 'index' cannot be null.");
+        else if (index !== undefined)
+            url_ += "index=" + encodeURIComponent("" + index) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRead(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRead(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<StringMaybe>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<StringMaybe>;
+        }));
+    }
+
+    protected processRead(response: HttpResponseBase): Observable<StringMaybe> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = StringMaybe.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param index (optional) 
      * @param name (optional) 
      * @return Success
      */
-    rename(index: number | undefined, name: string | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/NotebooksAcrud/Rename?";
+    update(index: number | undefined, name: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/NotebooksAcrud/Update?";
         if (index === null)
             throw new Error("The parameter 'index' cannot be null.");
         else if (index !== undefined)
@@ -493,11 +549,11 @@ export class NotebooksAcrudClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processRename(response_);
+            return this.processUpdate(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processRename(response_ as any);
+                    return this.processUpdate(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -506,7 +562,7 @@ export class NotebooksAcrudClient {
         }));
     }
 
-    protected processRename(response: HttpResponseBase): Observable<void> {
+    protected processUpdate(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -756,6 +812,46 @@ export class Question implements IQuestion {
 export interface IQuestion {
     id?: string;
     text?: string | undefined;
+}
+
+export class StringMaybe implements IStringMaybe {
+    isSome?: boolean;
+    value?: string | undefined;
+
+    constructor(data?: IStringMaybe) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isSome = _data["isSome"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): StringMaybe {
+        data = typeof data === 'object' ? data : {};
+        let result = new StringMaybe();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isSome"] = this.isSome;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface IStringMaybe {
+    isSome?: boolean;
+    value?: string | undefined;
 }
 
 export class StringUnique implements IStringUnique {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ internal sealed class NotebooksState : BaseState
 {
     private readonly INotebooksAcrudClient _client;
     private readonly int _pageSize;
-    private readonly Dictionary<int, string> _cache = new();
     
     private int _offset;
 
@@ -49,7 +47,7 @@ internal sealed class NotebooksState : BaseState
         var (id, tail) = command.ToInt();
         var (text, _) = tail.ToLine();
 
-        await _client.RenameAsync(id, text, token);
+        await _client.UpdateAsync(id, text, token);
         return await All(_offset, token);
     }
 
@@ -59,12 +57,15 @@ internal sealed class NotebooksState : BaseState
         return Context.ToNotebookState(index, token);
     }
 
-    private Task<string> Delete(ICommand command, CancellationToken token)
+    private async Task<string> Delete(ICommand command, CancellationToken token)
     {
         var (index, _) = command.ToInt();
-        var name = _cache[index];
+        var name = await _client.ReadAsync(index, token);
 
-        return Context.ToRemoveNotebookState(index, name, token);
+        if (!name.IsSome)
+            return $"Wrong index: {index}";
+
+        return await Context.ToRemoveNotebookState(index, name.Value, token);
     }
 
     private async Task<string> Create(ICommand command, CancellationToken token)
@@ -89,11 +90,6 @@ internal sealed class NotebooksState : BaseState
 
         if (page.Items.Count > 0)
             _offset = offset;
-
-        _cache.Clear();
-
-        foreach (var line in page.Items)
-            _cache.Add(line.Id, line.Value);
 
         return page;
     }

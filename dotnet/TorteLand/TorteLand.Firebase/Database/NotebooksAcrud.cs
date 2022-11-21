@@ -40,11 +40,14 @@ internal sealed class NotebooksAcrud : INotebooksAcrud
                .i;
     }
 
-    public async Task<string> Read(int index, CancellationToken token)
+    public async Task<Maybe<string>> Read(int index, CancellationToken token)
     {
         var acrud = await _acrud;
         var entities = await acrud.All();
-        return entities.ElementAt(index).Name;
+        
+        return index >= 0 && index < entities.Count
+               ? entities.ElementAt(index).Name._(Maybe.Some)
+               : Maybe.None<string>();
     }
 
     public async Task Delete(int index, CancellationToken token)
@@ -55,7 +58,7 @@ internal sealed class NotebooksAcrud : INotebooksAcrud
         await acrud.Delete(id);
     }
 
-    public async Task Rename(int index, string name, CancellationToken token)
+    public async Task Update(int index, string name, CancellationToken token)
     {
         var acrud = await _acrud;
         var entities = await acrud.All();

@@ -45,7 +45,7 @@ export class NotebooksAcrudComponent implements OnInit {
       TextDialogComponent,
       `Rename '${selected.value}'`,
       _ => _.pipe(
-        mergeMap(name => this.client.rename(selected.id, name as string))
+        mergeMap(name => this.client.update(selected.id, name as string))
     ));
   }
 
