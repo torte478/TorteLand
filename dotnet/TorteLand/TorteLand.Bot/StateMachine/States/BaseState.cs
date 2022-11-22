@@ -2,15 +2,15 @@
 using System.Threading.Tasks;
 using TorteLand.Bot.Integration;
 
-namespace TorteLand.Bot.StateMachine;
+namespace TorteLand.Bot.StateMachine.States;
 
 internal abstract class BaseState : IState
 {
-    protected IStateMachine Context { get; }
+    protected IStateMachine Machine { get; }
 
-    protected BaseState(IStateMachine context)
+    protected BaseState(IStateMachine machine)
     {
-        Context = context;
+        Machine = machine;
     }
 
     public abstract Task<string> Process(ICommand command, CancellationToken token);

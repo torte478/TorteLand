@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.Bot.Integration;
+using TorteLand.Bot.StateMachine.States;
 using TorteLand.Bot.Utils;
 
 namespace TorteLand.Bot.StateMachine;
@@ -49,14 +50,14 @@ internal sealed class StateMachine : IStateMachine
         string note,
         CancellationToken token)
     {
-        var next = new NotebookAddState(
+        var context = new NotebookAddStateContext(
             key,
             notes,
             transaction,
-            note,
             _factory.CreateNotebooksClient(),
-            _random,
-            this);
+            _random);
+        
+        var next = new NotebookAddState(context, note, this);
         return SetState(next, token);
     }
 

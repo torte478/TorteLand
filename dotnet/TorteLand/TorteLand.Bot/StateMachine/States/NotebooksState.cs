@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using TorteLand.App.Client;
 using TorteLand.Bot.Integration;
 
-namespace TorteLand.Bot.StateMachine;
+namespace TorteLand.Bot.StateMachine.States;
 
 internal sealed class NotebooksState : BaseState
 {
@@ -14,8 +14,8 @@ internal sealed class NotebooksState : BaseState
     
     private int _offset;
 
-    public NotebooksState(int pageSize, INotebooksAcrudClient client, IStateMachine context)
-        : base(context)
+    public NotebooksState(int pageSize, INotebooksAcrudClient client, IStateMachine machine)
+        : base(machine)
     {
         _client = client;
         _pageSize = pageSize;
@@ -54,7 +54,7 @@ internal sealed class NotebooksState : BaseState
     private Task<string> Open(ICommand command, CancellationToken token)
     {
         var (index, _) = command.ToInt();
-        return Context.ToNotebookState(index, token);
+        return Machine.ToNotebookState(index, token);
     }
 
     private async Task<string> Delete(ICommand command, CancellationToken token)
@@ -65,10 +65,10 @@ internal sealed class NotebooksState : BaseState
         if (!name.IsSome)
             return $"Wrong index: {index}";
 
-        return await Context.ToConfirmActionState(
+        return await Machine.ToConfirmActionState(
                    $"Delete '{name.Value}'?",
                    ct => Delete(index, ct),
-                   Context.ToNotebooksState,
+                   Machine.ToNotebooksState,
                    token);
     }
 

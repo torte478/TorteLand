@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TorteLand.App.Client;
 using TorteLand.Bot.Integration;
 
-namespace TorteLand.Bot.StateMachine;
+namespace TorteLand.Bot.StateMachine.States;
 
 internal sealed class NotebookState : BaseState
 {
@@ -16,8 +16,8 @@ internal sealed class NotebookState : BaseState
 
     private int _offset;
 
-    public NotebookState(int key, int pageSize, INotebooksClient client, IStateMachine context)
-        : base(context)
+    public NotebookState(int key, int pageSize, INotebooksClient client, IStateMachine machine)
+        : base(machine)
     {
         _key = key;
         _client = client;
@@ -44,7 +44,7 @@ internal sealed class NotebookState : BaseState
     public override Task<string> Process(CancellationToken token) => All(_offset, token);
 
     private Task<string> Close(CancellationToken token)
-        => Context.ToNotebooksState(token);
+        => Machine.ToNotebooksState(token);
 
     private async Task<string> All(int offset, CancellationToken token)
     {
@@ -82,7 +82,7 @@ internal sealed class NotebookState : BaseState
 
         var guid = response.Right.Id;
         var item = response.Right.Text;
-        return await Context.ToNotebookAddState(_key, notes, guid, item, token);
+        return await Machine.ToNotebookAddState(_key, notes, guid, item, token);
     }
 
     private async Task<string> Delete(ICommand command, CancellationToken token)
@@ -93,10 +93,10 @@ internal sealed class NotebookState : BaseState
         if (!name.IsSome)
             return $"Wrong index: {index}";
 
-        return await Context.ToConfirmActionState(
+        return await Machine.ToConfirmActionState(
                    $"Delete '{name.Value}'?",
                    ct => Delete(index, ct),
-                   ct => Context.ToNotebookState(_key, ct),
+                   ct => Machine.ToNotebookState(_key, ct),
                    token);
     }
     

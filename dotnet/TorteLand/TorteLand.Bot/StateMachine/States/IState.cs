@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TorteLand.Bot.Integration;
 
-namespace TorteLand.Bot.StateMachine;
+namespace TorteLand.Bot.StateMachine.States;
 
 internal interface IState
 {

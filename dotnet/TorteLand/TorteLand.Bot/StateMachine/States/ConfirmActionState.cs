@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.Bot.Integration;
 
-namespace TorteLand.Bot.StateMachine;
+namespace TorteLand.Bot.StateMachine.States;
 
 internal sealed class ConfirmActionState : BaseState
 {
@@ -15,8 +15,8 @@ internal sealed class ConfirmActionState : BaseState
         string question,
         Func<CancellationToken, Task<string>> onAction,
         Func<CancellationToken, Task<string>> onCancel,
-        IStateMachine context)
-        : base(context)
+        IStateMachine machine)
+        : base(machine)
     {
         _question = question;
         _onAction = onAction;

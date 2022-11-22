@@ -3,6 +3,7 @@ using NUnit.Framework;
 using TorteLand.App.Client;
 using TorteLand.Bot.Integration;
 using TorteLand.Bot.StateMachine;
+using TorteLand.Bot.StateMachine.States;
 using TorteLand.Bot.Utils;
 
 // ReSharper disable InconsistentNaming
