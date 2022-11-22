@@ -36,7 +36,7 @@ internal sealed class Notebook_Should
         var notebook = Create(Array.Empty<string>());
         notebook.Add(new[] { "2", "1", "0" }, Maybe.None<ResolvedSegment>());
 
-        notebook.Rename(0, "renamed");
+        notebook.Update(0, "renamed");
 
         var actual = notebook.Select(_ => _.Value.Weight);
         Assert.That(actual.SequenceEqual(new[] { 2, 1, 0}), Is.True);

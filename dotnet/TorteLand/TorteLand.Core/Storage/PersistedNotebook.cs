@@ -44,11 +44,11 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return added;
     }
 
-    public async Task Rename(int key, string text, CancellationToken token)
+    public async Task Update(int key, string name, CancellationToken token)
     {
         var origin = await GetOrigin();
         var copy = origin.Clone();
-        copy.Rename(key, text);
+        copy.Update(key, name);
 
         await SaveChanges(copy);
     }
@@ -66,6 +66,12 @@ internal sealed class PersistedNotebook : IAsyncNotebook
 
     public Task DeleteAll(CancellationToken token)
         => _storage.DeleteAll();
+
+    public async Task<Maybe<string>> Read(int key, CancellationToken token)
+    {
+        var origin = await GetOrigin();
+        return origin.Read(key);
+    }
 
     public async Task<Note> ToNote(int key, CancellationToken token)
     {

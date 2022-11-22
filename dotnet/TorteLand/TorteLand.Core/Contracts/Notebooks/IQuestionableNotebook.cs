@@ -15,5 +15,6 @@ public interface IQuestionableNotebook
     Task<Either<IReadOnlyCollection<int>, Question>> Add(Guid id, bool isRight, CancellationToken token);
     Task Delete(int key, CancellationToken token);
     Task DeleteAll(CancellationToken token);
-    Task Rename(int key, string text, CancellationToken token);
+    Task Update(int key, string name, CancellationToken token);
+    Task<Maybe<string>> Read(int key, CancellationToken token);
 }

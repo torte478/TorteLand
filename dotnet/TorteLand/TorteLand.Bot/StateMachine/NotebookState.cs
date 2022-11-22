@@ -88,17 +88,30 @@ internal sealed class NotebookState : BaseState
     private async Task<string> Delete(ICommand command, CancellationToken token)
     {
         var (index, _) = command.ToInt();
+        var name = await _client.ReadAsync(_key, index, token);
 
-        await _client.DeleteAsync(_key, index, token);
-        return await All(_offset, token);
+        if (!name.IsSome)
+            return $"Wrong index: {index}";
+
+        return await Context.ToConfirmActionState(
+                   $"Delete '{name.Value}'?",
+                   ct => Delete(index, ct),
+                   ct => Context.ToNotebookState(_key, ct),
+                   token);
+    }
+    
+    private async Task<string> Delete(int index, CancellationToken token)
+    {
+        await _client.DeleteAsync(_key , index, token);
+        return await Process(token);
     }
 
     private async Task<string> Rename(ICommand command, CancellationToken token)
     {
         var (id, tail) = command.ToInt();
-        var (text, _) = tail.ToLine();
+        var (name, _) = tail.ToLine();
 
-        await _client.RenameAsync(_key, id, text, token);
+        await _client.UpdateAsync(_key, id, name, token);
         return await All(_offset, token);
     }
 }

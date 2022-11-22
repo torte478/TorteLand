@@ -62,7 +62,7 @@ export class NotebookComponent implements OnInit {
       TextDialogComponent,
       `Rename ${selected.value}`,
       _ => _.pipe(
-        mergeMap(name => this.client.rename(
+        mergeMap(name => this.client.update(
           this.notebookId, 
           selected.key, 
           name as string))

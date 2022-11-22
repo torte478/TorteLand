@@ -43,9 +43,14 @@ internal sealed class Notebook : INotebook
            ._(Maybe.Some<IReadOnlyCollection<string>>)
            ._(_ => new Notebook(_));
 
-    public void Rename(int key, string text)
+    public Maybe<string> Read(int key)
+        => key >= 0 && key < _values.Count
+               ? Maybe.Some(_values[key])
+               : Maybe.None<string>(); 
+
+    public void Update(int key, string name)
     {
-        _values[key] = text;
+        _values[key] = name;
     }
 
     public Note Delete(int key)

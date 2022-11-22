@@ -56,11 +56,14 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         _transactions.Clear();
     }
 
-    public async Task Rename(int key, string text, CancellationToken token)
+    public async Task Update(int key, string name, CancellationToken token)
     {
-        await _origin.Rename(key, text, token);
+        await _origin.Update(key, name, token);
         _transactions.Clear();
     }
+
+    public Task<Maybe<string>> Read(int key, CancellationToken token)
+        => _origin.Read(key, token);
 
     private async Task<Either<Added, Question>> Add(
         IReadOnlyCollection<string> values,

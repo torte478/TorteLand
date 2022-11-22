@@ -23,7 +23,7 @@ internal sealed class Notebooks : INotebooks
         _acrud = new AsyncLazy<IEntityAcrud>(acrudFactory.Create);
     }
 
-    public async Task<Page<Unique<Note>>> Read(int index, Maybe<Pagination> pagination, CancellationToken token)
+    public async Task<Page<Unique<Note>>> All(int index, Maybe<Pagination> pagination, CancellationToken token)
     {
         var notebook = await GetNotebook(index);
         return await notebook.All(pagination, token);
@@ -41,10 +41,16 @@ internal sealed class Notebooks : INotebooks
         return await notebook.Add(id, isRight, token);
     }
 
-    public async Task Rename(int index, int id, string text, CancellationToken token)
+    public async Task<Maybe<string>> Read(int index, int key, CancellationToken token)
     {
         var notebook = await GetNotebook(index);
-        await notebook.Rename(id, text, token);
+        return await notebook.Read(key, token);
+    }
+
+    public async Task Update(int index, int id, string name, CancellationToken token)
+    {
+        var notebook = await GetNotebook(index);
+        await notebook.Update(id, name, token);
     }
 
     public async Task Delete(int index, int key, CancellationToken token)

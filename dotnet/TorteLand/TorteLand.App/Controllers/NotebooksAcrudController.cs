@@ -41,9 +41,9 @@ public sealed class NotebooksAcrudController : ControllerBase
     [Route("Read")]
     public async Task<Models.Maybe<string>> Read(int index, CancellationToken token)
     {
-        var note = await _acrud.Read(index, token);
+        var notebook = await _acrud.Read(index, token);
 
-        return note.Match(
+        return notebook.Match(
             _ => new Models.Maybe<string>(true, _),
             () => new Models.Maybe<string>(false, string.Empty));
     }
