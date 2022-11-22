@@ -65,7 +65,11 @@ internal sealed class NotebooksState : BaseState
         if (!name.IsSome)
             return $"Wrong index: {index}";
 
-        return await Context.ToRemoveNotebookState(index, name.Value, token);
+        return await Context.ToConfirmActionState(
+                   $"Delete '{name.Value}'?",
+                   ct => Delete(index, ct),
+                   Context.ToNotebooksState,
+                   token);
     }
 
     private async Task<string> Create(ICommand command, CancellationToken token)
@@ -111,5 +115,11 @@ internal sealed class NotebooksState : BaseState
             result.AppendLine($"{line.Id}. {line.Value}");
 
         return result.ToString();       
+    }
+    
+    private async Task<string> Delete(int index, CancellationToken token)
+    {
+        await _client.DeleteAsync(index, token);
+        return await Process(token);
     }
 }

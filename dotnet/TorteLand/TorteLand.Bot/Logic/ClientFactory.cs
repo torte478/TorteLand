@@ -3,6 +3,7 @@ using System.Net.Http;
 using Telegram.Bot;
 using TorteLand.App.Client;
 
+// TODO : rename namespace
 namespace TorteLand.Bot.Logic;
 
 internal sealed class ClientFactory : IClientFactory, IDisposable

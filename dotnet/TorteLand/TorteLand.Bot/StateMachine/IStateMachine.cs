@@ -21,5 +21,9 @@ internal interface IStateMachine
         string note,
         CancellationToken token);
 
-    Task<string> ToRemoveNotebookState(int index, string name, CancellationToken token);
+    Task<string> ToConfirmActionState(
+        string question,
+        Func<CancellationToken, Task<string>> onAction,
+        Func<CancellationToken, Task<string>> onCancel,
+        CancellationToken token);
 }

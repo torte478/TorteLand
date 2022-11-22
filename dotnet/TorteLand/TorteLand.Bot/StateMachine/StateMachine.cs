@@ -60,11 +60,18 @@ internal sealed class StateMachine : IStateMachine
         return SetState(next, token);
     }
 
-    public Task<string> ToRemoveNotebookState(int index, string name, CancellationToken token)
+    public Task<string> ToConfirmActionState(
+        string question,
+        Func<CancellationToken, Task<string>> onAction,
+        Func<CancellationToken, Task<string>> onCancel,
+        CancellationToken token)
     {
-        var next = new RemoveNotebookState(index, name, _factory.CreateNotebooksAcrudClient(),this);
+        var next = new ConfirmActionState(question, onAction, onCancel, this);
         return SetState(next, token);
     }
+
+    public override string ToString()
+        => $"{GetType().Name}[{_state.GetType().Name}]";
 
     private async Task<string> SetState(IState state, CancellationToken token)
     {

@@ -1,5 +1,6 @@
 <Project>
 	<ItemGroup>
+		<PackageVersion Include="FakeItEasy" Version="7.3.1" />
 		<PackageVersion Include="FirebaseAuthentication.net" Version="4.0.0-alpha.2" />
 		<PackageVersion Include="FirebaseDatabase.net" Version="4.1.0" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
