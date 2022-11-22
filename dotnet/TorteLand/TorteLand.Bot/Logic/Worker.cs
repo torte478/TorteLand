@@ -70,15 +70,16 @@ internal sealed class Worker : BackgroundService
     {
         var message = exception switch
         {
-            ApiRequestException apiException
-                => string.Format(
+            ApiRequestException apiException => 
+                string.Format(
                     "Telegram API Error: [{0}] {1}",
                     apiException.ErrorCode,
                     apiException.Message),
+            
             _ => exception.Message
         };
 
-        _logger.Log(LogLevel.Error, message);
+        _logger.LogError(message, exception);
         return Task.CompletedTask;
     }
 
