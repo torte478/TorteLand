@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using TorteLand.Bot.Logic;
+using TorteLand.Bot.Integration;
 using TorteLand.Bot.Utils;
 
 namespace TorteLand.Bot.StateMachine;

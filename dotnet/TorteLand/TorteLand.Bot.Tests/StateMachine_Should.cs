@@ -1,7 +1,7 @@
 ﻿using FakeItEasy;
 using NUnit.Framework;
 using TorteLand.App.Client;
-using TorteLand.Bot.Logic;
+using TorteLand.Bot.Integration;
 using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
 

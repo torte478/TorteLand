@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TorteLand.Bot.Logic;
+namespace TorteLand.Bot.Integration;
 
 internal sealed class Command : ICommand
 {

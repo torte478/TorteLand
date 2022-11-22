@@ -11,7 +11,7 @@ using Telegram.Bot.Types.Enums;
 using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
 
-namespace TorteLand.Bot.Logic;
+namespace TorteLand.Bot.Integration;
 
 internal sealed class Worker : BackgroundService
 {

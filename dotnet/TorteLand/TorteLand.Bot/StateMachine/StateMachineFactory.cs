@@ -1,4 +1,4 @@
-﻿using TorteLand.Bot.Logic;
+﻿using TorteLand.Bot.Integration;
 using TorteLand.Bot.Utils;
 
 namespace TorteLand.Bot.StateMachine;

@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.App.Client;
-using TorteLand.Bot.Logic;
+using TorteLand.Bot.Integration;
 
 namespace TorteLand.Bot.StateMachine;
 

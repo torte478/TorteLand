@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TorteLand.Bot.Logic;
+namespace TorteLand.Bot.Integration;
 
 internal interface ICommand
 {

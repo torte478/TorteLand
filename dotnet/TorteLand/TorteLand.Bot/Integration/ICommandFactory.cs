@@ -1,4 +1,4 @@
-﻿namespace TorteLand.Bot.Logic;
+﻿namespace TorteLand.Bot.Integration;
 
 internal interface ICommandFactory
 {
