@@ -12,7 +12,7 @@ namespace TorteLand.Firebase.Database;
 
 internal sealed class Notebooks : INotebooks
 {
-    private readonly Dictionary<string, IQuestionableNotebook> _notebooks = new();
+    private readonly Dictionary<string, IPersistedNotebook> _notebooks = new();
 
     private readonly INotebookFactory _factory;
     private readonly AsyncLazy<IEntityAcrud> _acrud;
@@ -32,13 +32,13 @@ internal sealed class Notebooks : INotebooks
     public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, IReadOnlyCollection<string> values, CancellationToken token)
     {
         var notebook = await GetNotebook(index);
-        return await notebook.Add(values, token);
+        return await notebook.Create(values, token);
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
     {
         var notebook = await GetNotebook(index);
-        return await notebook.Add(id, isRight, token);
+        return await notebook.Create(id, isRight, token);
     }
 
     public async Task<Maybe<string>> Read(int index, int key, CancellationToken token)
@@ -59,7 +59,7 @@ internal sealed class Notebooks : INotebooks
         await notebook.Delete(key, token);
     }
 
-    private async ValueTask<IQuestionableNotebook> GetNotebook(int index)
+    private async ValueTask<IPersistedNotebook> GetNotebook(int index)
     {
         var acrud = await _acrud;
         var (id, _) = await acrud.Read(index);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,13 +11,15 @@ using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Storage;
 
-internal sealed class PersistedNotebook : IAsyncNotebook
+internal sealed class PersistedNotebook : IPersistedNotebook
 {
     private readonly IStorage _storage;
 
-    private Either<INotebookFactory, INotebook> _origin;
+    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin;
 
-    public PersistedNotebook(IStorage storage, Either<INotebookFactory, INotebook> origin)
+    public PersistedNotebook(
+        IStorage storage, 
+        Either<IQuestionableNotebookFactory, IQuestionableNotebook> origin)
     {
         _storage = storage;
         _origin = origin;
@@ -28,18 +31,34 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return origin.All(pagination);
     }
 
-    public async Task<Either<IReadOnlyCollection<int>, Segment>> Add(
-        IReadOnlyCollection<string> values,
-        Maybe<ResolvedSegment> segment,
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Create(
+        IReadOnlyCollection<string> values, 
         CancellationToken token)
     {
         var origin = await GetOrigin();
         var copy = origin.Clone();
-        var added = copy.Add(values, segment);
+        var added = copy.Create(values);
 
         await added.MatchAsync(
             _ => SaveChanges(copy),
             _ => Task.CompletedTask);
+        
+        SetOrigin(copy);
+
+        return added;
+    }
+
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
+    {
+        var origin = await GetOrigin();
+        var copy = origin.Clone();
+        var added = copy.Create(id, isRight);
+
+        await added.MatchAsync(
+            _ => SaveChanges(copy),
+            _ => Task.CompletedTask);
+        
+        SetOrigin(copy);
 
         return added;
     }
@@ -51,6 +70,7 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         copy.Update(key, name);
 
         await SaveChanges(copy);
+        SetOrigin(copy);
     }
 
     // TODO : add token using
@@ -61,11 +81,9 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         var deleted = copy.Delete(key);
 
         await SaveChanges(copy);
+        SetOrigin(copy);
         return deleted;
     }
-
-    public Task DeleteAll(CancellationToken token)
-        => _storage.DeleteAll();
 
     public async Task<Maybe<string>> Read(int key, CancellationToken token)
     {
@@ -73,19 +91,17 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return origin.Read(key);
     }
 
-    public async Task<Note> ToNote(int key, CancellationToken token)
-    {
-        var origin = await GetOrigin();
-        return origin.ToNote(key);
-    }
-
-    private async Task SaveChanges(INotebook copy)
+    private async Task SaveChanges(IQuestionableNotebook copy)
     {
         await _storage.Save(copy.ToArray());
-        _origin = new Right<INotebookFactory, INotebook>(copy);
     }
 
-    private async ValueTask<INotebook> GetOrigin()
+    private void SetOrigin(IQuestionableNotebook next)
+    {
+        _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(next);
+    }
+
+    private async ValueTask<IQuestionableNotebook> GetOrigin()
     {
         var notebook = await _origin.MatchAsync(
             CreateNotebook,
@@ -94,9 +110,11 @@ internal sealed class PersistedNotebook : IAsyncNotebook
         return notebook;
     }
 
-    private async Task<INotebook> CreateNotebook(INotebookFactory factory)
+    private async Task<IQuestionableNotebook> CreateNotebook(IQuestionableNotebookFactory factory)
     {
         var notes = await _storage.All();
-        return factory.Create(notes);
+        var notebook = factory.Create(notes);
+        _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(notebook);
+        return notebook;
     }
 }
