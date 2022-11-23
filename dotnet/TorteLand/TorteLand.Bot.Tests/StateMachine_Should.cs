@@ -24,11 +24,26 @@ internal sealed class StateMachine_Should
     }
 
     [Test]
-    public async Task ReturnToPreviousState_OnConfirmCancel()
+    public async Task ReturnToPreviousState_OnDeleteCancel()
+    {
+        var cancel = A.Fake<ICommand>();
+        A.CallTo(() => cancel.ToWord())
+         .Returns(("n", cancel));
+        
+        var (machine, delete) = Create(string.Empty);
+        
+        await machine.Process(delete, default);
+        await machine.Process(cancel, default);
+        
+        Assert.That(machine.ToString(), Is.EqualTo("StateMachine[NotebooksState]"));
+    }
+
+    [Test]
+    public async Task ReturnToPreviousState_OnDeleteConfirm()
     {
         var confirm = A.Fake<ICommand>();
         A.CallTo(() => confirm.ToWord())
-         .Returns(("n", confirm));
+         .Returns(("y", confirm));
         
         var (machine, delete) = Create(string.Empty);
         

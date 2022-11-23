@@ -68,7 +68,6 @@ internal sealed class NotebooksState : BaseState
         return await Machine.ToConfirmActionState(
                    $"Delete '{name.Value}'?",
                    ct => Delete(index, ct),
-                   Machine.ToNotebooksState,
                    token);
     }
 

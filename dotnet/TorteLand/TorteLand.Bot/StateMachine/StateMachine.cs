@@ -64,10 +64,9 @@ internal sealed class StateMachine : IStateMachine
     public Task<string> ToConfirmActionState(
         string question,
         Func<CancellationToken, Task<string>> onAction,
-        Func<CancellationToken, Task<string>> onCancel,
         CancellationToken token)
     {
-        var next = new ConfirmActionState(question, onAction, onCancel, this);
+        var next = new ConfirmActionState(question, _state, onAction, this);
         return SetState(next, token);
     }
 

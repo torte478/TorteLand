@@ -8,30 +8,30 @@ namespace TorteLand.Bot.StateMachine.States;
 internal sealed class ConfirmActionState : BaseState
 {
     private readonly string _question;
-    private readonly Func<CancellationToken, Task<string>> _onAction;
-    private readonly Func<CancellationToken, Task<string>> _onCancel;
+    private readonly IState _previous;
+    private readonly Func<CancellationToken, Task<string>> _onAction; // TODO : to Task
 
     public ConfirmActionState(
         string question,
+        IState previous,
         Func<CancellationToken, Task<string>> onAction,
-        Func<CancellationToken, Task<string>> onCancel,
         IStateMachine machine)
         : base(machine)
     {
         _question = question;
+        _previous = previous;
         _onAction = onAction;
-        _onCancel = onCancel;
     }
 
-    public override Task<string> Process(ICommand command, CancellationToken token)
+    public override async Task<string> Process(ICommand command, CancellationToken token)
     {
         var (input, _) = command.ToWord();
 
-        return input switch
-        {
-            "y" => _onAction(token),
-            _ => _onCancel(token)
-        };
+        if (input == "y")
+            await _onAction(token);
+        
+        Machine.SetState(_previous);
+        return await _previous.Process(token);
     }
 
     public override Task<string> Process(CancellationToken token)
