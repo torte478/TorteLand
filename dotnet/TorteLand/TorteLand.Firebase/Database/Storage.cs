@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
@@ -20,24 +20,21 @@ internal sealed class Storage : IStorage
         _entityAcrud = entityAcrud;
     }
 
-    public async Task Save(IReadOnlyCollection<Unique<Note>> notes)
+    public async Task Save(IReadOnlyCollection<Unique<Note>> notes, CancellationToken token)
     {
-        var notebook = await _entityAcrud.Read(_id);
+        var notebook = await _entityAcrud.Read(_id, token);
 
         await notes
             .OrderBy(_ => _.Value.Weight)
             .Select(_ => _.Value.Text)
             .ToArray()
             ._(_ => notebook with { Notes = _ })
-            ._(_ => _entityAcrud.Update(_id, _));
+            ._(_ => _entityAcrud.Update(_id, _, token));
     }
 
-    public Task DeleteAll()
-        => Save(Array.Empty<Unique<Note>>());
-
-    public async Task<IReadOnlyCollection<Note>> All()
+    public async Task<IReadOnlyCollection<Note>> All(CancellationToken token)
     {
-        var notebook = await _entityAcrud.Read(_id);
+        var notebook = await _entityAcrud.Read(_id, token);
 
         return notebook
                .Notes

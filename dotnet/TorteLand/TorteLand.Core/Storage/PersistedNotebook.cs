@@ -15,7 +15,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 {
     private readonly IStorage _storage;
 
-    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin;
+    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin; // TODOv2 : toAsyncLazy 
 
     public PersistedNotebook(
         IStorage storage, 
@@ -27,7 +27,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         return origin.All(pagination);
     }
 
@@ -35,12 +35,12 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         IReadOnlyCollection<string> values, 
         CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
         var added = copy.Create(values);
 
         await added.MatchAsync(
-            _ => SaveChanges(copy),
+            _ => SaveChanges(copy, token),
             _ => Task.CompletedTask);
         
         SetOrigin(copy);
@@ -50,12 +50,12 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
         var added = copy.Create(id, isRight);
 
         await added.MatchAsync(
-            _ => SaveChanges(copy),
+            _ => SaveChanges(copy, token),
             _ => Task.CompletedTask);
         
         SetOrigin(copy);
@@ -65,54 +65,51 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task Update(int key, string name, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
         copy.Update(key, name);
 
-        await SaveChanges(copy);
+        await SaveChanges(copy, token);
         SetOrigin(copy);
     }
 
-    // TODO : add token using
     public async Task<Note> Delete(int key, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
         var deleted = copy.Delete(key);
 
-        await SaveChanges(copy);
+        await SaveChanges(copy, token);
         SetOrigin(copy);
         return deleted;
     }
 
     public async Task<Maybe<string>> Read(int key, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         return origin.Read(key);
     }
 
-    private async Task SaveChanges(IQuestionableNotebook copy)
-    {
-        await _storage.Save(copy.ToArray());
-    }
+    private Task SaveChanges(IQuestionableNotebook copy, CancellationToken token)
+        => _storage.Save(copy.ToArray(), token);
 
     private void SetOrigin(IQuestionableNotebook next)
     {
         _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(next);
     }
 
-    private async ValueTask<IQuestionableNotebook> GetOrigin()
+    private async ValueTask<IQuestionableNotebook> GetOrigin(CancellationToken token)
     {
         var notebook = await _origin.MatchAsync(
-            CreateNotebook,
+            _ => CreateNotebook(_, token),
             Task.FromResult);
 
         return notebook;
     }
 
-    private async Task<IQuestionableNotebook> CreateNotebook(IQuestionableNotebookFactory factory)
+    private async Task<IQuestionableNotebook> CreateNotebook(IQuestionableNotebookFactory factory, CancellationToken token)
     {
-        var notes = await _storage.All();
+        var notes = await _storage.All(token);
         var notebook = factory.Create(notes);
         _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(notebook);
         return notebook;

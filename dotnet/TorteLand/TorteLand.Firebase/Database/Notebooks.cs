@@ -25,44 +25,44 @@ internal sealed class Notebooks : INotebooks
 
     public async Task<Page<Unique<Note>>> All(int index, Maybe<Pagination> pagination, CancellationToken token)
     {
-        var notebook = await GetNotebook(index);
+        var notebook = await GetNotebook(index, token);
         return await notebook.All(pagination, token);
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, IReadOnlyCollection<string> values, CancellationToken token)
     {
-        var notebook = await GetNotebook(index);
+        var notebook = await GetNotebook(index, token);
         return await notebook.Create(values, token);
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
     {
-        var notebook = await GetNotebook(index);
+        var notebook = await GetNotebook(index, token);
         return await notebook.Create(id, isRight, token);
     }
 
     public async Task<Maybe<string>> Read(int index, int key, CancellationToken token)
     {
-        var notebook = await GetNotebook(index);
+        var notebook = await GetNotebook(index, token);
         return await notebook.Read(key, token);
     }
 
     public async Task Update(int index, int id, string name, CancellationToken token)
     {
-        var notebook = await GetNotebook(index);
+        var notebook = await GetNotebook(index, token);
         await notebook.Update(id, name, token);
     }
 
     public async Task Delete(int index, int key, CancellationToken token)
     {
-        var notebook = await GetNotebook(index);
+        var notebook = await GetNotebook(index, token);
         await notebook.Delete(key, token);
     }
 
-    private async ValueTask<IPersistedNotebook> GetNotebook(int index)
+    private async ValueTask<IPersistedNotebook> GetNotebook(int index, CancellationToken token)
     {
         var acrud = await _acrud;
-        var (id, _) = await acrud.Read(index);
+        var (id, _) = await acrud.Read(index, token);
 
         if (_notebooks.TryGetValue(id, out var notebook))
             return notebook;

@@ -63,7 +63,7 @@ internal sealed class StateMachine : IStateMachine
 
     public Task<string> ToConfirmActionState(
         string question,
-        Func<CancellationToken, Task<string>> onAction,
+        Func<CancellationToken, Task> onAction,
         CancellationToken token)
     {
         var next = new ConfirmActionState(question, _state, onAction, this);

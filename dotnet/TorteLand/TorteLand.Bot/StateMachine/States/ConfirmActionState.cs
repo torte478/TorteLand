@@ -9,12 +9,12 @@ internal sealed class ConfirmActionState : BaseState
 {
     private readonly string _question;
     private readonly IState _previous;
-    private readonly Func<CancellationToken, Task<string>> _onAction; // TODO : to Task
+    private readonly Func<CancellationToken, Task> _onAction;
 
     public ConfirmActionState(
         string question,
         IState previous,
-        Func<CancellationToken, Task<string>> onAction,
+        Func<CancellationToken, Task> onAction,
         IStateMachine machine)
         : base(machine)
     {

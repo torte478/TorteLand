@@ -24,6 +24,6 @@ internal interface IStateMachine
 
     Task<string> ToConfirmActionState(
         string question,
-        Func<CancellationToken, Task<string>> onAction,
+        Func<CancellationToken, Task> onAction,
         CancellationToken token);
 }

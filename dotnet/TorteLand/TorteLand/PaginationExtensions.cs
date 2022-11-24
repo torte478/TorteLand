@@ -6,9 +6,6 @@ namespace TorteLand;
 
 public static class PaginationExtensions
 {
-    public static Page<T> Paginate<T>(this IReadOnlyCollection<T> source, Maybe<Pagination> pagination)
-        => Paginate(source, pagination, source.Count);
-
     public static Page<T> Paginate<T>(this IEnumerable<T> source, Maybe<Pagination> pagination, int total)
     {
         var config = pagination.Match(
