@@ -11,7 +11,7 @@ using Added = System.Collections.Generic.IReadOnlyCollection<int>;
 
 namespace TorteLand.Core.Notebooks;
 
-// TODOv2: to immutable
+// TODO: to immutable
 internal sealed class QuestionableNotebook : IQuestionableNotebook
 {
     private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions;

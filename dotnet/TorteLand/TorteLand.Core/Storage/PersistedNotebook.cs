@@ -15,7 +15,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 {
     private readonly IStorage _storage;
 
-    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin; // TODOv2 : toAsyncLazy 
+    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin; // TODO : toAsyncLazy 
 
     public PersistedNotebook(
         IStorage storage, 

@@ -16,7 +16,7 @@ public static class IocExtensions
         services.AddHttpClient()
                 .RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
-        // TODOv2: to extension with validation
+        // TODO: to extension with validation
         services.Configure<FirebaseSettings>(
             configuration.GetSection(nameof(FirebaseSettings)));
         

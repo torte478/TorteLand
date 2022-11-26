@@ -8,7 +8,7 @@ using Firebase.Database.Query;
 
 namespace TorteLand.Firebase.Integration;
 
-// TODOv2: add timeouts
+// TODO: add timeouts
 internal sealed class EntityAcrud : IEntityAcrud
 {
     private readonly string _root;
