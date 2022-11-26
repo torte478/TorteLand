@@ -11,7 +11,7 @@ namespace TorteLand.Core.Tests;
 internal sealed class Notebook_Should
 {
     [Test]
-    public void GetDescentOrder_OnEnumerate()
+    public void SaveOrder_OnEnumerate()
     {
         var notebook = Create(new[] { "2", "1" });
 
@@ -21,13 +21,13 @@ internal sealed class Notebook_Should
     }
 
     [Test]
-    public void GetDescentOrder_OnAddToEmpty()
+    public void SaveOrder_OnAddToEmpty()
     {
         var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "2", "1" }, Maybe.None<ResolvedSegment>());
+        notebook.Add(new[] { "1", "2" }, Maybe.None<ResolvedSegment>());
 
         var actual = notebook.ToArray();
-        Assert.That(actual[0].Value.Text, Is.EqualTo("2"));
+        Assert.That(actual[0].Value.Text, Is.EqualTo("1"));
     }
 
     [Test]
@@ -77,7 +77,7 @@ internal sealed class Notebook_Should
         = {
               new object[]
               {
-                  "insert to end",
+                  "insert to top",
                   new[] { "a" },
                   new[] { "Z" },
                   new ResolvedSegment(new Segment(0, 0, 1), true),
@@ -85,19 +85,19 @@ internal sealed class Notebook_Should
               },
               new object[]
               {
-                  "insert to begin",
+                  "insert to middle",
                   new[] { "b", "a" },
                   new[] { "Z" },
                   new ResolvedSegment(new Segment(0, 0, 1), false),
-                  new[] { "b", "a", "Z" }
+                  new[] { "b", "Z", "a" }
               },
                 new object[]
                 {
                     "insert range to middle",
                     new[] { "d", "c", "b", "a"},
                     new[] { "Z", "Y" },
-                    new ResolvedSegment(new Segment(3, 3, 4), false),
-                    new[] { "d", "Z", "Y", "c", "b", "a"}
+                    new ResolvedSegment(new Segment(3, 3, 4), true),
+                    new[] { "d", "c", "b", "Z", "Y", "a"}
                 }
           };
 }

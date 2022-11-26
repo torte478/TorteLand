@@ -2,4 +2,8 @@
 
 public record ResolvedSegment(
     Segment Segment,
-    bool IsRight);
+    bool IsRight) // TODOv2: IsRight => IsGreater
+{
+    public override string ToString()
+        => $"({Segment}, {(IsRight ? "right" : "left")})";
+}

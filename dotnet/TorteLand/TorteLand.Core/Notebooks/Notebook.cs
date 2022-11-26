@@ -9,7 +9,6 @@ using TorteLand.Core.Contracts.Notebooks;
 namespace TorteLand.Core.Notebooks;
 
 // TODO: to immutable
-// TODO: refactor reverse logic
 internal sealed class Notebook : INotebook
 {
     private readonly List<string> _values;
@@ -19,7 +18,6 @@ internal sealed class Notebook : INotebook
         _values = values.Match(
                             _ => _,
                             () => ArraySegment<string>.Empty)
-                        .Reverse()
                         ._(_ => new List<string>(_));
     }
 
@@ -38,7 +36,6 @@ internal sealed class Notebook : INotebook
 
     public INotebook Clone()
         => _values
-           ._(Enumerable.Reverse)
            .ToArray()
            ._(Maybe.Some<IReadOnlyCollection<string>>)
            ._(_ => new Notebook(_));
@@ -78,7 +75,7 @@ internal sealed class Notebook : INotebook
 
         var updated = _values
                       .Take(begin)
-                      .Concat(values.Reverse())
+                      .Concat(values)
                       .Concat(_values.Skip(begin))
                       .ToArray();
 
@@ -100,12 +97,12 @@ internal sealed class Notebook : INotebook
 
     private static (int, int) ToHalf(Segment segment, bool isRight)
         => isRight
-               ? (segment.Border + 1, segment.End)
-               : (segment.Begin, segment.Border);
+               ? (segment.Begin, segment.Border)
+               : (segment.Border + 1, segment.End);
 
     private Either<IReadOnlyCollection<int>, Segment> AddToEmpty(IReadOnlyCollection<string> values)
     {
-        _values.AddRange(values.Reverse());
+        _values.AddRange(values);
         return Enumerable
                .Range(0, values.Count)
                .ToArray()
@@ -114,7 +111,7 @@ internal sealed class Notebook : INotebook
 
     private IEnumerable<Unique<Note>> Enumerate()
     {
-        for (var i = _values.Count - 1; i >= 0; --i)
-            yield return new Unique<Note>(i, new Note(_values[i], i));
+        for (var i = 0; i < _values.Count; ++i)
+            yield return new Unique<Note>(i, new Note(_values[i], _values.Count - i - 1));
     }
 }

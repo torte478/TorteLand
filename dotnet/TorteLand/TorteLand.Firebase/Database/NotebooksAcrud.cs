@@ -8,7 +8,6 @@ using TorteLand.Firebase.Integration;
 
 namespace TorteLand.Firebase.Database;
 
-// TODO : optimize
 internal sealed class NotebooksAcrud : INotebooksAcrud
 {
     private readonly AsyncLazy<IEntityAcrud> _acrud;

@@ -3,6 +3,7 @@ using SoftwareCraft.Functional;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 
+// TODOv2: rename to ACRUD
 public interface INotebook : IEnumerable<Unique<Note>>
 {
     Page<Unique<Note>> All(Maybe<Pagination> pagination);
