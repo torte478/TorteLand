@@ -73,15 +73,14 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         SetOrigin(copy);
     }
 
-    public async Task<Note> Delete(int key, CancellationToken token)
+    public async Task Delete(int key, CancellationToken token)
     {
         var origin = await GetOrigin(token);
         var copy = origin.Clone();
-        var deleted = copy.Delete(key);
+        copy.Delete(key);
 
         await SaveChanges(copy, token);
         SetOrigin(copy);
-        return deleted;
     }
 
     public async Task<Maybe<string>> Read(int key, CancellationToken token)

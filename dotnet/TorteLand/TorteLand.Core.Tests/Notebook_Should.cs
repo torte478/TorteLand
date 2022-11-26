@@ -24,34 +24,21 @@ internal sealed class Notebook_Should
     public void SaveOrder_OnAddToEmpty()
     {
         var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "1", "2" }, Maybe.None<ResolvedSegment>());
+        var result = notebook.Create(new[] { "1", "2" }, Maybe.None<ResolvedSegment>());
 
-        var actual = notebook.ToArray();
+        var actual = result.ToLeft().Notebook.ToArray();
         Assert.That(actual[0].Value.Text, Is.EqualTo("1"));
     }
 
     [Test]
     public void SaveOrder_AfterRename()
     {
-        var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "2", "1", "0" }, Maybe.None<ResolvedSegment>());
+        var notebook = Create(new[] { "2", "1", "0" });
 
-        notebook.Update(0, "renamed");
+        var updated = notebook.Update(0, "renamed");
 
-        var actual = notebook.Select(_ => _.Value.Weight);
+        var actual = updated.Select(_ => _.Value.Weight);
         Assert.That(actual.SequenceEqual(new[] { 2, 1, 0}), Is.True);
-    }
-
-    [Test]
-    public void SaveOrder_AfterClone()
-    {
-        var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "2", "1", "0" }, Maybe.None<ResolvedSegment>());
-
-        var cloned = notebook.Clone();
-
-        var actual = cloned.Select(_ => _.Value.Text).ToArray();
-        Assert.That(actual[0], Is.EqualTo("2"));
     }
 
     [Test]
@@ -64,9 +51,9 @@ internal sealed class Notebook_Should
         IReadOnlyCollection<string> expected)
     {
         var notebook = Create(init);
-        notebook.Add(toAdd, Maybe.Some(segment));
+        var result = notebook.Create(toAdd, Maybe.Some(segment));
 
-        var actual = notebook.Select(_ => _.Value.Text);
+        var actual = result.ToLeft().Notebook.Select(_ => _.Value.Text);
         Assert.That(actual.SequenceEqual(expected), Is.True);
     }
 

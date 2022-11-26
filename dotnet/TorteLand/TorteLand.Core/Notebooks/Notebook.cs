@@ -8,67 +8,63 @@ using TorteLand.Core.Contracts.Notebooks;
 
 namespace TorteLand.Core.Notebooks;
 
-// TODO: to immutable
 internal sealed class Notebook : INotebook
 {
-    private readonly List<string> _values;
+    private readonly string[] _values;
 
     public Notebook(Maybe<IReadOnlyCollection<string>> values)
     {
         _values = values.Match(
                             _ => _,
                             () => ArraySegment<string>.Empty)
-                        ._(_ => new List<string>(_));
+                        .ToArray();
+    }
+
+    private Notebook(string[] values)
+    {
+        _values = values;
     }
 
     public IEnumerator<Unique<Note>> GetEnumerator() => Enumerate().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public Page<Unique<Note>> All(Maybe<Pagination> pagination)
-        => Enumerate().Paginate(pagination, _values.Count);
+        => Enumerate().Paginate(pagination, _values.Length);
 
-    public Either<IReadOnlyCollection<int>, Segment> Add(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment)
+    public Either<AddNotesResult, Segment> Create(
+        IReadOnlyCollection<string> values,
+        Maybe<ResolvedSegment> segment)
         => _values switch
         {
-            { Count: 0 } => AddToEmpty(values),
+            { Length: 0 } => AddToEmpty(values),
             _ => AddToExisting(values, segment)
         };
 
-    public INotebook Clone()
+    public Maybe<Note> Read(int key)
+        => key >= 0 && key < _values.Length
+               ? Maybe.Some(ToNote(key))
+               : Maybe.None<Note>(); 
+
+    public INotebook Update(int key, string name)
+    {
+        var updated = _values.ToArray();
+        updated[key] = name;
+        return new Notebook(updated);
+    }
+
+    public INotebook Delete(int key)
         => _values
+           .Where((_, i) => i != key)
            .ToArray()
-           ._(Maybe.Some<IReadOnlyCollection<string>>)
-           ._(_ => new Notebook(_));
+           ._(_ => new Notebook(_)); // TODOv2: to .Wrap<T>()
 
-    public Maybe<string> Read(int key)
-        => key >= 0 && key < _values.Count
-               ? Maybe.Some(_values[key])
-               : Maybe.None<string>(); 
-
-    public void Update(int key, string name)
-    {
-        _values[key] = name;
-    }
-
-    public Note Delete(int key)
-    {
-        var deleted = _values[key];
-        var updated = _values.Where((_, i) => i != key).ToArray();
-        _values.Clear();
-        _values.AddRange(updated);
-
-        return new Note(deleted, key);
-    }
-
-    public Note ToNote(int key) => new(_values[key], key);
-
-    private Either<IReadOnlyCollection<int>, Segment> AddToExisting(
+    private Either<AddNotesResult, Segment> AddToExisting(
         IReadOnlyCollection<string> values,
         Maybe<ResolvedSegment> segment)
     {
         var (begin, end) = segment.Match(
             _ => ToHalf(_.Segment, _.IsRight),
-            () => (0, _values.Count));
+            () => (0, _values.Length));
 
         if (begin < end)
             return GetNextSegment(begin, end);
@@ -79,39 +75,45 @@ internal sealed class Notebook : INotebook
                       .Concat(_values.Skip(begin))
                       .ToArray();
 
-        _values.Clear();
-        _values.AddRange(updated);
-
-        return Enumerable
-               .Range(begin, values.Count)
-               .ToArray()
-               ._(Either.Left<IReadOnlyCollection<int>, Segment>);
+        var notebook = new Notebook(updated);
+        var indices = Enumerable
+                       .Range(begin, values.Count)
+                       .ToArray();
+        
+        return new AddNotesResult(indices, notebook)
+            ._(Either.Left<AddNotesResult, Segment>);
     }
 
-    private static Either<IReadOnlyCollection<int>, Segment> GetNextSegment(int begin, int end)
+    private static Either<AddNotesResult, Segment> GetNextSegment(int begin, int end)
         => new Segment(
                 Begin: begin,
                 Border: (begin + end) / 2,
                 End: end)
-            ._(Either.Right<IReadOnlyCollection<int>, Segment>);
+            ._(Either.Right<AddNotesResult, Segment>);
 
     private static (int, int) ToHalf(Segment segment, bool isRight)
         => isRight
                ? (segment.Begin, segment.Border)
                : (segment.Border + 1, segment.End);
 
-    private Either<IReadOnlyCollection<int>, Segment> AddToEmpty(IReadOnlyCollection<string> values)
+    private static Either<AddNotesResult, Segment> AddToEmpty(
+        IReadOnlyCollection<string> values)
     {
-        _values.AddRange(values);
-        return Enumerable
-               .Range(0, values.Count)
-               .ToArray()
-               ._(Either.Left<IReadOnlyCollection<int>, Segment>);
+        var notebook = new Notebook(values.ToArray());
+        var indices = Enumerable
+                      .Range(0, values.Count)
+                      .ToArray();
+        
+        return new AddNotesResult(indices, notebook)
+               ._(Either.Left<AddNotesResult, Segment>);
     }
 
     private IEnumerable<Unique<Note>> Enumerate()
     {
-        for (var i = 0; i < _values.Count; ++i)
-            yield return new Unique<Note>(i, new Note(_values[i], _values.Count - i - 1));
+        for (var i = 0; i < _values.Length; ++i)
+            yield return new Unique<Note>(i, ToNote(i));
     }
+
+    private Note ToNote(int index) 
+        => new(_values[index], _values.Length - index - 1);
 }

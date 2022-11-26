@@ -12,7 +12,7 @@ public interface IQuestionableNotebook : IEnumerable<Unique<Note>>
     Either<IReadOnlyCollection<int>, Question> Create(Guid id, bool isRight);
     Maybe<string> Read(int key);
     void Update(int key, string name);
-    Note Delete(int key);
+    void Delete(int key);
 
     IQuestionableNotebook Clone();
 }

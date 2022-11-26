@@ -14,5 +14,5 @@ public interface IPersistedNotebook
     Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token);
     Task<Maybe<string>> Read(int key, CancellationToken token);
     Task Update(int key, string name, CancellationToken token);
-    Task<Note> Delete(int key, CancellationToken token);
+    Task Delete(int key, CancellationToken token);
 }
