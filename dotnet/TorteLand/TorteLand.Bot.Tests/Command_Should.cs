@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using TorteLand.Bot.Logic;
+using TorteLand.Bot.Integration;
 
 // ReSharper disable InconsistentNaming
 

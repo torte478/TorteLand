@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using TorteLand.Bot.Logic;
+using TorteLand.Bot.Integration;
+using TorteLand.Bot.StateMachine.States;
 
 namespace TorteLand.Bot.StateMachine;
 
@@ -19,5 +20,10 @@ internal interface IStateMachine
         IReadOnlyCollection<string> notes,
         Guid transaction,
         string note,
+        CancellationToken token);
+
+    Task<string> ToConfirmActionState(
+        string question,
+        Func<CancellationToken, Task> onAction,
         CancellationToken token);
 }

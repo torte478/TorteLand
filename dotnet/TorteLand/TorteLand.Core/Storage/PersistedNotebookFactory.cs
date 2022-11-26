@@ -7,6 +7,6 @@ namespace TorteLand.Core.Storage;
 
 internal sealed class PersistedNotebookFactory : IPersistedNotebookFactory
 {
-    public IAsyncNotebook Create(IStorage storage, Either<INotebookFactory, INotebook> origin)
+    public IPersistedNotebook Create(IStorage storage, Either<IQuestionableNotebookFactory, IQuestionableNotebook> origin)
         => new PersistedNotebook(storage, origin);
 }

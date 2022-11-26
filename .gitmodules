@@ -1,3 +1,3 @@
-[submodule "dotnet/TorteLand/TorteLand.Secret"]
-	path = dotnet/TorteLand/TorteLand.Secret
+[submodule "TorteLand.Secret"]
+	path = TorteLand.Secret
 	url = https://github.com/torte478/TorteLand.Secret.git

@@ -6,5 +6,7 @@ namespace TorteLand.Core.Contracts.Factories;
 
 public interface IPersistedNotebookFactory
 {
-    IAsyncNotebook Create(IStorage storage, Either<INotebookFactory, INotebook> origin);
+    IPersistedNotebook Create(
+        IStorage storage, 
+        Either<IQuestionableNotebookFactory, IQuestionableNotebook> origin);
 }

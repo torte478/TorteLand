@@ -39,7 +39,7 @@ public sealed class NotebooksController : ControllerBase
                                  ._(Maybe.Some)
                              : Maybe.None<Pagination>();
 
-        var page = await _notebooks.Read(index, pagination, token);
+        var page = await _notebooks.All(index, pagination, token);
 
         return new Page<KeyValuePair<int, string>>(
             Items: page.Items.Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text)).ToArray(),
@@ -80,10 +80,21 @@ public sealed class NotebooksController : ControllerBase
             x => new AddResult(default, x));
     }
 
+    [HttpGet]
+    [Route("Read")]
+    public async Task<Models.Maybe<string>> Read(int index, int id, CancellationToken token)
+    {
+        var note = await _notebooks.Read(index, id, token);
+
+        return note.Match(
+            _ => new Models.Maybe<string>(true, _),
+            () => new Models.Maybe<string>(false, string.Empty));
+    }
+
     [HttpPost]
-    [Route("Rename")]
-    public Task Rename(int index, int id, string text, CancellationToken token)
-        => _notebooks.Rename(index, id, text, token);
+    [Route("Update")]
+    public Task Update(int index, int id, string name, CancellationToken token)
+        => _notebooks.Update(index, id, name, token);
 
     [HttpPost]
     [Route("Delete")]

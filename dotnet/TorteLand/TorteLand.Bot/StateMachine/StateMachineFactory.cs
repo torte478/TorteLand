@@ -1,4 +1,5 @@
-﻿using TorteLand.Bot.Logic;
+﻿using TorteLand.Bot.Integration;
+using TorteLand.Bot.StateMachine.States;
 using TorteLand.Bot.Utils;
 
 namespace TorteLand.Bot.StateMachine;
@@ -18,7 +19,7 @@ internal sealed class StateMachineFactory : IStateMachineFactory
 
     public IStateMachine Create()
     {
-        var machine = new StateMachine(_pageSize, _factory, _random);
+        IStateMachine machine = new StateMachine(_pageSize, _factory, _random);
         var start = new NotebooksState(_pageSize, _factory.CreateNotebooksAcrudClient(), machine);
         machine.SetState(start);
         return machine;

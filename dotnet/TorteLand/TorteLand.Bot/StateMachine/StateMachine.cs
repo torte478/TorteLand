@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using TorteLand.Bot.Logic;
+using TorteLand.Bot.Integration;
+using TorteLand.Bot.StateMachine.States;
 using TorteLand.Bot.Utils;
 
 namespace TorteLand.Bot.StateMachine;
@@ -49,9 +50,28 @@ internal sealed class StateMachine : IStateMachine
         string note,
         CancellationToken token)
     {
-        var next = new NotebookAddState(key, notes, transaction, note, _factory.CreateNotebooksClient(), _random, this);
+        var context = new NotebookAddStateContext(
+            key,
+            notes,
+            transaction,
+            _factory.CreateNotebooksClient(),
+            _random);
+        
+        var next = new NotebookAddState(context, note, this);
         return SetState(next, token);
     }
+
+    public Task<string> ToConfirmActionState(
+        string question,
+        Func<CancellationToken, Task> onAction,
+        CancellationToken token)
+    {
+        var next = new ConfirmActionState(question, _state, onAction, this);
+        return SetState(next, token);
+    }
+
+    public override string ToString()
+        => $"{GetType().Name}[{_state.GetType().Name}]";
 
     private async Task<string> SetState(IState state, CancellationToken token)
     {

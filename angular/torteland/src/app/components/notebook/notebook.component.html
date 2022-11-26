@@ -1,0 +1,31 @@
+<h2>{{name}}</h2>
+
+<div class="button-row">
+  <button mat-raised-button (click)="onCreateClick()" [disabled]="isBusy">Create</button>
+</div>
+
+<div class="button-row">
+  <button 
+    mat-raised-button 
+    (click)="onRenameClick()" 
+    [disabled]="isBusy || !selection.length">
+    Rename
+  </button>
+
+  <button 
+    mat-raised-button 
+    (click)="onDeleteClick()" 
+    [disabled]="isBusy || !selection.length">
+    Delete
+  </button>
+</div>
+
+<mat-selection-list [(ngModel)]="selection" [multiple]="false">
+    <mat-list-option *ngFor="let note of notes" [value]="note">
+      {{note.value}}
+    </mat-list-option>
+</mat-selection-list>
+
+<div class="button-row">
+  <button mat-raised-button (click)="onBackClick()" [disabled]="isBusy">Back</button>
+</div>

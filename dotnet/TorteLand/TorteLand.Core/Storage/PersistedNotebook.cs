@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,13 +11,15 @@ using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Storage;
 
-internal sealed class PersistedNotebook : IAsyncNotebook
+internal sealed class PersistedNotebook : IPersistedNotebook
 {
     private readonly IStorage _storage;
 
-    private Either<INotebookFactory, INotebook> _origin;
+    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin; // TODO : toAsyncLazy 
 
-    public PersistedNotebook(IStorage storage, Either<INotebookFactory, INotebook> origin)
+    public PersistedNotebook(
+        IStorage storage, 
+        Either<IQuestionableNotebookFactory, IQuestionableNotebook> origin)
     {
         _storage = storage;
         _origin = origin;
@@ -24,73 +27,90 @@ internal sealed class PersistedNotebook : IAsyncNotebook
 
     public async Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         return origin.All(pagination);
     }
 
-    public async Task<Either<IReadOnlyCollection<int>, Segment>> Add(
-        IReadOnlyCollection<string> values,
-        Maybe<ResolvedSegment> segment,
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Create(
+        IReadOnlyCollection<string> values, 
         CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
-        var added = copy.Add(values, segment);
+        var added = copy.Create(values);
 
         await added.MatchAsync(
-            _ => SaveChanges(copy),
+            _ => SaveChanges(copy, token),
             _ => Task.CompletedTask);
+        
+        SetOrigin(copy);
 
         return added;
     }
 
-    public async Task Rename(int key, string text, CancellationToken token)
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
-        copy.Rename(key, text);
+        var added = copy.Create(id, isRight);
 
-        await SaveChanges(copy);
+        await added.MatchAsync(
+            _ => SaveChanges(copy, token),
+            _ => Task.CompletedTask);
+        
+        SetOrigin(copy);
+
+        return added;
     }
 
-    // TODO : add token using
-    public async Task<Note> Delete(int key, CancellationToken token)
+    public async Task Update(int key, string name, CancellationToken token)
     {
-        var origin = await GetOrigin();
+        var origin = await GetOrigin(token);
         var copy = origin.Clone();
-        var deleted = copy.Delete(key);
+        copy.Update(key, name);
 
-        await SaveChanges(copy);
-        return deleted;
+        await SaveChanges(copy, token);
+        SetOrigin(copy);
     }
 
-    public Task DeleteAll(CancellationToken token)
-        => _storage.DeleteAll();
-
-    public async Task<Note> ToNote(int key, CancellationToken token)
+    public async Task Delete(int key, CancellationToken token)
     {
-        var origin = await GetOrigin();
-        return origin.ToNote(key);
+        var origin = await GetOrigin(token);
+        var copy = origin.Clone();
+        copy.Delete(key);
+
+        await SaveChanges(copy, token);
+        SetOrigin(copy);
     }
 
-    private async Task SaveChanges(INotebook copy)
+    public async Task<Maybe<string>> Read(int key, CancellationToken token)
     {
-        await _storage.Save(copy.ToArray());
-        _origin = new Right<INotebookFactory, INotebook>(copy);
+        var origin = await GetOrigin(token);
+        return origin.Read(key);
     }
 
-    private async ValueTask<INotebook> GetOrigin()
+    private Task SaveChanges(IQuestionableNotebook copy, CancellationToken token)
+        => _storage.Save(copy.ToArray(), token);
+
+    private void SetOrigin(IQuestionableNotebook next)
+    {
+        _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(next);
+    }
+
+    private async ValueTask<IQuestionableNotebook> GetOrigin(CancellationToken token)
     {
         var notebook = await _origin.MatchAsync(
-            CreateNotebook,
+            _ => CreateNotebook(_, token),
             Task.FromResult);
 
         return notebook;
     }
 
-    private async Task<INotebook> CreateNotebook(INotebookFactory factory)
+    private async Task<IQuestionableNotebook> CreateNotebook(IQuestionableNotebookFactory factory, CancellationToken token)
     {
-        var notes = await _storage.All();
-        return factory.Create(notes);
+        var notes = await _storage.All(token);
+        var notebook = factory.Create(notes);
+        _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(notebook);
+        return notebook;
     }
 }

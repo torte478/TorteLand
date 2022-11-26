@@ -6,9 +6,8 @@ namespace TorteLand.Core.Contracts.Notebooks;
 public interface INotebook : IEnumerable<Unique<Note>>
 {
     Page<Unique<Note>> All(Maybe<Pagination> pagination);
-    Either<IReadOnlyCollection<int>, Segment> Add(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment);
-    Note ToNote(int key);
-    void Rename(int key, string text);
-    Note Delete(int key);
-    INotebook Clone();
+    Either<AddNotesResult, Segment> Create(IReadOnlyCollection<string> values, Maybe<ResolvedSegment> segment);
+    Maybe<Note> Read(int key);
+    INotebook Update(int key, string name);
+    INotebook Delete(int key);
 }

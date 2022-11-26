@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
@@ -11,97 +11,118 @@ using Added = System.Collections.Generic.IReadOnlyCollection<int>;
 
 namespace TorteLand.Core.Notebooks;
 
+// TODO: to immutable
 internal sealed class QuestionableNotebook : IQuestionableNotebook
 {
-    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions = new();
+    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions;
 
-    private readonly IAsyncNotebook _origin;
+    private INotebook _origin;
 
-    public QuestionableNotebook(IAsyncNotebook origin)
+    public QuestionableNotebook(INotebook origin)
     {
         _origin = origin;
+        _transactions = new Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)>();
     }
 
-    public Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
-        => _origin.All(pagination, token);
+    private QuestionableNotebook(
+        INotebook origin,
+        Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> transaction)
+    {
+        _origin = origin;
+        _transactions = transaction;
+    }
 
-    public Task<Either<Added, Question>> Add(IReadOnlyCollection<string> values, CancellationToken token)
+    public Page<Unique<Note>> All(Maybe<Pagination> pagination)
+        => _origin.All(pagination);
+
+    public Either<Added, Question> Create(IReadOnlyCollection<string> values)
         => Add(
             values,
             Maybe.None<ResolvedSegment>(),
-            (s, t) => StartTransaction(s, values, t),
-            token);
+            _ => StartTransaction(_, values));
 
-    public async Task<Either<Added, Question>> Add(Guid id, bool isRight, CancellationToken token)
+    public Either<Added, Question> Create(Guid id, bool isRight)
     {
         var transaction = _transactions[id];
         var segment = new ResolvedSegment(transaction.Segment, isRight);
 
-        return await Add(
-                   transaction.Text,
-                   Maybe.Some(segment),
-                   (s, t) => UpdateTransaction(s, id, t),
-                   token);
+        return Add(
+            transaction.Text,
+            Maybe.Some(segment),
+            _ => UpdateTransaction(_, id));
     }
 
-    public async Task Delete(int key, CancellationToken token)
+    public void Delete(int key)
     {
-        await _origin.Delete(key, token);
+        _origin = _origin.Delete(key);
         _transactions.Clear();
     }
 
-    public async Task DeleteAll(CancellationToken token)
+    public IQuestionableNotebook Clone()
     {
-        await _origin.DeleteAll(token);
+        var transaction = _transactions.ToDictionary(
+            x => x.Key,
+            x => x.Value);
+        return new QuestionableNotebook(_origin, transaction);
+    }
+
+    public void Update(int key, string name)
+    {
+        _origin = _origin.Update(key, name);
         _transactions.Clear();
     }
 
-    public async Task Rename(int key, string text, CancellationToken token)
-    {
-        await _origin.Rename(key, text, token);
-        _transactions.Clear();
-    }
+    public Maybe<string> Read(int key)
+        => _origin
+           .Read(key)
+           .Select(_ => _.Text);
 
-    private async Task<Either<Added, Question>> Add(
+    public IEnumerator<Unique<Note>> GetEnumerator()
+        => _origin.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
+
+    private Either<Added, Question> Add(
         IReadOnlyCollection<string> values,
         Maybe<ResolvedSegment> segment,
-        Func<Segment, CancellationToken, Task<Either<Added, Question>>> onRight,
-        CancellationToken token)
-    {
-        var result = await _origin.Add(values, segment, token);
+        Func<Segment, Either<Added, Question>> onRight)
+        => _origin
+           .Create(values, segment)
+           .Match(
+               CompleteTransaction,
+               onRight);
 
-        return await result.MatchAsync(
-                   CompleteTransaction,
-                   _ => onRight(_, token));
-    }
-
-    private Task<Either<Added, Question>> CompleteTransaction(Added keys)
+    private Either<Added, Question> CompleteTransaction(AddNotesResult result)
     {
         _transactions.Clear();
-        return keys._(Either.Left<Added, Question>)._(Task.FromResult);
+        _origin = result.Notebook;
+        return result.Indices._(Either.Left<Added, Question>);
     }
 
-    private Task<Either<Added, Question>> UpdateTransaction(Segment segment, Guid id, CancellationToken token)
+    private Either<Added, Question> UpdateTransaction(Segment segment, Guid id)
     {
         var transaction = _transactions[id];
         _transactions[id] = (transaction.Text, segment);
 
-        return BuildTransaction(id, segment, token);
+        return BuildTransaction(id, segment);
     }
 
-    private Task<Either<Added, Question>> StartTransaction(Segment segment, IReadOnlyCollection<string> values, CancellationToken token)
+    private Either<Added, Question> StartTransaction(Segment segment, IReadOnlyCollection<string> values)
     {
         var key = Guid.NewGuid();
         _transactions.Add(key, (values, segment));
 
-        return BuildTransaction(key, segment, token);
+        return BuildTransaction(key, segment);
     }
 
-    private async Task<Either<Added, Question>> BuildTransaction(Guid id, Segment segment, CancellationToken token)
+    private Either<Added, Question> BuildTransaction(Guid id, Segment segment)
     {
-        var note = await _origin.ToNote(segment.Border, token);
+        var note = _origin.Read(segment.Border);
 
-        return new Question(id, note.Text)
+        var text = note.ToSome().Text;
+
+        return new Question(id, text)
             ._(Either.Right<Added, Question>);
     }
 }

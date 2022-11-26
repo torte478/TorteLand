@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  webapp_sevice:
+    container_name: webapp
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "4014:81"

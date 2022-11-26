@@ -11,7 +11,7 @@ namespace TorteLand.Core.Tests;
 internal sealed class Notebook_Should
 {
     [Test]
-    public void GetDescentOrder_OnEnumerate()
+    public void SaveOrder_OnEnumerate()
     {
         var notebook = Create(new[] { "2", "1" });
 
@@ -21,37 +21,24 @@ internal sealed class Notebook_Should
     }
 
     [Test]
-    public void GetDescentOrder_OnAddToEmpty()
+    public void SaveOrder_OnAddToEmpty()
     {
         var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "2", "1" }, Maybe.None<ResolvedSegment>());
+        var result = notebook.Create(new[] { "1", "2" }, Maybe.None<ResolvedSegment>());
 
-        var actual = notebook.ToArray();
-        Assert.That(actual[0].Value.Text, Is.EqualTo("2"));
+        var actual = result.ToLeft().Notebook.ToArray();
+        Assert.That(actual[0].Value.Text, Is.EqualTo("1"));
     }
 
     [Test]
     public void SaveOrder_AfterRename()
     {
-        var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "2", "1", "0" }, Maybe.None<ResolvedSegment>());
+        var notebook = Create(new[] { "2", "1", "0" });
 
-        notebook.Rename(0, "renamed");
+        var updated = notebook.Update(0, "renamed");
 
-        var actual = notebook.Select(_ => _.Value.Weight);
+        var actual = updated.Select(_ => _.Value.Weight);
         Assert.That(actual.SequenceEqual(new[] { 2, 1, 0}), Is.True);
-    }
-
-    [Test]
-    public void SaveOrder_AfterClone()
-    {
-        var notebook = Create(Array.Empty<string>());
-        notebook.Add(new[] { "2", "1", "0" }, Maybe.None<ResolvedSegment>());
-
-        var cloned = notebook.Clone();
-
-        var actual = cloned.Select(_ => _.Value.Text).ToArray();
-        Assert.That(actual[0], Is.EqualTo("2"));
     }
 
     [Test]
@@ -64,9 +51,9 @@ internal sealed class Notebook_Should
         IReadOnlyCollection<string> expected)
     {
         var notebook = Create(init);
-        notebook.Add(toAdd, Maybe.Some(segment));
+        var result = notebook.Create(toAdd, Maybe.Some(segment));
 
-        var actual = notebook.Select(_ => _.Value.Text);
+        var actual = result.ToLeft().Notebook.Select(_ => _.Value.Text);
         Assert.That(actual.SequenceEqual(expected), Is.True);
     }
 
@@ -77,7 +64,7 @@ internal sealed class Notebook_Should
         = {
               new object[]
               {
-                  "insert to end",
+                  "insert to top",
                   new[] { "a" },
                   new[] { "Z" },
                   new ResolvedSegment(new Segment(0, 0, 1), true),
@@ -85,19 +72,19 @@ internal sealed class Notebook_Should
               },
               new object[]
               {
-                  "insert to begin",
+                  "insert to middle",
                   new[] { "b", "a" },
                   new[] { "Z" },
                   new ResolvedSegment(new Segment(0, 0, 1), false),
-                  new[] { "b", "a", "Z" }
+                  new[] { "b", "Z", "a" }
               },
                 new object[]
                 {
                     "insert range to middle",
                     new[] { "d", "c", "b", "a"},
                     new[] { "Z", "Y" },
-                    new ResolvedSegment(new Segment(3, 3, 4), false),
-                    new[] { "d", "Z", "Y", "c", "b", "a"}
+                    new ResolvedSegment(new Segment(3, 3, 4), true),
+                    new[] { "d", "c", "b", "Z", "Y", "a"}
                 }
           };
 }

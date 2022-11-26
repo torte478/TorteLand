@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Add new note</h1>
+
+<div mat-dialog-content>
+    <ul>
+        <li *ngFor="let note of notes; let i = index; trackBy: trackByFn">
+            <mat-form-field appearance="fill">
+                <input matInput [(ngModel)]="notes[i]">
+            </mat-form-field>
+        </li>
+    </ul>
+</div>
+
+<div mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="notes">Ok</button>
+    <button mat-button (click)="onMoreClick()">More</button>
+</div>

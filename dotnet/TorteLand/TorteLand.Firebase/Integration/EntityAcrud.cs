@@ -1,8 +1,14 @@
-﻿using Firebase.Database;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Firebase.Database;
 using Firebase.Database.Query;
 
 namespace TorteLand.Firebase.Integration;
 
+// TODO: add timeouts
 internal sealed class EntityAcrud : IEntityAcrud
 {
     private readonly string _root;
@@ -14,7 +20,7 @@ internal sealed class EntityAcrud : IEntityAcrud
         _client = client;
     }
 
-    public async Task<IReadOnlyCollection<(string Id, string Name)>> All()
+    public async Task<IReadOnlyCollection<(string Id, string Name)>> All(CancellationToken token)
     {
         var entities = await _client
                        .Child(_root)
@@ -25,14 +31,14 @@ internal sealed class EntityAcrud : IEntityAcrud
                .ToArray();
     }
 
-    public async Task<string> Create(string name)
+    public async Task<string> Create(string name, CancellationToken token)
     {
         var entity = new NamedEntity(name);
         var created = await _client.Child(_root).PostAsync(entity);
         return created.Key;
     }
 
-    public async Task<(string Id, string Name)> Read(int index)
+    public async Task<(string Id, string Name)> Read(int index, CancellationToken token)
     {
         var entities = await _client
                              .Child(_root)
@@ -43,7 +49,7 @@ internal sealed class EntityAcrud : IEntityAcrud
                ._(_ => (_.Key, _.Object.Name));
     }
 
-    public async Task<NotebookEntity> Read(string id)
+    public async Task<NotebookEntity> Read(string id, CancellationToken token)
     {
         var entity = await _client
                            .Child(_root)
@@ -56,13 +62,13 @@ internal sealed class EntityAcrud : IEntityAcrud
                    : entity with { Notes = Array.Empty<string>() };
     }
 
-    public Task Update(string id, NotebookEntity entity)
+    public Task Update(string id, NotebookEntity entity, CancellationToken token)
         => _client
            .Child(_root)
            .Child(id)
            .PutAsync(entity);
 
-    public Task Delete(string id)
+    public Task Delete(string id, CancellationToken token)
         => _client
            .Child(_root)
            .Child(id)

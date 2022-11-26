@@ -3,9 +3,9 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["TorteLand.App/TorteLand.App.csproj", "TorteLand.App/"]
+COPY ["dotnet/TorteLand/TorteLand.App/TorteLand.App.csproj", "TorteLand.App/"]
 RUN dotnet restore "TorteLand.App/TorteLand.App.csproj"
-COPY . .
+COPY dotnet/TorteLand/ .
 WORKDIR "/src/TorteLand.App"
 RUN dotnet build "TorteLand.App.csproj" -c Release -o /app/build
 

@@ -37,10 +37,22 @@ public sealed class NotebooksAcrudController : ControllerBase
     public Task<int> Create(string name, CancellationToken token)
         => _acrud.Create(name, token);
 
+    [HttpGet]
+    [Route("Read")]
+    public async Task<Models.Maybe<string>> Read(int index, CancellationToken token)
+    {
+        var notebook = await _acrud.Read(index, token);
+
+        return notebook.Match(
+            _ => new Models.Maybe<string>(true, _),
+            () => new Models.Maybe<string>(false, string.Empty));
+    }
+        
+
     [HttpPost]
-    [Route("Rename")]
-    public Task Rename(int index, string name, CancellationToken token)
-        => _acrud.Rename(index, name, token);
+    [Route("Update")]
+    public Task Update(int index, string name, CancellationToken token)
+        => _acrud.Update(index, name, token);
 
     [HttpPost]
     [Route("Delete")]

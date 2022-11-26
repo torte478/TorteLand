@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 
-// TODO : duplicates IAsyncNotebook, remove async
-public interface IQuestionableNotebook
+public interface IQuestionableNotebook : IEnumerable<Unique<Note>>
 {
-    Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token);
-    Task<Either<IReadOnlyCollection<int>, Question>> Add(IReadOnlyCollection<string> values, CancellationToken token);
-    Task<Either<IReadOnlyCollection<int>, Question>> Add(Guid id, bool isRight, CancellationToken token);
-    Task Delete(int key, CancellationToken token);
-    Task DeleteAll(CancellationToken token);
-    Task Rename(int key, string text, CancellationToken token);
+    Page<Unique<Note>> All(Maybe<Pagination> pagination);
+    Either<IReadOnlyCollection<int>, Question> Create(IReadOnlyCollection<string> values);
+    Either<IReadOnlyCollection<int>, Question> Create(Guid id, bool isRight);
+    Maybe<string> Read(int key);
+    void Update(int key, string name);
+    void Delete(int key);
+
+    IQuestionableNotebook Clone();
 }
