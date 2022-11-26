@@ -20,6 +20,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { ContinueAddNoteDialogComponent } from './components/continue-add-note-dialog/continue-add-note-dialog.component';
 import { StartAddNoteDialogComponent } from './components/start-add-note-dialog/start-add-note-dialog.component';
 
+import configUrl from '../assets/config.json';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -45,7 +47,7 @@ import { StartAddNoteDialogComponent } from './components/start-add-note-dialog/
   providers: [
     {
       provide: BASE_URL_TOKEN,
-      useValue: 'api'
+      useValue: configUrl.apiServer.url
     },
     NotebooksAcrudClient,
     NotebooksClient
