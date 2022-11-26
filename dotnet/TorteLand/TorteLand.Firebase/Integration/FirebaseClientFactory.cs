@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Firebase.Database;
+using Microsoft.Extensions.Options;
 
 namespace TorteLand.Firebase.Integration;
 
@@ -12,14 +13,14 @@ internal sealed class FirebaseClientFactory : IFirebaseClientFactory, IDisposabl
 {
     private const string Uri = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={0}";
     
-    private readonly Credentials _credentials;
+    private readonly FirebaseSettings _settings;
     private readonly HttpClient _http;
 
     private FirebaseClient? _client;
 
-    public FirebaseClientFactory(Credentials credentials, IHttpClientFactory factory)
+    public FirebaseClientFactory(IOptions<FirebaseSettings> settings, IHttpClientFactory factory)
     {
-        _credentials = credentials;
+        _settings = settings.Value;
         _http = factory.CreateClient();
     }
 
@@ -30,22 +31,22 @@ internal sealed class FirebaseClientFactory : IFirebaseClientFactory, IDisposabl
     {
         var content = new Dictionary<string, string>
                       {
-                          { "email", _credentials.Email },
-                          { "password", _credentials.Password },
+                          { "email", _settings.Email },
+                          { "password", _settings.Password },
                           { "returnSecureToken", "true" }
                       }
                       ._(_ => JsonSerializer.Serialize(_))
                       ._(_ => new StringContent(_));
 
         var response = await _http.PostAsync(
-                           string.Format(Uri, _credentials.ApiKey),
+                           string.Format(Uri, _settings.ApiKey),
                            content);
 
         var json = await response.Content.ReadAsStringAsync();
         var token = JsonNode.Parse(json)!["idToken"]!.ToString();
 
         return new FirebaseClient(
-            baseUrl: _credentials.Url,
+            baseUrl: _settings.Url,
             options: new FirebaseOptions
                      {
                          AuthTokenAsyncFactory = () => Task.FromResult(token)

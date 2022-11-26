@@ -1,8 +1,8 @@
-﻿using System.Net.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
+using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Firebase.Database;
 using TorteLand.Firebase.Integration;
@@ -13,29 +13,17 @@ public static class IocExtensions
 {
     public static IServiceCollection AddFirebase(this IServiceCollection services, ConfigurationManager configuration)
     {
-        var config = configuration.GetSection("Firebase");
-
         services.AddHttpClient()
                 .RemoveAll<IHttpMessageHandlerBuilderFilter>();
+
+        services.Configure<FirebaseSettings>(
+            configuration.GetSection(nameof(FirebaseSettings)));
         
-        // TODO : to IOptions
-        services.AddSingleton<IFirebaseClientFactory>(
-            _ => new FirebaseClientFactory(
-                new Credentials(
-                    Url: config["Url"],
-                    Email: config["Email"],
-                    Password: config["Password"],
-                    ApiKey: config["ApiKey"]),
-                _.GetRequiredService<IHttpClientFactory>()));
-
-        services.AddSingleton<IEntityAcrudFactory>(
-            _ => new EntityAcrudFactory(
-                root: config["Root"],
-                factory: _.GetRequiredService<IFirebaseClientFactory>()));
-
+        services.AddSingleton<IFirebaseClientFactory, FirebaseClientFactory>();
+        services.AddSingleton<IEntityAcrudFactory, EntityAcrudFactory>();
         services.AddSingleton<INotebooks, Notebooks>();
         services.AddSingleton<INotebooksAcrud, NotebooksAcrud>();
-        services.AddSingleton<INotebookFactory, NotebookFactory>();
+        services.AddSingleton<IPersistedNotebooksFactory, PersistedNotebooksFactory>();
 
         return services;
     }

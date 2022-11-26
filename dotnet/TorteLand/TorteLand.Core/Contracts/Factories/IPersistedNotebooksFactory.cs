@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using TorteLand.Core.Contracts.Notebooks;
 
-namespace TorteLand.Firebase.Database;
+namespace TorteLand.Core.Contracts.Factories;
 
-internal interface INotebookFactory
+// TODOv2: refactor factories
+public interface IPersistedNotebooksFactory
 {
     Task<IPersistedNotebook> Create(string id);
 }

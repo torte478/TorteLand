@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace TorteLand.Firebase.Integration;
 
@@ -7,9 +8,9 @@ internal sealed class EntityAcrudFactory : IEntityAcrudFactory
     private readonly string _root;
     private readonly IFirebaseClientFactory _factory;
 
-    public EntityAcrudFactory(string root, IFirebaseClientFactory factory)
+    public EntityAcrudFactory(IOptions<FirebaseSettings> settings, IFirebaseClientFactory factory)
     {
-        _root = root;
+        _root = settings.Value.Root;
         _factory = factory;
     }
 

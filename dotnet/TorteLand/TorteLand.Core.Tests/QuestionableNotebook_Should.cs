@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Storage;
 using TorteLand.Core.Notebooks;
 
 // ReSharper disable InconsistentNaming
@@ -21,9 +22,7 @@ internal sealed class QuestionableNotebook_Should
         var notebook = new QuestionableNotebook(origin);
 
         var added = notebook.Create(new[] { "value" });
-        var question = added.Match(
-            _ => throw new Exception(), // TODO : to utils
-            _ => _);
+        var question = added.ToRight<IReadOnlyCollection<int>, Question>();
 
         var clone = notebook.Clone();
 

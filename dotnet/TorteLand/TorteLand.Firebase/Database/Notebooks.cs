@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
+using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Firebase.Integration;
@@ -14,10 +15,10 @@ internal sealed class Notebooks : INotebooks
 {
     private readonly Dictionary<string, IPersistedNotebook> _notebooks = new();
 
-    private readonly INotebookFactory _factory;
+    private readonly IPersistedNotebooksFactory _factory;
     private readonly AsyncLazy<IEntityAcrud> _acrud;
 
-    public Notebooks(INotebookFactory factory, IEntityAcrudFactory acrudFactory)
+    public Notebooks(IPersistedNotebooksFactory factory, IEntityAcrudFactory acrudFactory)
     {
         _factory = factory;
         _acrud = new AsyncLazy<IEntityAcrud>(acrudFactory.Create);

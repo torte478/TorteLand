@@ -6,13 +6,13 @@ using TorteLand.Firebase.Integration;
 
 namespace TorteLand.Firebase.Database;
 
-internal sealed class NotebookFactory : INotebookFactory
+internal sealed class PersistedNotebooksFactory : IPersistedNotebooksFactory
 {
     private readonly IEntityAcrudFactory _entityAcrudFactory;
     private readonly IPersistedNotebookFactory _persistedNotebookFactory;
     private readonly IQuestionableNotebookFactory _questionableNotebookFactory;
 
-    public NotebookFactory(
+    public PersistedNotebooksFactory(
         IPersistedNotebookFactory persistedNotebookFactory,
         IQuestionableNotebookFactory questionableNotebookFactory,
         IEntityAcrudFactory entityAcrudFactory)
@@ -28,7 +28,6 @@ internal sealed class NotebookFactory : INotebookFactory
         var acrud = await _entityAcrudFactory.Create();
         var storage = new Storage(id, acrud);
 
-        // TODO: can be replace to TorteLand.Core
         var factory = new Left<IQuestionableNotebookFactory, IQuestionableNotebook>(_questionableNotebookFactory);
         return _persistedNotebookFactory.Create(storage, factory);
     }
