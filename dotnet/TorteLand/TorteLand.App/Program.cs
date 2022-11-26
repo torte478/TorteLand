@@ -14,7 +14,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-       // .AddFileStorage(builder.Configuration)
        .AddFirebase(builder.Configuration)
        .AddCoreLogic();
 
