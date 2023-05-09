@@ -5,6 +5,5 @@ namespace TorteLand.Core.Contracts.Factories;
 
 public interface IQuestionableNotebookFactory
 {
-    IQuestionableNotebook Create(INotebook origin);
     IQuestionableNotebook Create(IReadOnlyCollection<Note> notes);
 }

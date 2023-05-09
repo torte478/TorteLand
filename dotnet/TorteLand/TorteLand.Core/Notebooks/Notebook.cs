@@ -58,7 +58,7 @@ internal sealed class Notebook : INotebook
         => _values
            .Where((_, i) => i != key)
            .ToArray()
-           ._(_ => new Notebook(_)); // TODO: to .Wrap<T>()
+           ._<Notebook>();
 
     private Either<AddNotesResult, Segment> AddToExisting(
         IReadOnlyCollection<string> values,

@@ -9,6 +9,7 @@ using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Storage;
+using TorteLand.Utils;
 
 namespace TorteLand.Core.Storage;
 
@@ -16,19 +17,24 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 {
     private readonly IStorage _storage;
 
-    private Either<IQuestionableNotebookFactory, IQuestionableNotebook> _origin; // TODO : toAsyncLazy 
+    private AsyncLazy<IQuestionableNotebook> _origin;
 
     public PersistedNotebook(
         IStorage storage, 
-        Either<IQuestionableNotebookFactory, IQuestionableNotebook> origin)
+        IQuestionableNotebookFactory factory)
     {
         _storage = storage;
-        _origin = origin;
+        _origin = new AsyncLazy<IQuestionableNotebook>(
+            async () =>
+            {
+                var notes = await _storage.All(default); // TODOv2: cancellation
+                return factory.Create(notes);
+            });
     }
 
     public async Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
     {
-        var origin = await GetOrigin(token);
+        var origin = await _origin;
         return origin.All(pagination);
     }
 
@@ -36,7 +42,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         IReadOnlyCollection<string> values, 
         CancellationToken token)
     {
-        var origin = await GetOrigin(token);
+        var origin = await _origin;
         var copy = origin.Clone();
         var added = copy.Create(values);
 
@@ -51,7 +57,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
     {
-        var origin = await GetOrigin(token);
+        var origin = await _origin;
         var copy = origin.Clone();
         var added = copy.Create(id, isRight);
 
@@ -66,7 +72,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task Update(int key, string name, CancellationToken token)
     {
-        var origin = await GetOrigin(token);
+        var origin = await _origin;
         var copy = origin.Clone();
         copy.Update(key, name);
 
@@ -76,7 +82,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task Delete(int key, CancellationToken token)
     {
-        var origin = await GetOrigin(token);
+        var origin = await _origin;
         var copy = origin.Clone();
         copy.Delete(key);
 
@@ -86,7 +92,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task<Maybe<string>> Read(int key, CancellationToken token)
     {
-        var origin = await GetOrigin(token);
+        var origin = await _origin;
         return origin.Read(key);
     }
 
@@ -95,23 +101,6 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     private void SetOrigin(IQuestionableNotebook next)
     {
-        _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(next);
-    }
-
-    private async ValueTask<IQuestionableNotebook> GetOrigin(CancellationToken token)
-    {
-        var notebook = await _origin.MatchAsync(
-            _ => CreateNotebook(_, token),
-            Task.FromResult);
-
-        return notebook;
-    }
-
-    private async Task<IQuestionableNotebook> CreateNotebook(IQuestionableNotebookFactory factory, CancellationToken token)
-    {
-        var notes = await _storage.All(token);
-        var notebook = factory.Create(notes);
-        _origin = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(notebook);
-        return notebook;
+        _origin = new AsyncLazy<IQuestionableNotebook>(next);
     }
 }

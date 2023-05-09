@@ -30,7 +30,7 @@ internal sealed class RemoteExpiredToken : IExpiredToken, IDisposable
                           { "returnSecureToken", "true" }
                       }
                       ._(_ => JsonSerializer.Serialize(_))
-                      ._(_ => new StringContent(_));
+                      ._<StringContent>();
 
         // TODO: CancellationToken
         var response = await _http.PostAsync(

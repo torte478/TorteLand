@@ -12,4 +12,11 @@ public static class NavyExtensions
 
     public static void _<TIn>(this TIn x, Action<TIn> f)
         => f(x);
+
+    public static T _<T>(this object origin)
+        where T : class
+    {
+        var instance = Activator.CreateInstance(typeof(T), origin);
+        return (instance as T)!;
+    }
 }

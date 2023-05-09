@@ -15,5 +15,5 @@ internal sealed class NotebookFactory : INotebookFactory
            .Select(x => x.Text)
            .ToList()
            ._(Maybe.Some<IReadOnlyCollection<string>>)
-           ._(_ => new Notebook(_));
+           ._<Notebook>();
 }

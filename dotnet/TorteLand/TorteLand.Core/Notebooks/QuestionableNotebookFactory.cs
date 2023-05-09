@@ -14,9 +14,8 @@ internal sealed class QuestionableNotebookFactory : IQuestionableNotebookFactory
         _factory = factory;
     }
 
-    public IQuestionableNotebook Create(INotebook origin)
-        => new QuestionableNotebook(origin);
-
     public IQuestionableNotebook Create(IReadOnlyCollection<Note> notes)
-        => notes._(_factory.Create)._(Create);
+        => notes
+           ._(_factory.Create)
+           ._<QuestionableNotebook>();
 }

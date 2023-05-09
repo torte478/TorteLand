@@ -16,6 +16,11 @@ public sealed class AsyncLazy<T> : Lazy<Task<T>>
     {
     }
 
+    public AsyncLazy(T value)
+        : this(() => value)
+    {
+    }
+
     public TaskAwaiter<T> GetAwaiter()
         => Value.GetAwaiter();
 }

@@ -18,8 +18,7 @@ internal sealed class PersistedNotebook_Should
     public async Task CreateOriginOnce_AfterFirstCall()
     {
         var factory = A.Fake<IQuestionableNotebookFactory>();
-        var origin = new Left<IQuestionableNotebookFactory, IQuestionableNotebook>(factory);
-        var notebook = new PersistedNotebook(A.Fake<IStorage>(), origin);
+        var notebook = new PersistedNotebook(A.Fake<IStorage>(), factory);
 
         await notebook.All(Maybe.None<Pagination>(), default);
         await notebook.All(Maybe.None<Pagination>(), default);
@@ -34,8 +33,11 @@ internal sealed class PersistedNotebook_Should
         var origin = A.Fake<IQuestionableNotebook>();
         A.CallTo(() => origin.Clone())
          .Returns(A.Fake<IQuestionableNotebook>());
-        var right = new Right<IQuestionableNotebookFactory, IQuestionableNotebook>(origin);
-        var notebook = new PersistedNotebook(A.Fake<IStorage>(), right);
+
+        var factory = A.Fake<IQuestionableNotebookFactory>();
+        A.CallTo(() => factory.Create(A<IReadOnlyCollection<Note>>._)).Returns(origin);
+
+        var notebook = new PersistedNotebook(A.Fake<IStorage>(), factory);
 
         await notebook.Create(new[] { "note" }, default);
         await notebook.Create(new[] { "note" }, default);
