@@ -26,23 +26,4 @@ internal sealed class PersistedNotebook_Should
         A.CallTo(() => factory.Create(A<IReadOnlyCollection<Note>>._))
          .MustHaveHappenedOnceExactly();
     }
-
-    [Test]
-    public async Task SaveOrigin_AfterCreateCall()
-    {
-        var origin = A.Fake<IQuestionableNotebook>();
-        A.CallTo(() => origin.Clone())
-         .Returns(A.Fake<IQuestionableNotebook>());
-
-        var factory = A.Fake<IQuestionableNotebookFactory>();
-        A.CallTo(() => factory.Create(A<IReadOnlyCollection<Note>>._)).Returns(origin);
-
-        var notebook = new PersistedNotebook(A.Fake<IStorage>(), factory);
-
-        await notebook.Create(new[] { "note" }, default);
-        await notebook.Create(new[] { "note" }, default);
-
-        A.CallTo(() => origin.Clone())
-         .MustHaveHappenedOnceExactly();
-    }
 }

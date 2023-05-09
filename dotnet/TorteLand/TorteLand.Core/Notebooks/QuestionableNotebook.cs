@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using SoftwareCraft.Functional;
 using TorteLand.Contracts;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Storage;
+using TorteLand.Core.Extensions;
 using TorteLand.Extensions;
-using Added = System.Collections.Generic.IReadOnlyCollection<int>;
 
 namespace TorteLand.Core.Notebooks;
 
-// TODO: to immutable
 internal sealed class QuestionableNotebook : IQuestionableNotebook
 {
     private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions;
+    private readonly INotebook _origin;
 
-    private INotebook _origin;
-
+    // ReSharper disable once UnusedMember.Global
     public QuestionableNotebook(INotebook origin)
     {
         _origin = origin;
@@ -27,22 +25,22 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
 
     private QuestionableNotebook(
         INotebook origin,
-        Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> transaction)
+        Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> transactions)
     {
         _origin = origin;
-        _transactions = transaction;
+        _transactions = transactions;
     }
 
     public Page<Unique<Note>> All(Maybe<Pagination> pagination)
         => _origin.All(pagination);
 
-    public Either<Added, Question> Create(IReadOnlyCollection<string> values)
+    public AddNotesIteration Create(IReadOnlyCollection<string> values)
         => Add(
             values,
             Maybe.None<ResolvedSegment>(),
             _ => StartTransaction(_, values));
 
-    public Either<Added, Question> Create(Guid id, bool isRight)
+    public AddNotesIteration Create(Guid id, bool isRight)
     {
         var transaction = _transactions[id];
         var segment = new ResolvedSegment(transaction.Segment, isRight);
@@ -53,25 +51,15 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
             _ => UpdateTransaction(_, id));
     }
 
-    public void Delete(int key)
-    {
-        _origin = _origin.Delete(key);
-        _transactions.Clear();
-    }
+    public IQuestionableNotebook Delete(int key)
+        => _origin
+           .Delete(key)
+           ._<QuestionableNotebook>();
 
-    public IQuestionableNotebook Clone()
-    {
-        var transaction = _transactions.ToDictionary(
-            x => x.Key,
-            x => x.Value);
-        return new QuestionableNotebook(_origin, transaction);
-    }
-
-    public void Update(int key, string name)
-    {
-        _origin = _origin.Update(key, name);
-        _transactions.Clear();
-    }
+    public IQuestionableNotebook Update(int key, string name)
+        => _origin
+           .Update(key, name)
+           ._<QuestionableNotebook>();
 
     public Maybe<string> Read(int key)
         => _origin
@@ -84,46 +72,46 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
-    private Either<Added, Question> Add(
+    private AddNotesIteration Add(
         IReadOnlyCollection<string> values,
         Maybe<ResolvedSegment> segment,
-        Func<Segment, Either<Added, Question>> onRight)
+        Func<Segment, AddNotesIteration> onRight)
         => _origin
            .Create(values, segment)
            .Match(
                CompleteTransaction,
                onRight);
 
-    private Either<Added, Question> CompleteTransaction(AddNotesResult result)
-    {
-        _transactions.Clear();
-        _origin = result.Notebook;
-        return result.Indices._(Either.Left<Added, Question>);
-    }
+    private static AddNotesIteration CompleteTransaction(AddNotesResult result)
+        => new(
+            Notebook: result.Notebook._<QuestionableNotebook>(),
+            Result: result.Indices._(Either.Left<IReadOnlyCollection<int>, Question>));
 
-    private Either<Added, Question> UpdateTransaction(Segment segment, Guid id)
-    {
-        var transaction = _transactions[id];
-        _transactions[id] = (transaction.Text, segment);
+    private AddNotesIteration UpdateTransaction(Segment segment, Guid id)
+        => _transactions[id]
+           .Text
+           ._(_ => (_, segment))
+           ._(_ => _transactions.SetImmutable(id, _))
+           ._(_ => new QuestionableNotebook(_origin, _))
+           ._(BuildTransaction, id, segment);
 
-        return BuildTransaction(id, segment);
-    }
-
-    private Either<Added, Question> StartTransaction(Segment segment, IReadOnlyCollection<string> values)
+    private AddNotesIteration StartTransaction(Segment segment, IReadOnlyCollection<string> values)
     {
         var key = Guid.NewGuid();
-        _transactions.Add(key, (values, segment));
+        var notebook = new QuestionableNotebook(
+            origin: _origin,
+            transactions: _transactions.AddImmutable(key, (values, segment)));
 
-        return BuildTransaction(key, segment);
+        return BuildTransaction(notebook, key, segment);
     }
 
-    private Either<Added, Question> BuildTransaction(Guid id, Segment segment)
-    {
-        var note = _origin.Read(segment.Border);
-
-        var text = note.ToSome().Text;
-
-        return new Question(id, text)
-            ._(Either.Right<Added, Question>);
-    }
+    private AddNotesIteration BuildTransaction(IQuestionableNotebook notebook, Guid id, Segment segment)
+        => segment
+           .Border
+           ._(_origin.Read)
+           .ToSome()
+           .Text
+           ._(_ => new Question(id, _))
+           ._(Either.Right<IReadOnlyCollection<int>, Question>)
+           ._(_ => new AddNotesIteration(notebook, _));
 }

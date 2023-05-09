@@ -43,51 +43,47 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         CancellationToken token)
     {
         var origin = await _origin;
-        var copy = origin.Clone();
-        var added = copy.Create(values);
-
-        await added.MatchAsync(
-            _ => SaveChanges(copy, token),
+        
+        var iteration = origin.Create(values);
+        await iteration.Result.MatchAsync(
+            _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);
         
-        SetOrigin(copy);
-
-        return added;
+        SetOrigin(iteration.Notebook);
+        return iteration.Result;
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
     {
         var origin = await _origin;
-        var copy = origin.Clone();
-        var added = copy.Create(id, isRight);
 
-        await added.MatchAsync(
-            _ => SaveChanges(copy, token),
+        var iteration = origin.Create(id, isRight);
+
+        await iteration.Result.MatchAsync(
+            _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);
         
-        SetOrigin(copy);
+        SetOrigin(iteration.Notebook);
 
-        return added;
+        return iteration.Result;
     }
 
     public async Task Update(int key, string name, CancellationToken token)
     {
         var origin = await _origin;
-        var copy = origin.Clone();
-        copy.Update(key, name);
+        var updated = origin.Update(key, name);
 
-        await SaveChanges(copy, token);
-        SetOrigin(copy);
+        await SaveChanges(updated, token);
+        SetOrigin(updated);
     }
 
     public async Task Delete(int key, CancellationToken token)
     {
         var origin = await _origin;
-        var copy = origin.Clone();
-        copy.Delete(key);
+        var updated = origin.Delete(key);
 
-        await SaveChanges(copy, token);
-        SetOrigin(copy);
+        await SaveChanges(updated, token);
+        SetOrigin(updated);
     }
 
     public async Task<Maybe<string>> Read(int key, CancellationToken token)
