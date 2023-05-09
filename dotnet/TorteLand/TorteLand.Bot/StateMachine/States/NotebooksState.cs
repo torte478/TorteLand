@@ -37,7 +37,7 @@ internal sealed class NotebooksState : BaseState
             "rename" => Rename(arguments, token),
             "delete" or "remove" => Delete(arguments, token),
 
-            _ => throw new Exception($"Unknown command: {name}")
+            _ => name.ToUnknown()
         };
     }
 
