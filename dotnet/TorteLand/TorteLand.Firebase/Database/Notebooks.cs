@@ -68,7 +68,7 @@ internal sealed class Notebooks : INotebooks
         if (_notebooks.TryGetValue(id, out var notebook))
             return notebook;
 
-        var created = await _factory.Create(id);
+        var created = _factory.Create(id);
         _notebooks.Add(id, created);
         return created;
     }

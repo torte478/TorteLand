@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
-using Firebase.Database;
+﻿using Firebase.Database;
 
 namespace TorteLand.Firebase.Integration;
 
 internal interface IFirebaseClientFactory
 {
-    Task<FirebaseClient> Create();
+    FirebaseClient Create();
 }

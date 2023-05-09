@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 
 namespace TorteLand.Firebase.Integration;
 
@@ -14,9 +13,9 @@ internal sealed class EntityAcrudFactory : IEntityAcrudFactory
         _factory = factory;
     }
 
-    public async Task<IEntityAcrud> Create()
+    public IEntityAcrud Create()
     {
-        var client = await _factory.Create();
+        var client = _factory.Create();
         return new EntityAcrud(_root, client);
     }
 }

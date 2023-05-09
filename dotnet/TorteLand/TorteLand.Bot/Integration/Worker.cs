@@ -26,7 +26,7 @@ internal sealed class Worker : BackgroundService
         IClientFactory clientFactory,
         ICommandFactory commands,
         IStateMachineFactory stateMachineFactory,
-        IClock clock,
+        Utils.IClock clock,
         ILogger<Worker> logger)
     {
         _start = clock.Now();

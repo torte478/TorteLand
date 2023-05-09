@@ -7,6 +7,7 @@ using TorteLand;
 using TorteLand.Bot.Integration;
 using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
+using IClock = TorteLand.Bot.Utils.IClock;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureServices(

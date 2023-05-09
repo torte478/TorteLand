@@ -6,6 +6,7 @@ using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Firebase.Database;
 using TorteLand.Firebase.Integration;
+using TorteLand.Firebase.Integration.Tokens;
 
 namespace TorteLand.Firebase;
 
@@ -19,7 +20,9 @@ public static class IocExtensions
         // TODO: to extension with validation
         services.Configure<FirebaseSettings>(
             configuration.GetSection(nameof(FirebaseSettings)));
-        
+
+        services.AddSingleton<IExpiredToken, RemoteExpiredToken>();
+        services.AddSingleton<IToken, Token>();
         services.AddSingleton<IFirebaseClientFactory, FirebaseClientFactory>();
         services.AddSingleton<IEntityAcrudFactory, EntityAcrudFactory>();
         services.AddSingleton<INotebooks, Notebooks>();
