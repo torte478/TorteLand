@@ -2,6 +2,7 @@
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Notebooks;
+using TorteLand.Extensions;
 
 // ReSharper disable InconsistentNaming
 

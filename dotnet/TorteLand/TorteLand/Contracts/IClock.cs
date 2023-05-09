@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TorteLand.Core;
+namespace TorteLand.Contracts;
 
 public interface IClock
 {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SoftwareCraft.Functional;
+using TorteLand.Contracts;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 

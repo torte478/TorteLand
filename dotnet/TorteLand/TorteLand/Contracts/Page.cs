@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TorteLand;
+namespace TorteLand.Contracts;
 
 public record Page<T>(
     IReadOnlyCollection<T> Items,

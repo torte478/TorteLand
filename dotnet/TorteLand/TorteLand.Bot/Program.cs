@@ -7,13 +7,13 @@ using TorteLand;
 using TorteLand.Bot.Integration;
 using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
-using IClock = TorteLand.Bot.Utils.IClock;
+using TorteLand.Extensions;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureServices(
                    (context, services) =>
                    {
-                       services.AddSingleton<IClock, Clock>();
+                       services.AddTorteLand();
                        services.AddSingleton<IRandom, Random>();
 
                        services.AddHttpClient()

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TorteLand;
 using TorteLand.Core;
 using TorteLand.Firebase;
 
@@ -15,6 +16,7 @@ builder.Services
                           .AllowAnyHeader()
                           .AllowAnyMethod()))
        .AddFirebase(builder.Configuration)
+       .AddTorteLand()
        .AddCoreLogic();
 
 builder.Services.AddControllers();

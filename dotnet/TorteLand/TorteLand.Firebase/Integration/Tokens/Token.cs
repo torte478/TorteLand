@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using TorteLand.Core;
+using TorteLand.Contracts;
 
 namespace TorteLand.Firebase.Integration.Tokens;
 

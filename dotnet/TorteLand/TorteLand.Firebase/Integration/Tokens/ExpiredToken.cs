@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using TorteLand.Extensions;
 
 namespace TorteLand.Firebase.Integration.Tokens;
 

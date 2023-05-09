@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace TorteLand;
+namespace TorteLand.Utils;
 
 public sealed class AsyncLazy<T> : Lazy<Task<T>>
 {

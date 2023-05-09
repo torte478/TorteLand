@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
+using TorteLand.Contracts;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 

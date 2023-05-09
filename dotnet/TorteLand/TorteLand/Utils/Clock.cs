@@ -1,6 +1,7 @@
 ﻿using System;
+using TorteLand.Contracts;
 
-namespace TorteLand.Core;
+namespace TorteLand.Utils;
 
 internal sealed class Clock : IClock
 {

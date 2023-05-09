@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using SoftwareCraft.Functional;
+using TorteLand.Contracts;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Storage;
-
+using TorteLand.Extensions;
 using Added = System.Collections.Generic.IReadOnlyCollection<int>;
 
 namespace TorteLand.Core.Notebooks;

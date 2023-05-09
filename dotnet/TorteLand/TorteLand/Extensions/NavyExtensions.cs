@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TorteLand;
+namespace TorteLand.Extensions;
 
 public static class NavyExtensions
 {

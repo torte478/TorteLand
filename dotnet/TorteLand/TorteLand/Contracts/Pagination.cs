@@ -1,6 +1,6 @@
 ﻿using SoftwareCraft.Functional;
 
-namespace TorteLand;
+namespace TorteLand.Contracts;
 
 public record Pagination(
     Maybe<int> Offset,

@@ -3,6 +3,7 @@ using System.Linq;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Extensions;
 
 namespace TorteLand.Core.Notebooks;
 

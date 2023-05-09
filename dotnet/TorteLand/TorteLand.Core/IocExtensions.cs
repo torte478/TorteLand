@@ -9,8 +9,6 @@ public static class IocExtensions
 {
     public static IServiceCollection AddCoreLogic(this IServiceCollection services)
     {
-        services.AddSingleton<IClock, Clock>();
-
         services.AddSingleton<INotebookFactory, NotebookFactory>();
         services.AddSingleton<IPersistedNotebookFactory, PersistedNotebookFactory>();
         services.AddSingleton<IQuestionableNotebookFactory, QuestionableNotebookFactory>();
