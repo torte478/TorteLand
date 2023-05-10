@@ -65,7 +65,7 @@ internal sealed class Notebook : INotebook
         Maybe<ResolvedSegment> segment)
     {
         var (begin, end) = segment.Match(
-            _ => ToHalf(_.Segment, _.IsRight),
+            _ => ToHalf(_.Segment, _.IsGreater),
             () => (0, _values.Length));
 
         if (begin < end)

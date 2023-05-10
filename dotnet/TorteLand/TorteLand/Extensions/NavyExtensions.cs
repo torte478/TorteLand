@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace TorteLand.Extensions;
 
@@ -19,7 +20,13 @@ public static class NavyExtensions
     public static T _<T>(this object origin)
         where T : class
     {
-        var instance = Activator.CreateInstance(typeof(T), origin);
-        return (instance as T)!;
+        var type = typeof(T);
+        var constructor = type.GetConstructor(
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, 
+            null, 
+            new[] { origin.GetType() }, 
+            null);
+        
+        return (T)constructor!.Invoke(new[] { origin });
     }
 }

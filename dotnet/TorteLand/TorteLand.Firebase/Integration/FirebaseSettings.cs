@@ -1,4 +1,6 @@
-﻿namespace TorteLand.Firebase.Integration;
+﻿using System;
+
+namespace TorteLand.Firebase.Integration;
 
 internal sealed class FirebaseSettings
 {
@@ -7,5 +9,6 @@ internal sealed class FirebaseSettings
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
     public string ApiKey { get; set; } = null!;
+    public TimeSpan Timeout { get; set; }
 }
     

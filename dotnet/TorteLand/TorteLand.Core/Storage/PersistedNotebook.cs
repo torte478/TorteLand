@@ -42,6 +42,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         IReadOnlyCollection<string> values, 
         CancellationToken token)
     {
+        // TODOv2: chore
         var origin = await _origin;
         
         var iteration = origin.Create(values);
