@@ -19,6 +19,7 @@ var host = Host.CreateDefaultBuilder(args)
                        services.AddHttpClient()
                                .RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
+                       // TODOv2: settings to normal
                        services.AddSingleton<IClientFactory>(
                            _ => new ClientFactory(
                                context.Configuration.GetSection("TorteLand.App")["Url"],

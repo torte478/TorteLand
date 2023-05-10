@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using TorteLand.Extensions;
@@ -21,7 +22,7 @@ internal sealed class RemoteExpiredToken : IExpiredToken, IDisposable
         _http = factory.CreateClient();
     }
 
-    public async Task<ExpiredToken> Provide()
+    public async Task<ExpiredToken> Provide(CancellationToken cancellation)
     {
         var content = new Dictionary<string, string>
                       {
@@ -32,13 +33,13 @@ internal sealed class RemoteExpiredToken : IExpiredToken, IDisposable
                       ._(_ => JsonSerializer.Serialize(_))
                       ._<StringContent>();
 
-        // TODO: CancellationToken
         var response = await _http.PostAsync(
                            string.Format(Uri, _settings.ApiKey),
-                           content);
+                           content,
+                           cancellation);
 
         // TODO: to stream
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(cancellation);
         var token = JsonSerializer.Deserialize<ExpiredToken>(json);
         
         return token!;

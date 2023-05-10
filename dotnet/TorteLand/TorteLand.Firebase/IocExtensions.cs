@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Extensions;
 using TorteLand.Firebase.Database;
 using TorteLand.Firebase.Integration;
 using TorteLand.Firebase.Integration.Tokens;
@@ -17,9 +18,7 @@ public static class IocExtensions
         services.AddHttpClient()
                 .RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
-        // TODO: to extension with validation
-        services.Configure<FirebaseSettings>(
-            configuration.GetSection(nameof(FirebaseSettings)));
+        services.AddSettings<FirebaseSettings>(configuration);
 
         services.AddSingleton<IExpiredToken, RemoteExpiredToken>();
         services.AddSingleton<IToken, Token>();
