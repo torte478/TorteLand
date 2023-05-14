@@ -1,4 +1,4 @@
-﻿namespace TorteLand.Core.Contracts.Notebooks;
+﻿namespace TorteLand.Core.Contracts.Notebooks.Models;
 
 public record ResolvedSegment(
     Segment Segment,

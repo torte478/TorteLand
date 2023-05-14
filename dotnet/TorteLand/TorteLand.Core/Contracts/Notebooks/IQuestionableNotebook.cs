@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SoftwareCraft.Functional;
 using TorteLand.Contracts;
+using TorteLand.Core.Contracts.Notebooks.Models;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 

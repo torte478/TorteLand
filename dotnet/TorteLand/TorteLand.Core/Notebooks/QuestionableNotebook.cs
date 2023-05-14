@@ -5,6 +5,7 @@ using SoftwareCraft.Functional;
 using TorteLand.Contracts;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Core.Extensions;
 using TorteLand.Extensions;
@@ -13,7 +14,7 @@ namespace TorteLand.Core.Notebooks;
 
 internal sealed class QuestionableNotebook : IQuestionableNotebook
 {
-    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions;
+    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Contracts.Notebooks.Models.Segment Segment)> _transactions;
     private readonly INotebook _origin;
 
     // ReSharper disable once UnusedMember.Global

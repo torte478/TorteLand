@@ -11,7 +11,7 @@ public static class ConfigurationExceptions
         where T : class
     {
         services.Configure<T>(
-            configuration.GetRequiredSection(nameof(T)));
+            configuration.GetRequiredSection(typeof(T).Name));
         
         return services;
     }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Extensions;
 using TorteLand.Firebase.Integration;

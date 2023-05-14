@@ -2,7 +2,7 @@
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Storage;
 
-namespace TorteLand.Core.Contracts.Notebooks;
+namespace TorteLand.Core.Contracts.Notebooks.Models;
 
 public sealed record AddNotesIteration(
     IQuestionableNotebook Notebook,

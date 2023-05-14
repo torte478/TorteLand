@@ -8,6 +8,7 @@ using TorteLand.Contracts;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Utils;
 
@@ -27,7 +28,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         _origin = new AsyncLazy<IQuestionableNotebook>(
             async () =>
             {
-                var notes = await _storage.All(default); // TODOv2: cancellation
+                var notes = await _storage.All(default); // TODO: cancellation
                 return factory.Create(notes);
             });
     }
@@ -42,7 +43,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         IReadOnlyCollection<string> values, 
         CancellationToken token)
     {
-        // TODOv2: chore
+        // TODO: chore
         var origin = await _origin;
         
         var iteration = origin.Create(values);

@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Notebooks;
 using TorteLand.Extensions;
 

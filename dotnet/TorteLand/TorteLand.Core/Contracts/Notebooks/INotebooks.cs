@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
 using TorteLand.Contracts;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 
 namespace TorteLand.Core.Contracts.Notebooks;

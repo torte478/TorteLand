@@ -4,6 +4,7 @@ using SoftwareCraft.Functional;
 using TorteLand.Contracts;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Core.Storage;
 

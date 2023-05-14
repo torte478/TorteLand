@@ -38,9 +38,8 @@ internal sealed class RemoteExpiredToken : IExpiredToken, IDisposable
                            content,
                            cancellation);
 
-        // TODO: to stream
-        var json = await response.Content.ReadAsStringAsync(cancellation);
-        var token = JsonSerializer.Deserialize<ExpiredToken>(json);
+        var json = await response.Content.ReadAsStreamAsync(cancellation);
+        var token = await JsonSerializer.DeserializeAsync<ExpiredToken>(json, cancellationToken: cancellation);
         
         return token!;
     }
