@@ -11,3 +11,14 @@
 h2 {
     margin-left: 8px;
 }
+
+.note {
+    display: flex; 
+    flex-direction: row; 
+    align-items: center;
+}
+
+.note-pluses {
+    font-weight: bold; 
+    margin-left: 1rem;
+}

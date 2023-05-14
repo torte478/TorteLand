@@ -5,6 +5,18 @@
 </div>
 
 <div class="button-row">
+
+  <button 
+    mat-raised-button 
+    (click)="onPlusClick()" 
+    [disabled]="isBusy || !selection.length">
+    Plus
+  </button>
+  
+</div>
+
+<div class="button-row">
+
   <button 
     mat-raised-button 
     (click)="onRenameClick()" 
@@ -22,7 +34,18 @@
 
 <mat-selection-list [(ngModel)]="selection" [multiple]="false">
     <mat-list-option *ngFor="let note of notes" [value]="note">
-      {{note.value}}
+
+      <div class="note">
+        <span>{{note.text}}</span>
+
+        <span 
+          *ngIf="!!note.pluses"
+          class="note-pluses"
+          >
+          {{toPlusText(note.pluses)}}
+        </span>
+    </div>
+
     </mat-list-option>
 </mat-selection-list>
 

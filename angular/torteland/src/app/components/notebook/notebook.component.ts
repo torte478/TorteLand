@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { expand, filter, map, mergeMap, tap, withLatestFrom } from 'rxjs/operators';
 import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
-import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
+import { Int32IReadOnlyCollectionQuestionEither, Note, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
 import { ContinueAddNoteDialogComponent } from '../continue-add-note-dialog/continue-add-note-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
@@ -21,8 +21,8 @@ export class NotebookComponent implements OnInit {
 
   notebookId?: number;
   name?: string;
-  notes?: Int32StringKeyValuePair[];
-  selection: Int32StringKeyValuePair[] = [];
+  notes?: Note[];
+  selection: Note[] = [];
   isBusy: Boolean = true;
 
   constructor(
@@ -60,13 +60,24 @@ export class NotebookComponent implements OnInit {
 
     this.RunWithDialog(
       TextDialogComponent,
-      `Rename ${selected.value}`,
+      `Rename ${selected.text}`,
       _ => _.pipe(
         mergeMap(name => this.client.update(
           this.notebookId, 
-          selected.key, 
+          selected.id, 
           name as string))
     ));
+  }
+
+  onPlusClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    this.isBusy = true;
+    this.client
+      .increment(this.notebookId, selected.id)
+      .subscribe(_ => this.reload());
   }
 
   onDeleteClick() {
@@ -76,9 +87,9 @@ export class NotebookComponent implements OnInit {
 
     this.RunWithDialog(
       ConfirmDialogComponent,
-      `Delete '${selected.value}' ?`,
+      `Delete '${selected.text}' ?`,
       _ => _.pipe(
-        mergeMap(_ => this.client.delete(this.notebookId, selected.key)),
+        mergeMap(_ => this.client.delete(this.notebookId, selected.id)),
         tap(_ => this.selection = [])
     ));
   }
@@ -106,6 +117,14 @@ export class NotebookComponent implements OnInit {
         })
       )
       .subscribe({ complete: () => this.reload() });
+  }
+
+  toPlusText(pluses: number): string {
+    let result = '';
+    for (let i = 0; i < pluses; ++i)
+      result += '+';
+
+    return result;
   }
 
   private continueAdd(
