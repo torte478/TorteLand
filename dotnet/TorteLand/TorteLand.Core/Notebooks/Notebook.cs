@@ -16,12 +16,12 @@ internal sealed class Notebook : INotebook
     private readonly byte _pluses;
     private readonly Item[] _values;
 
-    public Notebook(Maybe<IReadOnlyCollection<string>> values, byte pluses)
+    public Notebook(Maybe<IReadOnlyCollection<(string, byte)>> values, byte pluses)
     {
         _pluses = pluses;
         
         _values = values.Match(
-                            _ => _.Select(text => new Item(text)).ToArray(),
+                            _ => _.Select(x => new Item(x.Item1, x.Item2)).ToArray(),
                             Array.Empty<Item>);
     }
 

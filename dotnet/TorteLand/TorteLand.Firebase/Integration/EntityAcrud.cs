@@ -65,7 +65,7 @@ internal sealed class EntityAcrud : IEntityAcrud
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         return entity.Notes is { }
                    ? entity
-                   : entity with { Notes = Array.Empty<string>() };
+                   : entity with { Notes = Array.Empty<NoteEntity>() };
     }
 
     public Task Update(string id, NotebookEntity entity, CancellationToken token)

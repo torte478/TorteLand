@@ -98,7 +98,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         return result;
     }
 
-    public async Task<Maybe<string>> Read(int key, CancellationToken token)
+    public async Task<Maybe<Note>> Read(int key, CancellationToken token)
     {
         var origin = await _origin;
         return origin.Read(key);

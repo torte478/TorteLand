@@ -2,12 +2,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
+using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Extensions;
 using TorteLand.Firebase.Database;
 using TorteLand.Firebase.Integration;
 using TorteLand.Firebase.Integration.Tokens;
+using TorteLand.Firebase.Migrations;
 
 namespace TorteLand.Firebase;
 
@@ -27,6 +29,8 @@ public static class IocExtensions
         services.AddSingleton<INotebooks, Notebooks>();
         services.AddSingleton<INotebooksAcrud, NotebooksAcrud>();
         services.AddSingleton<IPersistedNotebooksFactory, PersistedNotebooksFactory>();
+
+        services.AddTransient<IInitialization, MigrationV0V1>();
 
         return services;
     }

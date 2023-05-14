@@ -28,7 +28,7 @@ public sealed class NotebooksController : ControllerBase
 
     [HttpGet("[action]")]
 
-    public async Task<Page<KeyValuePair<int, string>>> All(
+    public async Task<Page<Models.Note>> All(
         int index,
         int? count,
         int? offset,
@@ -43,8 +43,13 @@ public sealed class NotebooksController : ControllerBase
 
         var page = await _notebooks.All(index, pagination, token);
 
-        return new Page<KeyValuePair<int, string>>(
-            Items: page.Items.Select(_ => new KeyValuePair<int, string>(_.Id, _.Value.Text)).ToArray(),
+        return new Page<Models.Note>(
+            Items: page.Items
+                       .Select(_ => new Models.Note(
+                                   _.Id,
+                                   _.Value.Text, 
+                                   _.Value.Pluses.ToByte()))
+                       .ToArray(),
             CurrentIndex: page.CurrentIndex,
             TotalItems: page.TotalItems);
     }
@@ -66,13 +71,13 @@ public sealed class NotebooksController : ControllerBase
         => _notebooks.Add(index, id, isRight, token).ToModel();
 
     [HttpGet("[action]")]
-    public async Task<Models.Maybe<string>> Read(int index, int id, CancellationToken token)
+    public async Task<Models.Maybe<Models.Note>> Read(int index, int id, CancellationToken token)
     {
         var note = await _notebooks.Read(index, id, token);
 
         return note.Match(
-            _ => new Models.Maybe<string>(true, _),
-            () => new Models.Maybe<string>(false, string.Empty));
+            _ => new Models.Maybe<Models.Note>(true, new Models.Note(id, _.Text, _.Pluses.ToByte())),
+            () => new Models.Maybe<Models.Note>(false, new Models.Note(default, string.Empty, default)));
     }
 
     [HttpPost("[action]")]

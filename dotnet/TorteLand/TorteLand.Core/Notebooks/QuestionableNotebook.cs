@@ -69,10 +69,9 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
            .Update(key, name)
            ._<QuestionableNotebook>();
 
-    public Maybe<string> Read(int key)
+    public Maybe<Note> Read(int key)
         => _origin
-           .Read(key)
-           .Select(_ => _.Text);
+           .Read(key);
 
     public IEnumerator<Unique<Note>> GetEnumerator()
         => _origin.GetEnumerator();

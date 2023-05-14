@@ -45,7 +45,7 @@ internal sealed class Notebooks : INotebooks
         return await notebook.Create(id, isRight, token);
     }
 
-    public async Task<Maybe<string>> Read(int index, int id, CancellationToken token)
+    public async Task<Maybe<Note>> Read(int index, int id, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
         return await notebook.Read(id, token);

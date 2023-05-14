@@ -17,7 +17,8 @@ builder.Services
                           .AllowAnyMethod()))
        .AddFirebase(builder.Configuration)
        .AddTorteLand()
-       .AddCoreLogic(builder.Configuration);
+       .AddCoreLogic(builder.Configuration)
+       .AddHostedService<Initializations>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

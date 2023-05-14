@@ -21,8 +21,8 @@ internal sealed class NotebookFactory : INotebookFactory
     public INotebook Create(IReadOnlyCollection<Note> notes)
         => notes
            .OrderByDescending(x => x.Weight)
-           .Select(x => x.Text)
+           .Select(x => (x.Text, x.Pluses.Match(_ => _, () => default)))
            .ToList()
-           ._(Maybe.Some<IReadOnlyCollection<string>>)
+           ._(Maybe.Some<IReadOnlyCollection<(string, byte)>>)
            ._(_ => new Notebook(_, _pluses));
 }
