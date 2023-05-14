@@ -18,4 +18,5 @@ public interface INotebooks
     Task Update(int index, int id, string name, CancellationToken token);
     Task Delete(int index, int id, CancellationToken token);
     Task<Either<byte, int>> Increment(int index, int id, CancellationToken token);
+    Task<Either<byte, int>> Decrement(int index, int id, CancellationToken token);
 }

@@ -91,4 +91,8 @@ public sealed class NotebooksController : ControllerBase
     [HttpPost("[action]")]
     public Task<Models.Either<byte, int>> Increment(int index, int id, CancellationToken token)
         => _notebooks.Increment(index, id, token).ToModel();
+
+    [HttpPost("[action]")]
+    public Task<Models.Either<byte, int>> Decrement(int index, int id, CancellationToken token)
+        => _notebooks.Decrement(index, id, token).ToModel();
 }

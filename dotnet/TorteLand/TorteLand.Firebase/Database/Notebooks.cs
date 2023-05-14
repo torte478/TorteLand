@@ -68,6 +68,11 @@ internal sealed class Notebooks : INotebooks
         var notebook = await GetNotebook(index, token);
         return await notebook.Increment(id, token);
     }
+    public async Task<Either<byte, int>> Decrement(int index, int id, CancellationToken token)
+    {
+        var notebook = await GetNotebook(index, token);
+        return await notebook.Decrement(id, token);
+    }
 
     private async ValueTask<IPersistedNotebook> GetNotebook(int index, CancellationToken token)
     {

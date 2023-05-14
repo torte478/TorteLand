@@ -39,6 +39,7 @@ internal sealed class NotebookState : BaseState
             "delete" or "remove" => Delete(arguments, token),
             "close" => Close(token),
             "plus" or "+" => Increment(arguments, token),
+            "minus" or "-" => Decrement(arguments, token),
             
             _ => name.ToUnknown()
         };
@@ -114,7 +115,16 @@ internal sealed class NotebookState : BaseState
                    token);
     }
     
-    private async Task<string> Increment(ICommand command, CancellationToken token)
+    private Task<string> Increment(ICommand command, CancellationToken token)
+        => ChangePlusCount(command, _client.IncrementAsync, token);
+    
+    private Task<string> Decrement(ICommand command, CancellationToken token)
+        => ChangePlusCount(command, _client.DecrementAsync, token);
+    
+    private async Task<string> ChangePlusCount(
+        ICommand command, 
+        Func<int?, int?, CancellationToken, Task<ByteInt32Either>> f, 
+        CancellationToken token)
     {
         var (index, _) = command.ToInt();
         var name = await _client.ReadAsync(_key, index, token);
@@ -122,7 +132,7 @@ internal sealed class NotebookState : BaseState
         if (!name.IsSome)
             return $"Wrong index: {index}";
 
-        await _client.IncrementAsync(_key, index, token);
+        await f(_key, index, token);
         return await All(_offset, token);
     }
     

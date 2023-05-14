@@ -63,6 +63,13 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
 
         return (notebook._<QuestionableNotebook>(), result);
     }
+    
+    public (IQuestionableNotebook Notebook, Either<byte, int> Result) Decrement(int key)
+    {
+        var (notebook, result) = _origin.Decrement(key);
+
+        return (notebook._<QuestionableNotebook>(), result);
+    }
 
     public IQuestionableNotebook Update(int key, string name)
         => _origin

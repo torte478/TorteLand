@@ -13,4 +13,5 @@ public interface INotebook : IEnumerable<Unique<Note>>
     INotebook Update(int key, string name);
     INotebook Delete(int key);
     (INotebook Notebook, Either<byte, int> Result) Increment(int key);
+    (INotebook Notebook, Either<byte, int> Result) Decrement(int key);
 }

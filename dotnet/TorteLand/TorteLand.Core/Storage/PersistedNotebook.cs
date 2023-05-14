@@ -97,6 +97,16 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         SetOrigin(updated);
         return result;
     }
+    
+    public async Task<Either<byte, int>> Decrement(int key, CancellationToken token)
+    {
+        var origin = await _origin;
+        var (updated, result) = origin.Decrement(key);
+
+        await SaveChanges(updated, token);
+        SetOrigin(updated);
+        return result;
+    }
 
     public async Task<Maybe<Note>> Read(int key, CancellationToken token)
     {

@@ -70,8 +70,17 @@ internal sealed class Notebook : INotebook
         var old = _values[key].Pluses;
 
         return old < _pluses - 1
-                   ? IncreasePlusCount(key, old)
+                   ? ChangePlusCount(key, old + 1)
                    : IncreaseNoteIndex(key);
+    }
+    
+    public (INotebook Notebook, Either<byte, int> Result) Decrement(int key)
+    {
+        var old = _values[key].Pluses;
+
+        return old > 0
+                   ? ChangePlusCount(key, old - 1)
+                   : DecreaseNoteIndex(key);
     }
 
     private (INotebook Notebook, Either<byte, int> Result) IncreaseNoteIndex(int key)
@@ -93,18 +102,38 @@ internal sealed class Notebook : INotebook
                 Either.Right<byte, int>(increased)
             );
     }
+    
+    private (INotebook Notebook, Either<byte, int> Result) DecreaseNoteIndex(int key)
+    {
+        var decreased = Math.Min(_values.Length - 1, key + _pluses);
+        
+        var updated = new List<Item>();
+        for (var i = 0; i <= decreased; ++i)
+            if (i != key)
+                updated.Add(_values[i]);
+        
+        updated.Add(_values[key] with { Pluses = (byte)(_pluses - 1) });
+        
+        for (var i = decreased + 1; i < _values.Length; ++i)
+                updated.Add(_values[i]);
 
-    private (INotebook Notebook, Either<byte, int> Result) IncreasePlusCount(int key, byte old)
+        return
+            (
+                new Notebook(updated.ToArray(), _pluses),
+                Either.Right<byte, int>(decreased)
+            );
+    }
+
+    private (INotebook Notebook, Either<byte, int> Result) ChangePlusCount(int key, int pluses)
     {
         var updated = _values.ToArray();
         
-        var pluses = (byte)(old + 1);
-        updated[key] = updated[key] with { Pluses = pluses };
+        updated[key] = updated[key] with { Pluses = (byte)pluses };
 
         return
             (
                 new Notebook(updated, _pluses),
-                Either.Left<byte, int>(pluses)
+                Either.Left<byte, int>((byte)pluses)
             );
     }
 

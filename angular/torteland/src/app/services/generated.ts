@@ -459,6 +459,67 @@ export class NotebooksClient {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @param index (optional) 
+     * @param id (optional) 
+     * @return Success
+     */
+    decrement(index: number | undefined, id: number | undefined): Observable<ByteInt32Either> {
+        let url_ = this.baseUrl + "/Notebooks/Decrement?";
+        if (index === null)
+            throw new Error("The parameter 'index' cannot be null.");
+        else if (index !== undefined)
+            url_ += "index=" + encodeURIComponent("" + index) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDecrement(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDecrement(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ByteInt32Either>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ByteInt32Either>;
+        }));
+    }
+
+    protected processDecrement(response: HttpResponseBase): Observable<ByteInt32Either> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ByteInt32Either.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()

@@ -15,4 +15,5 @@ public interface IQuestionableNotebook : IEnumerable<Unique<Note>>
     IQuestionableNotebook Update(int key, string name);
     IQuestionableNotebook Delete(int key);
     (IQuestionableNotebook Notebook, Either<byte, int> Result) Increment(int key);
+    (IQuestionableNotebook Notebook, Either<byte, int> Result) Decrement(int key);
 }

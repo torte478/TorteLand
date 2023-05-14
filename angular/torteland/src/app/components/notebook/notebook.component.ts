@@ -80,6 +80,17 @@ export class NotebookComponent implements OnInit {
       .subscribe(_ => this.reload());
   }
 
+  onMinusClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    this.isBusy = true;
+    this.client
+      .decrement(this.notebookId, selected.id)
+      .subscribe(_ => this.reload());
+  }
+
   onDeleteClick() {
     const selected = this.getSelected();
     if (!selected)

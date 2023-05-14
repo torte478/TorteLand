@@ -12,7 +12,14 @@
     [disabled]="isBusy || !selection.length">
     Plus
   </button>
-  
+
+  <button 
+    mat-raised-button 
+    (click)="onMinusClick()" 
+    [disabled]="isBusy || !selection.length">
+    Minus
+  </button>
+
 </div>
 
 <div class="button-row">
