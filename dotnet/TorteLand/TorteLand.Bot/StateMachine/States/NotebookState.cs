@@ -38,6 +38,7 @@ internal sealed class NotebookState : BaseState
             "rename" => Rename(arguments, token),
             "delete" or "remove" => Delete(arguments, token),
             "close" => Close(token),
+            "plus" or "+" => Increment(arguments, token),
             
             _ => name.ToUnknown()
         };
@@ -68,10 +69,22 @@ internal sealed class NotebookState : BaseState
                   ._(result.AppendLine)
                   .AppendLine();
 
-        foreach (var line in page.Items.Select(_ => $"{_.Key}. {_.Value}"))
+        foreach (var line in page.Items.Select(ToNoteString))
             result.AppendLine(line);
 
         return result.ToString();
+    }
+
+    private static string ToNoteString(Note note)
+    {
+        if (note.Pluses == 0)
+            return $"{note.Id}. {note.Text}";
+
+        var pluses = Enumerable
+                     .Range(0, note.Pluses)
+                     .Select(_ => '+')
+                     ._(_ => string.Join(string.Empty, _));
+        return $"{note.Id}. {note.Text} {pluses}";
     }
 
     private async Task<string> StartAdd(ICommand command, CancellationToken token)
@@ -99,6 +112,18 @@ internal sealed class NotebookState : BaseState
                    $"Delete '{name.Value}'?",
                    ct => Delete(index, ct),
                    token);
+    }
+    
+    private async Task<string> Increment(ICommand command, CancellationToken token)
+    {
+        var (index, _) = command.ToInt();
+        var name = await _client.ReadAsync(_key, index, token);
+
+        if (!name.IsSome)
+            return $"Wrong index: {index}";
+
+        await _client.IncrementAsync(_key, index, token);
+        return await All(_offset, token);
     }
     
     private async Task<string> Delete(int index, CancellationToken token)
