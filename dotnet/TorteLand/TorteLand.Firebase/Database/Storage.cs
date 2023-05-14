@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
-using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Extensions;
@@ -40,7 +40,7 @@ internal sealed class Storage : IStorage
 
         return notebook
                .Notes
-               .Select((x, i) => new Note(x, i))
+               .Select((x, i) => new Note(x, i, Maybe.None<byte>()))
                .ToArray();
     }
 }

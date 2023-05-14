@@ -45,10 +45,10 @@ internal sealed class Notebooks : INotebooks
         return await notebook.Create(id, isRight, token);
     }
 
-    public async Task<Maybe<string>> Read(int index, int key, CancellationToken token)
+    public async Task<Maybe<string>> Read(int index, int id, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
-        return await notebook.Read(key, token);
+        return await notebook.Read(id, token);
     }
 
     public async Task Update(int index, int id, string name, CancellationToken token)
@@ -57,10 +57,16 @@ internal sealed class Notebooks : INotebooks
         await notebook.Update(id, name, token);
     }
 
-    public async Task Delete(int index, int key, CancellationToken token)
+    public async Task Delete(int index, int id, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
-        await notebook.Delete(key, token);
+        await notebook.Delete(id, token);
+    }
+
+    public async Task<Either<byte, int>> Increment(int index, int id, CancellationToken token)
+    {
+        var notebook = await GetNotebook(index, token);
+        return await notebook.Increment(id, token);
     }
 
     private async ValueTask<IPersistedNotebook> GetNotebook(int index, CancellationToken token)

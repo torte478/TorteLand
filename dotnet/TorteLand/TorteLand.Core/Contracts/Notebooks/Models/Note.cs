@@ -1,5 +1,8 @@
-﻿namespace TorteLand.Core.Contracts.Notebooks.Models;
+﻿using SoftwareCraft.Functional;
 
-public record Note(
+namespace TorteLand.Core.Contracts.Notebooks.Models;
+
+public sealed record Note(
     string Text,
-    int Weight);
+    int Weight,
+    Maybe<byte> Pluses);

@@ -60,7 +60,7 @@ internal sealed class Notebook_Should
     }
 
     private static INotebook Create(IReadOnlyCollection<string> notes)
-        => notes._(Maybe.Some)._<Notebook>();
+        => notes._(Maybe.Some)._(_ => new Notebook(_, default));
 
     private static object[] _testCaseSource
         = {

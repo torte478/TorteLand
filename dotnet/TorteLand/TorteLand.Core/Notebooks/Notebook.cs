@@ -13,22 +13,26 @@ namespace TorteLand.Core.Notebooks;
 
 internal sealed class Notebook : INotebook
 {
-    private readonly string[] _values;
+    private readonly byte _pluses;
+    private readonly Item[] _values;
 
-    public Notebook(Maybe<IReadOnlyCollection<string>> values)
+    public Notebook(Maybe<IReadOnlyCollection<string>> values, byte pluses)
     {
+        _pluses = pluses;
+        
         _values = values.Match(
-                            _ => _,
-                            () => ArraySegment<string>.Empty)
-                        .ToArray();
+                            _ => _.Select(text => new Item(text)).ToArray(),
+                            Array.Empty<Item>);
     }
 
-    private Notebook(string[] values)
+    private Notebook(Item[] values, byte pluses)
     {
         _values = values;
+        _pluses = pluses;
     }
 
-    public IEnumerator<Unique<Note>> GetEnumerator() => Enumerate().GetEnumerator();
+    public IEnumerator<Unique<Note>> GetEnumerator()
+        => Enumerate().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public Page<Unique<Note>> All(Maybe<Pagination> pagination)
@@ -51,15 +55,58 @@ internal sealed class Notebook : INotebook
     public INotebook Update(int key, string name)
     {
         var updated = _values.ToArray();
-        updated[key] = name;
-        return new Notebook(updated);
+        updated[key] = updated[key] with { Text = name };
+        return new Notebook(updated, _pluses);
     }
 
     public INotebook Delete(int key)
         => _values
            .Where((_, i) => i != key)
            .ToArray()
-           ._<Notebook>();
+           ._(_ => new Notebook(_, _pluses));
+
+    public (INotebook Notebook, Either<byte, int> Result) Increment(int key)
+    {
+        var old = _values[key].Pluses;
+
+        return old < _pluses - 1
+                   ? IncreasePlusCount(key, old)
+                   : IncreaseNoteIndex(key);
+    }
+
+    private (INotebook Notebook, Either<byte, int> Result) IncreaseNoteIndex(int key)
+    {
+        var increased = Math.Max(0, key - _pluses);
+        
+        var updated = new List<Item>();
+        for (var i = 0; i < increased; ++i)
+            updated.Add(_values[i]);
+        
+        updated.Add(_values[key] with { Pluses = 0 });
+        
+        for (var i = increased; i < _values.Length; ++i)
+            if (i != key)
+                updated.Add(_values[i]);
+        return
+            (
+                new Notebook(updated.ToArray(), _pluses),
+                Either.Right<byte, int>(increased)
+            );
+    }
+
+    private (INotebook Notebook, Either<byte, int> Result) IncreasePlusCount(int key, byte old)
+    {
+        var updated = _values.ToArray();
+        
+        var pluses = (byte)(old + 1);
+        updated[key] = updated[key] with { Pluses = pluses };
+
+        return
+            (
+                new Notebook(updated, _pluses),
+                Either.Left<byte, int>(pluses)
+            );
+    }
 
     private Either<AddNotesResult, Segment> AddToExisting(
         IReadOnlyCollection<string> values,
@@ -74,11 +121,11 @@ internal sealed class Notebook : INotebook
 
         var updated = _values
                       .Take(begin)
-                      .Concat(values)
+                      .Concat(values.Select(_ => new Item(_)))
                       .Concat(_values.Skip(begin))
                       .ToArray();
 
-        var notebook = new Notebook(updated);
+        var notebook = new Notebook(updated, _pluses);
         var indices = Enumerable
                        .Range(begin, values.Count)
                        .ToArray();
@@ -99,10 +146,13 @@ internal sealed class Notebook : INotebook
                ? (segment.Begin, segment.Border)
                : (segment.Border + 1, segment.End);
 
-    private static Either<AddNotesResult, Segment> AddToEmpty(
+    private Either<AddNotesResult, Segment> AddToEmpty(
         IReadOnlyCollection<string> values)
     {
-        var notebook = new Notebook(values.ToArray());
+        var notebook = new Notebook(
+            values.Select(_ => new Item(_)).ToArray(), 
+            _pluses);
+        
         var indices = Enumerable
                       .Range(0, values.Count)
                       .ToArray();
@@ -117,6 +167,20 @@ internal sealed class Notebook : INotebook
             yield return new Unique<Note>(i, ToNote(i));
     }
 
-    private Note ToNote(int index) 
-        => new(_values[index], _values.Length - index - 1);
+    private Note ToNote(int index)
+    {
+        var item = _values[index];
+        var pluses = item.Pluses > 0
+                         ? Maybe.Some(item.Pluses)
+                         : Maybe.None<byte>();
+
+        return new Note(
+            Text: item.Text,
+            Weight: _values.Length - index - 1,
+            Pluses: pluses);
+    }
+
+    private sealed record Item(
+        string Text,
+        byte Pluses = default);
 }

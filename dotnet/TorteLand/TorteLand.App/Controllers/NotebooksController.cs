@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SoftwareCraft.Functional;
+using TorteLand.App.Extensions;
 using TorteLand.Contracts;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Extensions;
@@ -25,8 +26,8 @@ public sealed class NotebooksController : ControllerBase
         _notebooks = notebooks;
     }
 
-    [HttpGet]
-    [Route("All")]
+    [HttpGet("[action]")]
+
     public async Task<Page<KeyValuePair<int, string>>> All(
         int index,
         int? count,
@@ -49,40 +50,22 @@ public sealed class NotebooksController : ControllerBase
     }
 
 
-    [HttpPost]
-    [Route("StartAdd")]
-    public async Task<AddResult> Add(
+    [HttpPost("[action]")]
+    public Task<AddResult> StartAdd(
         int index,
         IReadOnlyCollection<string> values,
         CancellationToken token)
-    {
-        var result = await _notebooks.Add(
-                         index,
-                         values,
-                         token);
+        => _notebooks.Add(index, values, token).ToModel();
 
-        return result.Match(
-            x => new AddResult(x, default),
-            x => new AddResult(default, x));
-    }
-
-    [HttpPost]
-    [Route("ContinueAdd")]
-    public async Task<AddResult> Add(
+    [HttpPost("[action]")]
+    public Task<AddResult> ContinueAdd(
         int index,
         Guid id,
         bool isRight,
         CancellationToken token)
-    {
-        var result = await _notebooks.Add(index, id, isRight, token);
+        => _notebooks.Add(index, id, isRight, token).ToModel();
 
-        return result.Match(
-            x => new AddResult(x, default),
-            x => new AddResult(default, x));
-    }
-
-    [HttpGet]
-    [Route("Read")]
+    [HttpGet("[action]")]
     public async Task<Models.Maybe<string>> Read(int index, int id, CancellationToken token)
     {
         var note = await _notebooks.Read(index, id, token);
@@ -92,13 +75,15 @@ public sealed class NotebooksController : ControllerBase
             () => new Models.Maybe<string>(false, string.Empty));
     }
 
-    [HttpPost]
-    [Route("Update")]
+    [HttpPost("[action]")]
     public Task Update(int index, int id, string name, CancellationToken token)
         => _notebooks.Update(index, id, name, token);
 
-    [HttpPost]
-    [Route("Delete")]
-    public Task Delete(int index, int key, CancellationToken token)
-        => _notebooks.Delete(index, key, token);
+    [HttpPost("[action]")]
+    public Task Delete(int index, int id, CancellationToken token)
+        => _notebooks.Delete(index, id, token);
+
+    [HttpPost("[action]")]
+    public Task<Models.Either<byte, int>> Increment(int index, int id, CancellationToken token)
+        => _notebooks.Increment(index, id, token).ToModel();
 }

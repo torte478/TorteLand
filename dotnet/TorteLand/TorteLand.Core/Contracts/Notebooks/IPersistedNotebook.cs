@@ -17,4 +17,5 @@ public interface IPersistedNotebook
     Task<Maybe<string>> Read(int key, CancellationToken token);
     Task Update(int key, string name, CancellationToken token);
     Task Delete(int key, CancellationToken token);
+    Task<Either<byte,int>> Increment(int key, CancellationToken token);
 }

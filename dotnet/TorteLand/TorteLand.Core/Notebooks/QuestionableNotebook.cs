@@ -14,7 +14,7 @@ namespace TorteLand.Core.Notebooks;
 
 internal sealed class QuestionableNotebook : IQuestionableNotebook
 {
-    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Contracts.Notebooks.Models.Segment Segment)> _transactions;
+    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions;
     private readonly INotebook _origin;
 
     // ReSharper disable once UnusedMember.Global
@@ -56,6 +56,13 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         => _origin
            .Delete(key)
            ._<QuestionableNotebook>();
+
+    public (IQuestionableNotebook Notebook, Either<byte, int> Result) Increment(int key)
+    {
+        var (notebook, result) = _origin.Increment(key);
+
+        return (notebook._<QuestionableNotebook>(), result);
+    }
 
     public IQuestionableNotebook Update(int key, string name)
         => _origin
