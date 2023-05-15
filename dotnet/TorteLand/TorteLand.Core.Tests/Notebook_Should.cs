@@ -66,11 +66,11 @@ internal sealed class Notebook_Should
         string name,
         IReadOnlyCollection<string> init,
         Added added,
-        ResolvedSegment segment,
+        Maybe<ResolvedSegment> segment,
         IReadOnlyCollection<string> expected)
     {
         var notebook = Create(init);
-        var result = notebook.Create(added, Maybe.Some(segment));
+        var result = notebook.Create(added, segment);
 
         var actual = result.ToLeft().Notebook.Select(_ => _.Value.Text).ToArray();
         Assert.That(actual, new EqualConstraint(expected));
@@ -92,7 +92,7 @@ internal sealed class Notebook_Should
             "insert to top",
             new[] { "a" },
             new[] { "Z" }._<Added>(),
-            new ResolvedSegment(new Segment(0, 0, 1), true),
+            new ResolvedSegment(new Segment(0, 0, 1), true)._(Maybe.Some),
             new[] { "Z", "a" }
         },
         new object[]
@@ -100,7 +100,7 @@ internal sealed class Notebook_Should
             "insert to middle",
             new[] { "b", "a" },
             new[] { "Z" }._<Added>(),
-            new ResolvedSegment(new Segment(0, 0, 1), false),
+            new ResolvedSegment(new Segment(0, 0, 1), false)._(Maybe.Some),
             new[] { "b", "Z", "a" }
         },
         new object[]
@@ -108,7 +108,7 @@ internal sealed class Notebook_Should
             "insert range to middle",
             new[] { "d", "c", "b", "a" },
             new[] { "Z", "Y" }._<Added>(),
-            new ResolvedSegment(new Segment(3, 3, 4), true),
+            new ResolvedSegment(new Segment(3, 3, 4), true)._(Maybe.Some),
             new[] { "d", "c", "b", "Z", "Y", "a" }
         },
         new object[]
@@ -120,7 +120,7 @@ internal sealed class Notebook_Should
                 true,
                 Maybe.Some(0),
                 Direction.After),
-            new ResolvedSegment(new Segment(0, 1, 2), true),
+            Maybe.None<ResolvedSegment>(),
             new[] { "a", "Z", "b"}
         },
         new object[]
@@ -132,8 +132,8 @@ internal sealed class Notebook_Should
                 true,
                 Maybe.Some(1),
                 Direction.Before),
-            new ResolvedSegment(new Segment(0, 1, 2), true),
-            new[] { "a", "Z", "b"}
+            Maybe.None<ResolvedSegment>(),
+            new[] { "a", "Z", "b" }
         }
     };
 }

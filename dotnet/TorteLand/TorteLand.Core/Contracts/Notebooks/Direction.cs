@@ -2,6 +2,6 @@
 
 public enum Direction
 {
-    After = 0,
-    Before = 1
+    Before = 0,
+    After = 1
 }

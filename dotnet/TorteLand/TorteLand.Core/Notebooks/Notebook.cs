@@ -168,7 +168,7 @@ internal sealed class Notebook : INotebook
             origin => added.Direction switch
             {
                 Direction.After => (origin + 1, _values.Length),
-                _ => (0, origin)
+                _ => (added.Exact ? origin : 0, origin)
             },
             () => (0, _values.Length));
 

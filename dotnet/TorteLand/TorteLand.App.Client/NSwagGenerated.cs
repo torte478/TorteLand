@@ -31,12 +31,12 @@ namespace TorteLand.App.Client
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, System.Collections.Generic.IEnumerable<string> body);
+        System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, int? origin, Direction? direction, bool? exact, System.Collections.Generic.IEnumerable<string> body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, System.Collections.Generic.IEnumerable<string> body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, int? origin, Direction? direction, bool? exact, System.Collections.Generic.IEnumerable<string> body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -218,21 +218,33 @@ namespace TorteLand.App.Client
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, System.Collections.Generic.IEnumerable<string> body)
+        public virtual System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, int? origin, Direction? direction, bool? exact, System.Collections.Generic.IEnumerable<string> body)
         {
-            return StartAddAsync(index, body, System.Threading.CancellationToken.None);
+            return StartAddAsync(index, origin, direction, exact, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, System.Collections.Generic.IEnumerable<string> body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Int32IReadOnlyCollectionQuestionEither> StartAddAsync(int? index, int? origin, Direction? direction, bool? exact, System.Collections.Generic.IEnumerable<string> body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/Notebooks/StartAdd?");
             if (index != null)
             {
                 urlBuilder_.Append(System.Uri.EscapeDataString("index") + "=").Append(System.Uri.EscapeDataString(ConvertToString(index, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (origin != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("origin") + "=").Append(System.Uri.EscapeDataString(ConvertToString(origin, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (direction != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("direction") + "=").Append(System.Uri.EscapeDataString(ConvertToString(direction, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            if (exact != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("exact") + "=").Append(System.Uri.EscapeDataString(ConvertToString(exact, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             }
             urlBuilder_.Length--;
 
@@ -1490,6 +1502,16 @@ namespace TorteLand.App.Client
 
         [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]   
         public int Right { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.17.0.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum Direction
+    {
+
+        _0 = 0,
+
+        _1 = 1,
 
     }
 

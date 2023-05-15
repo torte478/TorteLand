@@ -91,14 +91,41 @@ internal sealed class NotebookState : BaseState
     private async Task<string> StartAdd(ICommand command, CancellationToken token)
     {
         var notes = command.ToLines();
+        var (exact, direction, origin, note) = ParseAddedOptions(notes.First());
+        var body = note.AsArray().Concat(notes.Skip(1));
 
-        var response = await _client.StartAddAsync(_key, notes, token);
+        Console.WriteLine(
+            $"{exact} {direction} {origin} {note}");
+
+        var response = await _client.StartAddAsync(
+                           index: _key,
+                           origin: origin,
+                           direction: direction,
+                           exact: exact,
+                           body: body,
+                           cancellationToken: token);
+                           
         if (response.Right is null)
             return await All(_offset, token);
 
         var guid = response.Right.Id;
         var item = response.Right.Text;
         return await Machine.ToNotebookAddState(_key, notes, guid, item, token);
+    }
+
+    private (bool Exact, Direction Direction, int? Origin, string? Note) ParseAddedOptions(string line)
+    {
+        var tokens = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (tokens.Length == 1 || tokens[0] is not ("exact" or "after" or "before"))
+            return (false, default, null, line);
+
+        var exact = tokens[0] == "exact";
+        var directionIndex = exact ? 1 : 0;
+        var direction = tokens[directionIndex] == "before" ? Direction._0 : Direction._1;
+        var origin = tokens[directionIndex + 1]._(int.Parse);
+        var note = tokens.Skip(directionIndex + 2)._(_ => string.Join(' ', _));
+
+        return (exact, direction, origin, note);
     }
 
     private async Task<string> Delete(ICommand command, CancellationToken token)
@@ -110,7 +137,7 @@ internal sealed class NotebookState : BaseState
             return $"Wrong index: {index}";
 
         return await Machine.ToConfirmActionState(
-                   $"Delete '{name.Value}'?",
+                   $"Delete '{name.Value.Text}'?",
                    ct => Delete(index, ct),
                    token);
     }
