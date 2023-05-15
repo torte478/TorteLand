@@ -59,8 +59,19 @@ public sealed class NotebooksController : ControllerBase
     public Task<AddResult> StartAdd(
         int index,
         IReadOnlyCollection<string> values,
+        int? origin,
+        Direction direction,
+        bool exact,
         CancellationToken token)
-        => _notebooks.Add(index, values, token).ToModel();
+    {
+        var added = origin is { } o
+                        ? new Added(values, exact, Maybe.Some(o), direction)
+                        : new Added(values);
+
+        return _notebooks
+               .Add(index, added, token)
+               .ToModel();
+    }
 
     [HttpPost("[action]")]
     public Task<AddResult> ContinueAdd(

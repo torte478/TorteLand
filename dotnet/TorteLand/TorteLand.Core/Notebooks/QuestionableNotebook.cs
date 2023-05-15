@@ -14,19 +14,19 @@ namespace TorteLand.Core.Notebooks;
 
 internal sealed class QuestionableNotebook : IQuestionableNotebook
 {
-    private readonly Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> _transactions;
+    private readonly Dictionary<Guid, (Added Added, Segment Segment)> _transactions;
     private readonly INotebook _origin;
 
     // ReSharper disable once UnusedMember.Global
     public QuestionableNotebook(INotebook origin)
     {
         _origin = origin;
-        _transactions = new Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)>();
+        _transactions = new Dictionary<Guid, (Added Added, Segment Segment)>();
     }
 
     private QuestionableNotebook(
         INotebook origin,
-        Dictionary<Guid, (IReadOnlyCollection<string> Text, Segment Segment)> transactions)
+        Dictionary<Guid, (Added Added, Segment Segment)> transactions)
     {
         _origin = origin;
         _transactions = transactions;
@@ -35,11 +35,11 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
     public Page<Unique<Note>> All(Maybe<Pagination> pagination)
         => _origin.All(pagination);
 
-    public AddNotesIteration Create(IReadOnlyCollection<string> values)
+    public AddNotesIteration Create(Added added)
         => Add(
-            values,
+            added,
             Maybe.None<ResolvedSegment>(),
-            _ => StartTransaction(_, values));
+            _ => StartTransaction(_, added));
 
     public AddNotesIteration Create(Guid id, bool isRight)
     {
@@ -47,7 +47,7 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         var segment = new ResolvedSegment(transaction.Segment, isRight);
 
         return Add(
-            transaction.Text,
+            transaction.Added,
             Maybe.Some(segment),
             _ => UpdateTransaction(_, id));
     }
@@ -87,11 +87,11 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
         => GetEnumerator();
 
     private AddNotesIteration Add(
-        IReadOnlyCollection<string> values,
+        Added added,
         Maybe<ResolvedSegment> segment,
         Func<Segment, AddNotesIteration> onRight)
         => _origin
-           .Create(values, segment)
+           .Create(added, segment)
            .Match(
                CompleteTransaction,
                onRight);
@@ -103,18 +103,18 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
 
     private AddNotesIteration UpdateTransaction(Segment segment, Guid id)
         => _transactions[id]
-           .Text
+           .Added
            ._(_ => (_, segment))
            ._(_ => _transactions.SetImmutable(id, _))
            ._(_ => new QuestionableNotebook(_origin, _))
            ._(BuildTransaction, id, segment);
 
-    private AddNotesIteration StartTransaction(Segment segment, IReadOnlyCollection<string> values)
+    private AddNotesIteration StartTransaction(Segment segment, Added added)
     {
         var key = Guid.NewGuid();
         var notebook = new QuestionableNotebook(
             origin: _origin,
-            transactions: _transactions.AddImmutable(key, (values, segment)));
+            transactions: _transactions.AddImmutable(key, (added, segment)));
 
         return BuildTransaction(notebook, key, segment);
     }

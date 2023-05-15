@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Notebooks.Models;
@@ -26,7 +27,7 @@ internal sealed class Notebook_Should
     public void SaveOrder_OnAddToEmpty()
     {
         var notebook = Create(Array.Empty<string>());
-        var result = notebook.Create(new[] { "1", "2" }, Maybe.None<ResolvedSegment>());
+        var result = notebook.Create(new[] { "1", "2" }._<Added>(), Maybe.None<ResolvedSegment>());
 
         var actual = result.ToLeft().Notebook.ToArray();
         Assert.That(actual[0].Value.Text, Is.EqualTo("1"));
@@ -44,19 +45,35 @@ internal sealed class Notebook_Should
     }
 
     [Test]
+    public void ShiftInterval_WhenInsertAfterOrigin()
+    {
+        var notebook = Create(new[] { "a", "b", "c" });
+
+        var actual = notebook.Create(
+            new Added(
+                "Z".AsArray(),
+                false,
+                Maybe.Some(0),
+                Direction.After),
+            Maybe.None<ResolvedSegment>());
+
+        Assert.That(actual.ToRight().Begin, Is.EqualTo(1));
+    }
+
+    [Test]
     [TestCaseSource(nameof(_testCaseSource))]
     public void CorrectInsertElements(
         string name,
         IReadOnlyCollection<string> init,
-        IReadOnlyCollection<string> toAdd,
+        Added added,
         ResolvedSegment segment,
         IReadOnlyCollection<string> expected)
     {
         var notebook = Create(init);
-        var result = notebook.Create(toAdd, Maybe.Some(segment));
+        var result = notebook.Create(added, Maybe.Some(segment));
 
-        var actual = result.ToLeft().Notebook.Select(_ => _.Value.Text);
-        Assert.That(actual.SequenceEqual(expected), Is.True);
+        var actual = result.ToLeft().Notebook.Select(_ => _.Value.Text).ToArray();
+        Assert.That(actual, new EqualConstraint(expected));
     }
 
     private static INotebook Create(IReadOnlyCollection<string> notes)
@@ -67,31 +84,56 @@ internal sealed class Notebook_Should
            ._(Maybe.Some)
            ._(_ => new Notebook(_, default));
 
-    private static object[] _testCaseSource
-        = {
-              new object[]
-              {
-                  "insert to top",
-                  new[] { "a" },
-                  new[] { "Z" },
-                  new ResolvedSegment(new Segment(0, 0, 1), true),
-                  new[] { "Z", "a" }
-              },
-              new object[]
-              {
-                  "insert to middle",
-                  new[] { "b", "a" },
-                  new[] { "Z" },
-                  new ResolvedSegment(new Segment(0, 0, 1), false),
-                  new[] { "b", "Z", "a" }
-              },
-                new object[]
-                {
-                    "insert range to middle",
-                    new[] { "d", "c", "b", "a"},
-                    new[] { "Z", "Y" },
-                    new ResolvedSegment(new Segment(3, 3, 4), true),
-                    new[] { "d", "c", "b", "Z", "Y", "a"}
-                }
-          };
+    // TODO : refactor
+    private static object[] _testCaseSource =
+    {
+        new object[]
+        {
+            "insert to top",
+            new[] { "a" },
+            new[] { "Z" }._<Added>(),
+            new ResolvedSegment(new Segment(0, 0, 1), true),
+            new[] { "Z", "a" }
+        },
+        new object[]
+        {
+            "insert to middle",
+            new[] { "b", "a" },
+            new[] { "Z" }._<Added>(),
+            new ResolvedSegment(new Segment(0, 0, 1), false),
+            new[] { "b", "Z", "a" }
+        },
+        new object[]
+        {
+            "insert range to middle",
+            new[] { "d", "c", "b", "a" },
+            new[] { "Z", "Y" }._<Added>(),
+            new ResolvedSegment(new Segment(3, 3, 4), true),
+            new[] { "d", "c", "b", "Z", "Y", "a" }
+        },
+        new object[]
+        {
+            "insert exact after top",
+            new[] { "a", "b" },
+            new Added(
+                new[] { "Z" },
+                true,
+                Maybe.Some(0),
+                Direction.After),
+            new ResolvedSegment(new Segment(0, 1, 2), true),
+            new[] { "a", "Z", "b"}
+        },
+        new object[]
+        {
+            "insert exact before bottom",
+            new[] { "a", "b" },
+            new Added(
+                new[] { "Z" },
+                true,
+                Maybe.Some(1),
+                Direction.Before),
+            new ResolvedSegment(new Segment(0, 1, 2), true),
+            new[] { "a", "Z", "b"}
+        }
+    };
 }

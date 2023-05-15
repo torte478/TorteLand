@@ -21,7 +21,7 @@ internal sealed class Notebook : INotebook
         _pluses = pluses;
         
         _values = values.Match(
-                            _ => _.Select(x => new Item(x.Item1, x.Item2)).ToArray(),
+                            _ => _.Select(x => new Item(x.Item1, x.Item2)).ToArray(), // TODO .Item ?
                             Array.Empty<Item>);
     }
 
@@ -39,12 +39,12 @@ internal sealed class Notebook : INotebook
         => Enumerate().Paginate(pagination, _values.Length);
 
     public Either<AddNotesResult, Segment> Create(
-        IReadOnlyCollection<string> values,
+        Added added,
         Maybe<ResolvedSegment> segment)
         => _values switch
         {
-            { Length: 0 } => AddToEmpty(values),
-            _ => AddToExisting(values, segment)
+            { Length: 0 } => AddToEmpty(added.Values),
+            _ => AddToExisting(added, segment)
         };
 
     public Maybe<Note> Read(int key)
@@ -138,30 +138,39 @@ internal sealed class Notebook : INotebook
     }
 
     private Either<AddNotesResult, Segment> AddToExisting(
-        IReadOnlyCollection<string> values,
+        Added added,
         Maybe<ResolvedSegment> segment)
     {
         var (begin, end) = segment.Match(
-            _ => ToHalf(_.Segment, _.IsGreater),
-            () => (0, _values.Length));
+            _ => ToHalf(_.Segment, _.IsGreater, added),
+            () => ToStartSegment(added));
 
-        if (begin < end)
+        if (begin < end && !added.Exact)
             return GetNextSegment(begin, end);
 
         var updated = _values
                       .Take(begin)
-                      .Concat(values.Select(_ => new Item(_)))
+                      .Concat(added.Values.Select(_ => new Item(_)))
                       .Concat(_values.Skip(begin))
                       .ToArray();
 
         var notebook = new Notebook(updated, _pluses);
         var indices = Enumerable
-                       .Range(begin, values.Count)
+                       .Range(begin, added.Values.Count)
                        .ToArray();
         
         return new AddNotesResult(indices, notebook)
             ._(Either.Left<AddNotesResult, Segment>);
     }
+
+    private (int Begin, int End) ToStartSegment(Added added)
+        => added.Origin.Match(
+            origin => added.Direction switch
+            {
+                Direction.After => (origin + 1, _values.Length),
+                _ => (0, origin)
+            },
+            () => (0, _values.Length));
 
     private static Either<AddNotesResult, Segment> GetNextSegment(int begin, int end)
         => new Segment(
@@ -170,10 +179,16 @@ internal sealed class Notebook : INotebook
                 End: end)
             ._(Either.Right<AddNotesResult, Segment>);
 
-    private static (int, int) ToHalf(Segment segment, bool isRight)
-        => isRight
+    private static (int, int) ToHalf(Segment segment, bool isRight, Added added)
+        => added.Origin.Match(
+            origin => added.Direction switch
+            {
+                Direction.After => (origin + 1, default),
+                _ => (origin, default)
+            },
+            () => isRight
                ? (segment.Begin, segment.Border)
-               : (segment.Border + 1, segment.End);
+               : (segment.Border + 1, segment.End));
 
     private Either<AddNotesResult, Segment> AddToEmpty(
         IReadOnlyCollection<string> values)

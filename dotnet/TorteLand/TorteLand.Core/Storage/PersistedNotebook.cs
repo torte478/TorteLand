@@ -40,13 +40,13 @@ internal sealed class PersistedNotebook : IPersistedNotebook
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Create(
-        IReadOnlyCollection<string> values, 
+        Added added, 
         CancellationToken token)
     {
         // TODO: chore
         var origin = await _origin;
         
-        var iteration = origin.Create(values);
+        var iteration = origin.Create(added);
         await iteration.Result.MatchAsync(
             _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);

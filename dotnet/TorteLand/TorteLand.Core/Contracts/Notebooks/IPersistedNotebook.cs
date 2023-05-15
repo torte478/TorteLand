@@ -12,7 +12,7 @@ namespace TorteLand.Core.Contracts.Notebooks;
 public interface IPersistedNotebook
 {
     Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token);
-    Task<Either<IReadOnlyCollection<int>, Question>> Create(IReadOnlyCollection<string> values, CancellationToken token);
+    Task<Either<IReadOnlyCollection<int>, Question>> Create(Added added, CancellationToken token);
     Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token);
     Task<Maybe<Note>> Read(int key, CancellationToken token);
     Task Update(int key, string name, CancellationToken token);

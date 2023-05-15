@@ -33,10 +33,10 @@ internal sealed class Notebooks : INotebooks
         return await notebook.All(pagination, token);
     }
 
-    public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, IReadOnlyCollection<string> values, CancellationToken token)
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Added added, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
-        return await notebook.Create(values, token);
+        return await notebook.Create(added, token);
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
