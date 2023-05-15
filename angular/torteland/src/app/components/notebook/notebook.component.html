@@ -39,22 +39,29 @@
   </button>
 </div>
 
-<mat-selection-list [(ngModel)]="selection" [multiple]="false">
-    <mat-list-option *ngFor="let note of notes" [value]="note">
+<cdk-virtual-scroll-viewport 
+  itemSize="100" 
+  style="width: 50%; height: 60%"
+  >
+  <mat-selection-list [(ngModel)]="selection" [multiple]="false">
+    
+      <mat-list-option *ngFor="let note of notes" [value]="note" >
 
-      <div class="note">
-        <span>{{note.text}}</span>
+        <div class="note">
+          <span>{{note.text}}</span>
 
-        <span 
-          *ngIf="!!note.pluses"
-          class="note-pluses"
-          >
-          {{toPlusText(note.pluses)}}
-        </span>
-    </div>
+          <span 
+            *ngIf="!!note.pluses"
+            class="note-pluses"
+            >
+            {{toPlusText(note.pluses)}}
+          </span>
+        </div>
 
-    </mat-list-option>
-</mat-selection-list>
+      </mat-list-option>
+    
+  </mat-selection-list>
+</cdk-virtual-scroll-viewport>
 
 <div class="button-row">
   <button mat-raised-button (click)="onBackClick()" [disabled]="isBusy">Back</button>
