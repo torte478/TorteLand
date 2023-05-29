@@ -4,4 +4,4 @@
 internal record NotebookEntity(
     // ReSharper disable once NotAccessedPositionalProperty.Global
     string Name,
-    string[] Notes);
+    NoteEntity[] Notes);

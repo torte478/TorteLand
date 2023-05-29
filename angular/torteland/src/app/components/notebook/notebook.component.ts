@@ -6,7 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { EMPTY, Observable, of } from 'rxjs';
 import { expand, filter, map, mergeMap, tap, withLatestFrom } from 'rxjs/operators';
 import { AddNoteDialogResult } from 'src/app/enums/add-note-dialog-result';
-import { Int32IReadOnlyCollectionQuestionEither, Int32StringKeyValuePair, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
+import { Direction, Int32IReadOnlyCollectionQuestionEither, Note, NotebooksAcrudClient, NotebooksClient } from 'src/app/services/generated';
 import { ContinueAddNoteDialogComponent } from '../continue-add-note-dialog/continue-add-note-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
@@ -21,9 +21,10 @@ export class NotebookComponent implements OnInit {
 
   notebookId?: number;
   name?: string;
-  notes?: Int32StringKeyValuePair[];
-  selection: Int32StringKeyValuePair[] = [];
-  isBusy: Boolean = true;
+  notes?: Note[];
+  selection: Note[] = [];
+  isBusy: boolean = true;
+  exactChecked: boolean = false;
 
   constructor(
     private acrudClient: NotebooksAcrudClient,
@@ -60,13 +61,35 @@ export class NotebookComponent implements OnInit {
 
     this.RunWithDialog(
       TextDialogComponent,
-      `Rename ${selected.value}`,
+      `Rename ${selected.text}`,
       _ => _.pipe(
         mergeMap(name => this.client.update(
           this.notebookId, 
-          selected.key, 
+          selected.id, 
           name as string))
     ));
+  }
+
+  onPlusClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    this.isBusy = true;
+    this.client
+      .increment(this.notebookId, selected.id)
+      .subscribe(_ => this.reload());
+  }
+
+  onMinusClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    this.isBusy = true;
+    this.client
+      .decrement(this.notebookId, selected.id)
+      .subscribe(_ => this.reload());
   }
 
   onDeleteClick() {
@@ -76,25 +99,76 @@ export class NotebookComponent implements OnInit {
 
     this.RunWithDialog(
       ConfirmDialogComponent,
-      `Delete '${selected.value}' ?`,
+      `Delete '${selected.text}' ?`,
       _ => _.pipe(
-        mergeMap(_ => this.client.delete(this.notebookId, selected.key)),
+        mergeMap(_ => this.client.delete(this.notebookId, selected.id)),
         tap(_ => this.selection = [])
     ));
   }
 
   onCreateClick() {
+    this.startAdd('Add ', undefined, undefined);
+  }
+
+  onCreateAfterClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    const caption = this.getAddText(selected, false);
+    this.startAdd(caption, selected.id, false);
+  }
+
+  onCreateBeforeClick() {
+    const selected = this.getSelected();
+    if (!selected)
+      return;
+
+    const caption = this.getAddText(selected, true);
+    this.startAdd(caption, selected.id, true);
+  }
+
+  toPlusText(pluses: number): string {
+    let result = '';
+    for (let i = 0; i < pluses; ++i)
+      result += '+';
+
+    return result;
+  }
+
+  private getAddText(selected: Note, before: boolean) {
+    const exactText = this.exactChecked ? '_Exact_ ' : '';
+    const beforeText = before ? 'before' : 'after';
+
+    return `Add ${exactText} ${beforeText} ${selected.text}`;
+  }
+
+  private startAdd(
+    caption: string, 
+    origin: number | undefined, 
+    before: boolean | undefined
+    ) {
     const getAdded = this.dialog
-      .open(StartAddNoteDialogComponent)
+      .open(
+        StartAddNoteDialogComponent,
+        { data: { caption: caption }})
       .afterClosed();
 
+    const exact = true;
+
+    // TODO: refactor
     getAdded
       .pipe(
         filter(names => !!names),
         map((names: string[]) => names.filter(x => !!x)),
         filter(names => !!names.length),
         tap(_ => this.isBusy = true),
-        mergeMap(names => this.client.startAdd(this.notebookId, names)),
+        mergeMap(names => this.client.startAdd(
+          this.notebookId, 
+          origin,
+          !!before ? Direction._0 : Direction._1,
+          this.exactChecked,
+          names)),
         withLatestFrom(getAdded),
         expand(([addResult, added]) => {
             if (!addResult.right)

@@ -7,17 +7,19 @@ using TorteLand;
 using TorteLand.Bot.Integration;
 using TorteLand.Bot.StateMachine;
 using TorteLand.Bot.Utils;
+using TorteLand.Extensions;
 
 var host = Host.CreateDefaultBuilder(args)
                .ConfigureServices(
                    (context, services) =>
                    {
-                       services.AddSingleton<IClock, Clock>();
+                       services.AddTorteLand();
                        services.AddSingleton<IRandom, Random>();
 
                        services.AddHttpClient()
                                .RemoveAll<IHttpMessageHandlerBuilderFilter>();
 
+                       // TODO: settings to normal
                        services.AddSingleton<IClientFactory>(
                            _ => new ClientFactory(
                                context.Configuration.GetSection("TorteLand.App")["Url"],

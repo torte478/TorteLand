@@ -9,13 +9,13 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using TorteLand.Bot.StateMachine;
-using TorteLand.Bot.Utils;
+using TorteLand.Contracts;
 
 namespace TorteLand.Bot.Integration;
 
 internal sealed class Worker : BackgroundService
 {
-    private readonly DateTime _start;
+    private readonly DateTimeOffset _start;
 
     private readonly ITelegramBotClient _client;
     private readonly ICommandFactory _commands;
@@ -29,7 +29,7 @@ internal sealed class Worker : BackgroundService
         IClock clock,
         ILogger<Worker> logger)
     {
-        _start = clock.Now();
+        _start = clock.ToNow();
         _client = clientFactory.CreateTelegramBotClient();
         _commands = commands;
         _logic = stateMachineFactory.Create();

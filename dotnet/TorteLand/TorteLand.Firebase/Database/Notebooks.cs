@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SoftwareCraft.Functional;
+using TorteLand.Contracts;
 using TorteLand.Core.Contracts;
 using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
 using TorteLand.Firebase.Integration;
+using TorteLand.Utils;
 
 namespace TorteLand.Firebase.Database;
 
@@ -30,10 +33,10 @@ internal sealed class Notebooks : INotebooks
         return await notebook.All(pagination, token);
     }
 
-    public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, IReadOnlyCollection<string> values, CancellationToken token)
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Added added, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
-        return await notebook.Create(values, token);
+        return await notebook.Create(added, token);
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Guid id, bool isRight, CancellationToken token)
@@ -42,10 +45,10 @@ internal sealed class Notebooks : INotebooks
         return await notebook.Create(id, isRight, token);
     }
 
-    public async Task<Maybe<string>> Read(int index, int key, CancellationToken token)
+    public async Task<Maybe<Note>> Read(int index, int id, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
-        return await notebook.Read(key, token);
+        return await notebook.Read(id, token);
     }
 
     public async Task Update(int index, int id, string name, CancellationToken token)
@@ -54,10 +57,21 @@ internal sealed class Notebooks : INotebooks
         await notebook.Update(id, name, token);
     }
 
-    public async Task Delete(int index, int key, CancellationToken token)
+    public async Task Delete(int index, int id, CancellationToken token)
     {
         var notebook = await GetNotebook(index, token);
-        await notebook.Delete(key, token);
+        await notebook.Delete(id, token);
+    }
+
+    public async Task<Either<byte, int>> Increment(int index, int id, CancellationToken token)
+    {
+        var notebook = await GetNotebook(index, token);
+        return await notebook.Increment(id, token);
+    }
+    public async Task<Either<byte, int>> Decrement(int index, int id, CancellationToken token)
+    {
+        var notebook = await GetNotebook(index, token);
+        return await notebook.Decrement(id, token);
     }
 
     private async ValueTask<IPersistedNotebook> GetNotebook(int index, CancellationToken token)
@@ -68,7 +82,7 @@ internal sealed class Notebooks : INotebooks
         if (_notebooks.TryGetValue(id, out var notebook))
             return notebook;
 
-        var created = await _factory.Create(id);
+        var created = _factory.Create(id);
         _notebooks.Add(id, created);
         return created;
     }

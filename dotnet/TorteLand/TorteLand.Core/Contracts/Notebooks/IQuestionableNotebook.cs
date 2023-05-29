@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using SoftwareCraft.Functional;
-using TorteLand.Core.Contracts.Storage;
+using TorteLand.Contracts;
+using TorteLand.Core.Contracts.Notebooks.Models;
 
 namespace TorteLand.Core.Contracts.Notebooks;
 
 public interface IQuestionableNotebook : IEnumerable<Unique<Note>>
 {
     Page<Unique<Note>> All(Maybe<Pagination> pagination);
-    Either<IReadOnlyCollection<int>, Question> Create(IReadOnlyCollection<string> values);
-    Either<IReadOnlyCollection<int>, Question> Create(Guid id, bool isRight);
-    Maybe<string> Read(int key);
-    void Update(int key, string name);
-    void Delete(int key);
-
-    IQuestionableNotebook Clone();
+    AddNotesIteration Create(Added added);
+    AddNotesIteration Create(Guid id, bool isRight);
+    Maybe<Note> Read(int key);
+    IQuestionableNotebook Update(int key, string name);
+    IQuestionableNotebook Delete(int key);
+    (IQuestionableNotebook Notebook, Either<byte, int> Result) Increment(int key);
+    (IQuestionableNotebook Notebook, Either<byte, int> Result) Decrement(int key);
 }

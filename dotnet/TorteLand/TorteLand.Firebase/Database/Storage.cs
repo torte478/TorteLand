@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SoftwareCraft.Functional;
 using TorteLand.Core.Contracts;
-using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
+using TorteLand.Extensions;
 using TorteLand.Firebase.Integration;
 
 namespace TorteLand.Firebase.Database;
@@ -26,7 +28,7 @@ internal sealed class Storage : IStorage
 
         await notes
             .OrderBy(_ => _.Value.Weight)
-            .Select(_ => _.Value.Text)
+            .Select(ToNoteEntity)
             .ToArray()
             ._(_ => notebook with { Notes = _ })
             ._(_ => _entityAcrud.Update(_id, _, token));
@@ -38,7 +40,22 @@ internal sealed class Storage : IStorage
 
         return notebook
                .Notes
-               .Select((x, i) => new Note(x, i))
+               .Select(ToNote)
                .ToArray();
     }
+
+    private static NoteEntity ToNoteEntity(Unique<Note> note)
+        => new(
+            Text: note.Value.Text,
+            Pluses: note.Value.Pluses.Match(
+                _ => _,
+                () => 0));
+
+    private static Note ToNote(NoteEntity entity, int index)
+        => new(
+            Text: entity.Text,
+            Weight: index,
+            Pluses: entity.Pluses > 0
+                        ? Maybe.Some((byte)entity.Pluses)
+                        : Maybe.None<byte>());
 }

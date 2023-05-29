@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using SoftwareCraft.Functional;
-using TorteLand.Core.Contracts.Factories;
+﻿using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Firebase.Integration;
 
@@ -23,12 +21,10 @@ internal sealed class PersistedNotebooksFactory : IPersistedNotebooksFactory
         _entityAcrudFactory = entityAcrudFactory;
     }
 
-    public async Task<IPersistedNotebook> Create(string id)
+    public IPersistedNotebook Create(string id)
     {
-        var acrud = await _entityAcrudFactory.Create();
+        var acrud = _entityAcrudFactory.Create();
         var storage = new Storage(id, acrud);
-
-        var factory = new Left<IQuestionableNotebookFactory, IQuestionableNotebook>(_questionableNotebookFactory);
-        return _persistedNotebookFactory.Create(storage, factory);
+        return _persistedNotebookFactory.Create(storage, _questionableNotebookFactory);
     }
 }

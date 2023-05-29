@@ -1,10 +1,54 @@
 <h2>{{name}}</h2>
 
 <div class="button-row">
-  <button mat-raised-button (click)="onCreateClick()" [disabled]="isBusy">Create</button>
+  <button 
+    mat-raised-button 
+    (click)="onCreateClick()" 
+    [disabled]="isBusy">
+    Create
+  </button>
+
+  <button 
+    mat-raised-button 
+    (click)="onCreateBeforeClick()" 
+    [disabled]="isBusy || !selection.length">
+    Create Before
+  </button>
+
+  <button 
+    mat-raised-button 
+    (click)="onCreateAfterClick()" 
+    [disabled]="isBusy || !selection.length">
+    Create After
+  </button>
+
+  <mat-checkbox  
+    style="border-color: red;"
+    [(ngModel)]="exactChecked">
+    Exact
+  </mat-checkbox>
 </div>
 
 <div class="button-row">
+
+  <button 
+    mat-raised-button 
+    (click)="onPlusClick()" 
+    [disabled]="isBusy || !selection.length">
+    Plus
+  </button>
+
+  <button 
+    mat-raised-button 
+    (click)="onMinusClick()" 
+    [disabled]="isBusy || !selection.length">
+    Minus
+  </button>
+
+</div>
+
+<div class="button-row">
+
   <button 
     mat-raised-button 
     (click)="onRenameClick()" 
@@ -20,11 +64,29 @@
   </button>
 </div>
 
-<mat-selection-list [(ngModel)]="selection" [multiple]="false">
-    <mat-list-option *ngFor="let note of notes" [value]="note">
-      {{note.value}}
-    </mat-list-option>
-</mat-selection-list>
+<cdk-virtual-scroll-viewport 
+  itemSize="100" 
+  style="width: 50%; height: 60%"
+  >
+  <mat-selection-list [(ngModel)]="selection" [multiple]="false">
+    
+      <mat-list-option *ngFor="let note of notes" [value]="note" >
+
+        <div class="note">
+          <span>{{note.text}}</span>
+
+          <span 
+            *ngIf="!!note.pluses"
+            class="note-pluses"
+            >
+            {{toPlusText(note.pluses)}}
+          </span>
+        </div>
+
+      </mat-list-option>
+    
+  </mat-selection-list>
+</cdk-virtual-scroll-viewport>
 
 <div class="button-row">
   <button mat-raised-button (click)="onBackClick()" [disabled]="isBusy">Back</button>

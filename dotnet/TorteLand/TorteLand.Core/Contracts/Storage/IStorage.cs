@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.Core.Contracts.Notebooks;
+using TorteLand.Core.Contracts.Notebooks.Models;
 
 namespace TorteLand.Core.Contracts.Storage;
 

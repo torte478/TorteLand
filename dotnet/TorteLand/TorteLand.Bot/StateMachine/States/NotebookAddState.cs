@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.Bot.Integration;
+using TorteLand.Extensions;
 
 namespace TorteLand.Bot.StateMachine.States;
 
@@ -30,7 +31,8 @@ internal sealed class NotebookAddState : BaseState
             "n" or "н" => Add(false, token),
             "?" => Add(_context.Random.Next(2) == 0, token),
             "cancel" or "отмена" => GoBack(token),
-            _ => throw new Exception($"Unknown command: {name}")
+            
+            _ => name.ToUnknown()
         };
     }
 

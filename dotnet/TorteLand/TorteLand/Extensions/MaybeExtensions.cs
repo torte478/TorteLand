@@ -1,7 +1,7 @@
 ﻿using System;
 using SoftwareCraft.Functional;
 
-namespace TorteLand;
+namespace TorteLand.Extensions;
 
 public static class MaybeExtensions
 {

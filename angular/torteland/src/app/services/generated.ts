@@ -32,7 +32,7 @@ export class NotebooksClient {
      * @param offset (optional) 
      * @return Success
      */
-    all(index: number | undefined, count: number | undefined, offset: number | undefined): Observable<Int32StringKeyValuePairPage> {
+    all(index: number | undefined, count: number | undefined, offset: number | undefined): Observable<NotePage> {
         let url_ = this.baseUrl + "/Notebooks/All?";
         if (index === null)
             throw new Error("The parameter 'index' cannot be null.");
@@ -63,14 +63,14 @@ export class NotebooksClient {
                 try {
                     return this.processAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<Int32StringKeyValuePairPage>;
+                    return _observableThrow(e) as any as Observable<NotePage>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<Int32StringKeyValuePairPage>;
+                return _observableThrow(response_) as any as Observable<NotePage>;
         }));
     }
 
-    protected processAll(response: HttpResponseBase): Observable<Int32StringKeyValuePairPage> {
+    protected processAll(response: HttpResponseBase): Observable<NotePage> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -81,7 +81,7 @@ export class NotebooksClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Int32StringKeyValuePairPage.fromJS(resultData200);
+            result200 = NotePage.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -94,15 +94,30 @@ export class NotebooksClient {
 
     /**
      * @param index (optional) 
+     * @param origin (optional) 
+     * @param direction (optional) 
+     * @param exact (optional) 
      * @param body (optional) 
      * @return Success
      */
-    startAdd(index: number | undefined, body: string[] | undefined): Observable<Int32IReadOnlyCollectionQuestionEither> {
+    startAdd(index: number | undefined, origin: number | undefined, direction: Direction | undefined, exact: boolean | undefined, body: string[] | undefined): Observable<Int32IReadOnlyCollectionQuestionEither> {
         let url_ = this.baseUrl + "/Notebooks/StartAdd?";
         if (index === null)
             throw new Error("The parameter 'index' cannot be null.");
         else if (index !== undefined)
             url_ += "index=" + encodeURIComponent("" + index) + "&";
+        if (origin === null)
+            throw new Error("The parameter 'origin' cannot be null.");
+        else if (origin !== undefined)
+            url_ += "origin=" + encodeURIComponent("" + origin) + "&";
+        if (direction === null)
+            throw new Error("The parameter 'direction' cannot be null.");
+        else if (direction !== undefined)
+            url_ += "direction=" + encodeURIComponent("" + direction) + "&";
+        if (exact === null)
+            throw new Error("The parameter 'exact' cannot be null.");
+        else if (exact !== undefined)
+            url_ += "exact=" + encodeURIComponent("" + exact) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -224,7 +239,7 @@ export class NotebooksClient {
      * @param id (optional) 
      * @return Success
      */
-    read(index: number | undefined, id: number | undefined): Observable<StringMaybe> {
+    read(index: number | undefined, id: number | undefined): Observable<NoteMaybe> {
         let url_ = this.baseUrl + "/Notebooks/Read?";
         if (index === null)
             throw new Error("The parameter 'index' cannot be null.");
@@ -251,14 +266,14 @@ export class NotebooksClient {
                 try {
                     return this.processRead(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<StringMaybe>;
+                    return _observableThrow(e) as any as Observable<NoteMaybe>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<StringMaybe>;
+                return _observableThrow(response_) as any as Observable<NoteMaybe>;
         }));
     }
 
-    protected processRead(response: HttpResponseBase): Observable<StringMaybe> {
+    protected processRead(response: HttpResponseBase): Observable<NoteMaybe> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -269,7 +284,7 @@ export class NotebooksClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = StringMaybe.fromJS(resultData200);
+            result200 = NoteMaybe.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -344,19 +359,19 @@ export class NotebooksClient {
 
     /**
      * @param index (optional) 
-     * @param key (optional) 
+     * @param id (optional) 
      * @return Success
      */
-    delete(index: number | undefined, key: number | undefined): Observable<void> {
+    delete(index: number | undefined, id: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/Notebooks/Delete?";
         if (index === null)
             throw new Error("The parameter 'index' cannot be null.");
         else if (index !== undefined)
             url_ += "index=" + encodeURIComponent("" + index) + "&";
-        if (key === null)
-            throw new Error("The parameter 'key' cannot be null.");
-        else if (key !== undefined)
-            url_ += "key=" + encodeURIComponent("" + key) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -390,6 +405,128 @@ export class NotebooksClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param index (optional) 
+     * @param id (optional) 
+     * @return Success
+     */
+    increment(index: number | undefined, id: number | undefined): Observable<ByteInt32Either> {
+        let url_ = this.baseUrl + "/Notebooks/Increment?";
+        if (index === null)
+            throw new Error("The parameter 'index' cannot be null.");
+        else if (index !== undefined)
+            url_ += "index=" + encodeURIComponent("" + index) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processIncrement(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processIncrement(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ByteInt32Either>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ByteInt32Either>;
+        }));
+    }
+
+    protected processIncrement(response: HttpResponseBase): Observable<ByteInt32Either> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ByteInt32Either.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param index (optional) 
+     * @param id (optional) 
+     * @return Success
+     */
+    decrement(index: number | undefined, id: number | undefined): Observable<ByteInt32Either> {
+        let url_ = this.baseUrl + "/Notebooks/Decrement?";
+        if (index === null)
+            throw new Error("The parameter 'index' cannot be null.");
+        else if (index !== undefined)
+            url_ += "index=" + encodeURIComponent("" + index) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDecrement(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDecrement(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ByteInt32Either>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ByteInt32Either>;
+        }));
+    }
+
+    protected processDecrement(response: HttpResponseBase): Observable<ByteInt32Either> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ByteInt32Either.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -695,6 +832,51 @@ export class NotebooksAcrudClient {
     }
 }
 
+export class ByteInt32Either implements IByteInt32Either {
+    left?: number;
+    right?: number;
+
+    constructor(data?: IByteInt32Either) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.left = _data["left"];
+            this.right = _data["right"];
+        }
+    }
+
+    static fromJS(data: any): ByteInt32Either {
+        data = typeof data === 'object' ? data : {};
+        let result = new ByteInt32Either();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["left"] = this.left;
+        data["right"] = this.right;
+        return data;
+    }
+}
+
+export interface IByteInt32Either {
+    left?: number;
+    right?: number;
+}
+
+export enum Direction {
+    _0 = 0,
+    _1 = 1,
+}
+
 export class Int32IReadOnlyCollectionQuestionEither implements IInt32IReadOnlyCollectionQuestionEither {
     left?: number[] | undefined;
     right?: Question;
@@ -743,11 +925,12 @@ export interface IInt32IReadOnlyCollectionQuestionEither {
     right?: Question;
 }
 
-export class Int32StringKeyValuePair implements IInt32StringKeyValuePair {
-    key?: number;
-    value?: string | undefined;
+export class Note implements INote {
+    id?: number;
+    text?: string | undefined;
+    pluses?: number;
 
-    constructor(data?: IInt32StringKeyValuePair) {
+    constructor(data?: INote) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -758,37 +941,80 @@ export class Int32StringKeyValuePair implements IInt32StringKeyValuePair {
 
     init(_data?: any) {
         if (_data) {
-            this.key = _data["key"];
-            this.value = _data["value"];
+            this.id = _data["id"];
+            this.text = _data["text"];
+            this.pluses = _data["pluses"];
         }
     }
 
-    static fromJS(data: any): Int32StringKeyValuePair {
+    static fromJS(data: any): Note {
         data = typeof data === 'object' ? data : {};
-        let result = new Int32StringKeyValuePair();
+        let result = new Note();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["key"] = this.key;
-        data["value"] = this.value;
+        data["id"] = this.id;
+        data["text"] = this.text;
+        data["pluses"] = this.pluses;
         return data;
     }
 }
 
-export interface IInt32StringKeyValuePair {
-    key?: number;
-    value?: string | undefined;
+export interface INote {
+    id?: number;
+    text?: string | undefined;
+    pluses?: number;
 }
 
-export class Int32StringKeyValuePairPage implements IInt32StringKeyValuePairPage {
-    items?: Int32StringKeyValuePair[] | undefined;
+export class NoteMaybe implements INoteMaybe {
+    isSome?: boolean;
+    value?: Note;
+
+    constructor(data?: INoteMaybe) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.isSome = _data["isSome"];
+            this.value = _data["value"] ? Note.fromJS(_data["value"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): NoteMaybe {
+        data = typeof data === 'object' ? data : {};
+        let result = new NoteMaybe();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["isSome"] = this.isSome;
+        data["value"] = this.value ? this.value.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface INoteMaybe {
+    isSome?: boolean;
+    value?: Note;
+}
+
+export class NotePage implements INotePage {
+    items?: Note[] | undefined;
     currentIndex?: number;
     totalItems?: number;
 
-    constructor(data?: IInt32StringKeyValuePairPage) {
+    constructor(data?: INotePage) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -802,16 +1028,16 @@ export class Int32StringKeyValuePairPage implements IInt32StringKeyValuePairPage
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(Int32StringKeyValuePair.fromJS(item));
+                    this.items!.push(Note.fromJS(item));
             }
             this.currentIndex = _data["currentIndex"];
             this.totalItems = _data["totalItems"];
         }
     }
 
-    static fromJS(data: any): Int32StringKeyValuePairPage {
+    static fromJS(data: any): NotePage {
         data = typeof data === 'object' ? data : {};
-        let result = new Int32StringKeyValuePairPage();
+        let result = new NotePage();
         result.init(data);
         return result;
     }
@@ -829,8 +1055,8 @@ export class Int32StringKeyValuePairPage implements IInt32StringKeyValuePairPage
     }
 }
 
-export interface IInt32StringKeyValuePairPage {
-    items?: Int32StringKeyValuePair[] | undefined;
+export interface INotePage {
+    items?: Note[] | undefined;
     currentIndex?: number;
     totalItems?: number;
 }

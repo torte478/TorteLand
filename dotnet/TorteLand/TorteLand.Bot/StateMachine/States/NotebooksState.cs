@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TorteLand.App.Client;
 using TorteLand.Bot.Integration;
+using TorteLand.Extensions;
 
 namespace TorteLand.Bot.StateMachine.States;
 
@@ -36,7 +37,7 @@ internal sealed class NotebooksState : BaseState
             "rename" => Rename(arguments, token),
             "delete" or "remove" => Delete(arguments, token),
 
-            _ => throw new Exception($"Unknown command: {name}")
+            _ => name.ToUnknown()
         };
     }
 

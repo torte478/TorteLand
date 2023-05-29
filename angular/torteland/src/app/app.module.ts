@@ -9,6 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { AppComponent } from './components/app.component';
 import { BASE_URL_TOKEN, NotebooksAcrudClient, NotebooksClient } from './services/generated';
@@ -21,6 +22,7 @@ import { ContinueAddNoteDialogComponent } from './components/continue-add-note-d
 import { StartAddNoteDialogComponent } from './components/start-add-note-dialog/start-add-note-dialog.component';
 
 import configUrl from '../assets/config.json';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,9 @@ import configUrl from '../assets/config.json';
     MatInputModule,
     FormsModule,
     MatListModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ScrollingModule,
+    MatCheckboxModule
   ],
   providers: [
     {

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SoftwareCraft.Functional;
+using TorteLand.Contracts;
 
-namespace TorteLand;
+namespace TorteLand.Extensions;
 
 public static class PaginationExtensions
 {

@@ -1,19 +1,20 @@
 <Project>
-	<ItemGroup>
-		<PackageVersion Include="FakeItEasy" Version="7.3.1" />
-		<PackageVersion Include="FirebaseAuthentication.net" Version="4.0.0-alpha.2" />
-		<PackageVersion Include="FirebaseDatabase.net" Version="4.1.0" />
-		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
-		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.0"/>
-		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.1"/>
-		<PackageVersion Include="Microsoft.Extensions.Http" Version="7.0.0"/>
+    <ItemGroup>
+        <PackageVersion Include="FakeItEasy" Version="7.3.1" />
+        <PackageVersion Include="FirebaseAuthentication.net" Version="4.0.0-alpha.2" />
+        <PackageVersion Include="FirebaseDatabase.net" Version="4.1.0" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="6.0.1"/>
+        <PackageVersion Include="Microsoft.Extensions.Http" Version="7.0.0"/>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
         <PackageVersion Include="NUnit" Version="3.13.1" />
         <PackageVersion Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageVersion Include="SoftwareCraft.Either" Version="2.1.1.1"/>
+        <PackageVersion Include="SoftwareCraft.Maybe" Version="2.0.3"/>
+        <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
+        <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
         <PackageVersion Include="Telegram.Bot" Version="18.0.0" />
-		<PackageVersion Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
-		<PackageVersion Include="SoftwareCraft.Either" Version="2.1.1.1"/>
-		<PackageVersion Include="SoftwareCraft.Maybe" Version="2.0.3"/>
-		<PackageVersion Include="System.Linq.Async" Version="6.0.1" />
-	</ItemGroup>
+    </ItemGroup>
 </Project>
