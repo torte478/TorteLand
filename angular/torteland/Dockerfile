@@ -6,6 +6,6 @@ COPY angular/torteland/ .
 COPY TorteLand.Secret/TorteLand.Front/config.json ./src/assets/config.json
 RUN npm run build
 
-FROM nginx:1.25.-alpine
+FROM nginx:1.25.0-alpine
 COPY angular/torteland/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /usr/src/app/dist/torteland /usr/share/nginx/html
