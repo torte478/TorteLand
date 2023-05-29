@@ -27,7 +27,7 @@ internal sealed class Notebook_Should
     public void SaveOrder_OnAddToEmpty()
     {
         var notebook = Create(Array.Empty<string>());
-        var result = notebook.Create(new[] { "1", "2" }._<Added>(), Maybe.None<ResolvedSegment>());
+        var result = notebook.Create(new[] { "1", "2" }.Wrap<Added>(), Maybe.None<ResolvedSegment>());
 
         var actual = result.ToLeft().Notebook.ToArray();
         Assert.That(actual[0].Value.Text, Is.EqualTo("1"));
@@ -61,6 +61,24 @@ internal sealed class Notebook_Should
     }
 
     [Test]
+    public void ShiftInterval_WhenAddAfterMiddle()
+    {
+        var notebook = Create(new[] { "a", "b", "c", "d", "e" });
+
+        var result = notebook.Create(
+            added: new Added(
+                Values: new[] { "Z" },
+                Exact: false,
+                Origin: 1._(Maybe.Some),
+                Direction.After),
+            segment: new ResolvedSegment(
+                    Segment: new Segment(2,  3, 6),
+                    IsGreater: false)
+                ._(Maybe.Some));
+        
+        Assert.That(result.ToRight().Begin, Is.EqualTo(4));
+    }
+
     [TestCaseSource(nameof(_testCaseSource))]
     public void CorrectInsertElements(
         string name,
@@ -91,7 +109,7 @@ internal sealed class Notebook_Should
         {
             "insert to top",
             new[] { "a" },
-            new[] { "Z" }._<Added>(),
+            new[] { "Z" }.Wrap<Added>(),
             new ResolvedSegment(new Segment(0, 0, 1), true)._(Maybe.Some),
             new[] { "Z", "a" }
         },
@@ -99,7 +117,7 @@ internal sealed class Notebook_Should
         {
             "insert to middle",
             new[] { "b", "a" },
-            new[] { "Z" }._<Added>(),
+            new[] { "Z" }.Wrap<Added>(),
             new ResolvedSegment(new Segment(0, 0, 1), false)._(Maybe.Some),
             new[] { "b", "Z", "a" }
         },
@@ -107,7 +125,7 @@ internal sealed class Notebook_Should
         {
             "insert range to middle",
             new[] { "d", "c", "b", "a" },
-            new[] { "Z", "Y" }._<Added>(),
+            new[] { "Z", "Y" }.Wrap<Added>(),
             new ResolvedSegment(new Segment(3, 3, 4), true)._(Maybe.Some),
             new[] { "d", "c", "b", "Z", "Y", "a" }
         },

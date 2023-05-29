@@ -17,8 +17,7 @@ public static class NavyExtensions
     public static void _<TIn>(this TIn x, Action<TIn> f)
         => f(x);
 
-    // TODO: rename to Wrap
-    public static T _<T>(this object origin)
+    public static T Wrap<T>(this object origin)
         where T : class
     {
         var type = typeof(T);

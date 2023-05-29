@@ -18,5 +18,5 @@ internal sealed class QuestionableNotebookFactory : IQuestionableNotebookFactory
     public IQuestionableNotebook Create(IReadOnlyCollection<Note> notes)
         => notes
            ._(_factory.Create)
-           ._<QuestionableNotebook>();
+           .Wrap<QuestionableNotebook>();
 }

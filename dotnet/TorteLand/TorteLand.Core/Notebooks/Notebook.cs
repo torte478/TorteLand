@@ -140,56 +140,70 @@ internal sealed class Notebook : INotebook
     private Either<AddNotesResult, Segment> AddToExisting(
         Added added,
         Maybe<ResolvedSegment> segment)
+        => GetInsertPosition(added, segment)
+            .Match(
+                index => InsertValue(index, added),
+                Either.Right<AddNotesResult, Segment>);
+
+    private Either<AddNotesResult, Segment> InsertValue(int index, Added added)
     {
-        var (begin, end) = segment.Match(
-            _ => ToHalf(_.Segment, _.IsGreater, added),
-            () => ToStartSegment(added));
-
-        if (begin < end && !added.Exact)
-            return GetNextSegment(begin, end);
-
         var updated = _values
-                      .Take(begin)
+                      .Take(index)
                       .Concat(added.Values.Select(_ => new Item(_)))
-                      .Concat(_values.Skip(begin))
+                      .Concat(_values.Skip(index))
                       .ToArray();
 
         var notebook = new Notebook(updated, _pluses);
         var indices = Enumerable
-                       .Range(begin, added.Values.Count)
-                       .ToArray();
-        
+                      .Range(index, added.Values.Count)
+                      .ToArray();
+
         return new AddNotesResult(indices, notebook)
             ._(Either.Left<AddNotesResult, Segment>);
     }
 
-    private (int Begin, int End) ToStartSegment(Added added)
+    private Either<int, Segment> GetInsertPosition(Added added, Maybe<ResolvedSegment> segment)
+    {
+        if (added.Exact)
+            return GetExactPosition(added);
+
+        var result = GetSegment(added, segment);
+        
+        return result.Begin == result.End
+                   ? Either.Left<int, Segment>(result.Begin)
+                   : Either.Right<int, Segment>(result);
+    }
+
+    private Segment GetSegment(Added added, Maybe<ResolvedSegment> segment)
+    {
+        if (segment.IsNone)
+            return ToStartSegment(added);
+        
+        var resolved = segment.ToSome();
+        return resolved.IsGreater
+                         ? new Segment(resolved.Segment.Begin, resolved.Segment.Border)
+                         : new Segment(resolved.Segment.Border + 1, resolved.Segment.End);
+    }
+
+    private static Either<int, Segment> GetExactPosition(Added added)
+    {
+        var origin = added.Origin.ToSome();
+        var index = added.Direction == Direction.After
+                        ? origin + 1
+                        : origin;
+
+        return index._(Either.Left<int, Segment>);
+    }
+
+    private Segment ToStartSegment(Added added)
         => added.Origin.Match(
             origin => added.Direction switch
             {
-                Direction.After => (origin + 1, _values.Length),
-                _ => (added.Exact ? origin : 0, origin)
+                Direction.After => new Segment(origin + 1, _values.Length),
+                _ => new Segment(0, origin)
             },
-            () => (0, _values.Length));
-
-    private static Either<AddNotesResult, Segment> GetNextSegment(int begin, int end)
-        => new Segment(
-                Begin: begin,
-                Border: (begin + end) / 2,
-                End: end)
-            ._(Either.Right<AddNotesResult, Segment>);
-
-    private static (int, int) ToHalf(Segment segment, bool isRight, Added added)
-        => added.Origin.Match(
-            origin => added.Direction switch
-            {
-                Direction.After => (origin + 1, default),
-                _ => (origin, default)
-            },
-            () => isRight
-               ? (segment.Begin, segment.Border)
-               : (segment.Border + 1, segment.End));
-
+            () => new Segment(0, _values.Length));
+    
     private Either<AddNotesResult, Segment> AddToEmpty(
         IReadOnlyCollection<string> values)
     {

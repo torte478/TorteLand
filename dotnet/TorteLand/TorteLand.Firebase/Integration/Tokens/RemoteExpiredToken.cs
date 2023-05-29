@@ -31,7 +31,7 @@ internal sealed class RemoteExpiredToken : IExpiredToken, IDisposable
                           { "returnSecureToken", "true" }
                       }
                       ._(_ => JsonSerializer.Serialize(_))
-                      ._<StringContent>();
+                      .Wrap<StringContent>();
 
         var response = await _http.PostAsync(
                            string.Format(Uri, _settings.ApiKey),

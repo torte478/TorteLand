@@ -37,7 +37,7 @@ internal sealed class EntityAcrud : IEntityAcrud
     public async Task<string> Create(string name, CancellationToken token)
     {
         var entity = name
-                     ._<NamedEntity>()
+                     .Wrap<NamedEntity>()
                      ._(_ => JsonSerializer.Serialize(_));
         
         var created = await _client.Child(_root).PostAsync(entity, timeout: _timeout);

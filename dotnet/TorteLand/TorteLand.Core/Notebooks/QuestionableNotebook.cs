@@ -55,26 +55,26 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
     public IQuestionableNotebook Delete(int key)
         => _origin
            .Delete(key)
-           ._<QuestionableNotebook>();
+           .Wrap<QuestionableNotebook>();
 
     public (IQuestionableNotebook Notebook, Either<byte, int> Result) Increment(int key)
     {
         var (notebook, result) = _origin.Increment(key);
 
-        return (notebook._<QuestionableNotebook>(), result);
+        return (notebook.Wrap<QuestionableNotebook>(), result);
     }
     
     public (IQuestionableNotebook Notebook, Either<byte, int> Result) Decrement(int key)
     {
         var (notebook, result) = _origin.Decrement(key);
 
-        return (notebook._<QuestionableNotebook>(), result);
+        return (notebook.Wrap<QuestionableNotebook>(), result);
     }
 
     public IQuestionableNotebook Update(int key, string name)
         => _origin
            .Update(key, name)
-           ._<QuestionableNotebook>();
+           .Wrap<QuestionableNotebook>();
 
     public Maybe<Note> Read(int key)
         => _origin
@@ -98,7 +98,7 @@ internal sealed class QuestionableNotebook : IQuestionableNotebook
 
     private static AddNotesIteration CompleteTransaction(AddNotesResult result)
         => new(
-            Notebook: result.Notebook._<QuestionableNotebook>(),
+            Notebook: result.Notebook.Wrap<QuestionableNotebook>(),
             Result: result.Indices._(Either.Left<IReadOnlyCollection<int>, Question>));
 
     private AddNotesIteration UpdateTransaction(Segment segment, Guid id)

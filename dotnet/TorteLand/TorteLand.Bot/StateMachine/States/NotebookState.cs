@@ -94,9 +94,6 @@ internal sealed class NotebookState : BaseState
         var (exact, direction, origin, note) = ParseAddedOptions(notes.First());
         var body = note.AsArray().Concat(notes.Skip(1));
 
-        Console.WriteLine(
-            $"{exact} {direction} {origin} {note}");
-
         var response = await _client.StartAddAsync(
                            index: _key,
                            origin: origin,
