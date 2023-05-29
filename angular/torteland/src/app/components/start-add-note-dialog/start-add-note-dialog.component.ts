@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.component';
 
 @Component({
@@ -9,12 +9,14 @@ import { TextDialogComponent } from '../dialogs/text-dialog/text-dialog.componen
 })
 export class StartAddNoteDialogComponent {
 
-  public text: string = '';
+  public caption: string = '';
   public notes: string[] = [''];
 
   constructor(
-    public dialogRef: MatDialogRef<TextDialogComponent>)
-    {}
+    public dialogRef: MatDialogRef<TextDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { caption: string}){
+      this.caption = data.caption;
+    }
 
     onMoreClick() {
       this.notes.push('');

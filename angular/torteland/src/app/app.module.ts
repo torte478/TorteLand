@@ -9,6 +9,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { AppComponent } from './components/app.component';
 import { BASE_URL_TOKEN, NotebooksAcrudClient, NotebooksClient } from './services/generated';
@@ -44,7 +45,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     FormsModule,
     MatListModule,
     AppRoutingModule,
-    ScrollingModule
+    ScrollingModule,
+    MatCheckboxModule
   ],
   providers: [
     {

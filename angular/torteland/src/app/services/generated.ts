@@ -94,15 +94,30 @@ export class NotebooksClient {
 
     /**
      * @param index (optional) 
+     * @param origin (optional) 
+     * @param direction (optional) 
+     * @param exact (optional) 
      * @param body (optional) 
      * @return Success
      */
-    startAdd(index: number | undefined, body: string[] | undefined): Observable<Int32IReadOnlyCollectionQuestionEither> {
+    startAdd(index: number | undefined, origin: number | undefined, direction: Direction | undefined, exact: boolean | undefined, body: string[] | undefined): Observable<Int32IReadOnlyCollectionQuestionEither> {
         let url_ = this.baseUrl + "/Notebooks/StartAdd?";
         if (index === null)
             throw new Error("The parameter 'index' cannot be null.");
         else if (index !== undefined)
             url_ += "index=" + encodeURIComponent("" + index) + "&";
+        if (origin === null)
+            throw new Error("The parameter 'origin' cannot be null.");
+        else if (origin !== undefined)
+            url_ += "origin=" + encodeURIComponent("" + origin) + "&";
+        if (direction === null)
+            throw new Error("The parameter 'direction' cannot be null.");
+        else if (direction !== undefined)
+            url_ += "direction=" + encodeURIComponent("" + direction) + "&";
+        if (exact === null)
+            throw new Error("The parameter 'exact' cannot be null.");
+        else if (exact !== undefined)
+            url_ += "exact=" + encodeURIComponent("" + exact) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -855,6 +870,11 @@ export class ByteInt32Either implements IByteInt32Either {
 export interface IByteInt32Either {
     left?: number;
     right?: number;
+}
+
+export enum Direction {
+    _0 = 0,
+    _1 = 1,
 }
 
 export class Int32IReadOnlyCollectionQuestionEither implements IInt32IReadOnlyCollectionQuestionEither {

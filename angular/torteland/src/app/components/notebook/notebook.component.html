@@ -1,7 +1,32 @@
 <h2>{{name}}</h2>
 
 <div class="button-row">
-  <button mat-raised-button (click)="onCreateClick()" [disabled]="isBusy">Create</button>
+  <button 
+    mat-raised-button 
+    (click)="onCreateClick()" 
+    [disabled]="isBusy">
+    Create
+  </button>
+
+  <button 
+    mat-raised-button 
+    (click)="onCreateBeforeClick()" 
+    [disabled]="isBusy || !selection.length">
+    Create Before
+  </button>
+
+  <button 
+    mat-raised-button 
+    (click)="onCreateAfterClick()" 
+    [disabled]="isBusy || !selection.length">
+    Create After
+  </button>
+
+  <mat-checkbox  
+    style="border-color: red;"
+    [(ngModel)]="exactChecked">
+    Exact
+  </mat-checkbox>
 </div>
 
 <div class="button-row">
