@@ -20,7 +20,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
     private readonly IStorage _storage;
 
     private AsyncLazy<IQuestionableNotebook> _origin;
-    private Maybe<IQuestionableNotebook> _actualized;
+    private IQuestionableNotebook _current = null!;
 
     public PersistedNotebook(
         IStorage storage, 
@@ -33,7 +33,6 @@ internal sealed class PersistedNotebook : IPersistedNotebook
                 var notes = await _storage.All(default); // TODO: cancellation
                 return factory.Create(notes);
             });
-        _actualized = Maybe.None<IQuestionableNotebook>();
     }
 
     public async Task<Page<Unique<Note>>> All(Maybe<Pagination> pagination, CancellationToken token)
@@ -46,57 +45,53 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         Added added, 
         CancellationToken token)
     {
-        var origin = await InvalidateOrigin();
+        var origin = await _origin;
         
         var iteration = origin.Create(added);
         await iteration.Result.MatchAsync(
             _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);
         
-        SetOrigin(iteration.Notebook);
+        _current = iteration.Notebook;
         return iteration.Result;
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
     {
-        var origin = await InvalidateOrigin(false);
+        var iteration = _current.Create(id, isRight);
 
-        var iteration = origin.Create(id, isRight);
-
-        _actualized.Match(
-            _ => _actualized = Maybe.Some(iteration.Notebook),
-            () => SetOrigin(iteration.Notebook));
-        
         await iteration.Result.MatchAsync(
             _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);
+
+        _current = iteration.Notebook;
 
         return iteration.Result;
     }
     
     public async Task<Either<IReadOnlyCollection<int>, Question>> Actualize(int valueId, CancellationToken token)
     {
-        var actualized = await InvalidateOrigin();
-        var value = actualized.Read(valueId);
+        var origin = await _origin;
+        var value = origin.Read(valueId);
         if (value.IsNone)
             return new Left<IReadOnlyCollection<int>, Question>(Array.Empty<int>());
         
         var added = new Added(new[] { value.ToSome().Text });
-        actualized = actualized.Delete(valueId);
-        var addResult = actualized.Create(added);
-
-        _actualized = Maybe.Some(actualized);
+        _current = origin.Delete(valueId);
+        var addResult = _current.Create(added);
 
         await addResult.Result.MatchAsync(
             _ => SaveChanges(addResult.Notebook, token),
             _ => Task.CompletedTask);
+        
+        _current = addResult.Notebook;
         
         return addResult.Result;
     }
 
     public async Task Update(int key, string name, CancellationToken token)
     {
-        var origin = await InvalidateOrigin();
+        var origin = await _origin;
         var updated = origin.Update(key, name);
 
         await SaveChanges(updated, token);
@@ -105,7 +100,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task Delete(int key, CancellationToken token)
     {
-        var origin = await InvalidateOrigin();
+        var origin = await _origin;
         var updated = origin.Delete(key);
 
         await SaveChanges(updated, token);
@@ -114,7 +109,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task<Either<byte, int>> Increment(int key, CancellationToken token)
     {
-        var origin = await InvalidateOrigin();
+        var origin = await _origin;
         var (updated, result) = origin.Increment(key);
 
         await SaveChanges(updated, token);
@@ -124,7 +119,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
     
     public async Task<Either<byte, int>> Decrement(int key, CancellationToken token)
     {
-        var origin = await InvalidateOrigin();
+        var origin = await _origin;
         var (updated, result) = origin.Decrement(key);
 
         await SaveChanges(updated, token);
@@ -134,29 +129,18 @@ internal sealed class PersistedNotebook : IPersistedNotebook
 
     public async Task<Maybe<Note>> Read(int key, CancellationToken token)
     {
-        var origin = await InvalidateOrigin();
+        var origin = await _origin;
         return origin.Read(key);
     }
 
     private async Task SaveChanges(IQuestionableNotebook copy, CancellationToken token)
     {
         await _storage.Save(copy.ToArray(), token);
-        _actualized = Maybe.None<IQuestionableNotebook>();
+        SetOrigin(copy);
     }
 
     private void SetOrigin(IQuestionableNotebook next)
     {
         _origin = new AsyncLazy<IQuestionableNotebook>(next);
-    }
-
-    private async Task<IQuestionableNotebook> InvalidateOrigin(bool cleanActualized = true)
-    {
-        if (cleanActualized)
-            _actualized = Maybe.None<IQuestionableNotebook>();
-
-        if (_actualized.IsSome)
-            return _actualized.ToSome();
-        
-        return await _origin;
     }
 }

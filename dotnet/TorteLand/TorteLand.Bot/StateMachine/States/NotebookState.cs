@@ -37,6 +37,7 @@ internal sealed class NotebookState : BaseState
             "add" or "доб" => StartAdd(arguments, token),
             "rename" => Rename(arguments, token),
             "delete" or "remove" => Delete(arguments, token),
+            "actualize" => Actualize(arguments, token),
             "close" => Close(token),
             "plus" or "+" => Increment(arguments, token),
             "minus" or "-" => Decrement(arguments, token),
@@ -108,6 +109,26 @@ internal sealed class NotebookState : BaseState
         var guid = response.Right.Id;
         var item = response.Right.Text;
         return await Machine.ToNotebookAddState(_key, notes, guid, item, token);
+    }
+
+    private async Task<string> Actualize(ICommand command, CancellationToken token)
+    {
+        var (valueId, _) = command.ToInt();
+        
+        var response = await _client.StartActualizeAsync(
+            notebookId: _key,
+            valueId: valueId,
+            cancellationToken: token);
+        
+        if (response.Right is null)
+            return await All(_offset, token);
+
+        var actualized = await _client.ReadAsync(_key, valueId, token);
+        var note = actualized.Value.Text;
+        
+        var guid = response.Right.Id;
+        var item = response.Right.Text;
+        return await Machine.ToNotebookAddState(_key, new[] { note }, guid, item, token);
     }
 
     private (bool Exact, Direction Direction, int? Origin, string? Note) ParseAddedOptions(string line)
