@@ -1,5 +1,3 @@
-Actualize
-
 Front. Total Count
 Front. Edit contain old name
 Reorder Notebooks
