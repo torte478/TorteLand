@@ -71,7 +71,7 @@ export class NotebookComponent implements OnInit {
     const selected = this.getSelected();
     if (!selected) return;
 
-    this.RunWithDialog(TextDialogComponent, `Rename ${selected.text}`, (_) =>
+    this.runWithDialog(TextDialogComponent, selected.text ?? '', (_) =>
       _.pipe(
         mergeMap((name) =>
           this.client.update(this.notebookId, selected.id, name as string)
@@ -104,7 +104,7 @@ export class NotebookComponent implements OnInit {
     const selected = this.getSelected();
     if (!selected) return;
 
-    this.RunWithDialog(
+    this.runWithDialog(
       ConfirmDialogComponent,
       `Delete '${selected.text}' ?`,
       (_) =>
@@ -235,14 +235,17 @@ export class NotebookComponent implements OnInit {
       );
   }
 
-  private RunWithDialog<TDialog, TDialogResult, TOut>(
+  private runWithDialog<TDialog, TDialogResult, TOut>(
     dialogType: ComponentType<TDialog>,
-    title: string,
+    text: string,
     fn: (x: Observable<TDialogResult>) => Observable<TOut>
   ) {
     const dialogResult = this.dialog
       .open(dialogType, {
-        data: { title: title },
+        data: {
+          title: `Rename ${text}`,
+          oldText: text,
+        },
       })
       .afterClosed()
       .pipe(

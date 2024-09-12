@@ -72,11 +72,13 @@
   </button>
 </div>
 
+<h3 *ngIf="!!notes?.length">Total: {{ notes?.length }}</h3>
+
 <cdk-virtual-scroll-viewport itemSize="100" style="width: 50%; height: 60%">
   <mat-selection-list [(ngModel)]="selection" [multiple]="false">
-    <mat-list-option *ngFor="let note of notes" [value]="note">
+    <mat-list-option *ngFor="let note of notes; index as i" [value]="note">
       <div class="note">
-        <span>{{ note.text }}</span>
+        <span>{{ i + 1 }}. {{ note.text }}</span>
 
         <span *ngIf="!!note.pluses" class="note-pluses">
           {{ toPlusText(note.pluses) }}
