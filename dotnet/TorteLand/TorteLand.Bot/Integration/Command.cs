@@ -48,6 +48,9 @@ internal sealed class Command : ICommand
     public IReadOnlyCollection<string> ToLines()
         => _raw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
+    public override string ToString()
+        => _raw;
+
     private (string Head, string Tail) Cut()
     {
         var space = new[] { ' ', '\r', '\n' }

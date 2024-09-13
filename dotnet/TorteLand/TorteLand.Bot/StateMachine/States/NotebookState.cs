@@ -190,6 +190,9 @@ internal sealed class NotebookState : BaseState
     private async Task<string> Rename(ICommand command, CancellationToken token)
     {
         var (id, tail) = command.ToInt();
+        if (tail.ToString()._(string.IsNullOrWhiteSpace))
+            return "Missing new name";
+        
         var (name, _) = tail.ToLine();
 
         await _client.UpdateAsync(_key, id, name, token);
