@@ -10,6 +10,7 @@ using TorteLand.Core.Contracts.Factories;
 using TorteLand.Core.Contracts.Notebooks;
 using TorteLand.Core.Contracts.Notebooks.Models;
 using TorteLand.Core.Contracts.Storage;
+using TorteLand.Extensions;
 using TorteLand.Utils;
 
 namespace TorteLand.Core.Storage;
@@ -19,6 +20,7 @@ internal sealed class PersistedNotebook : IPersistedNotebook
     private readonly IStorage _storage;
 
     private AsyncLazy<IQuestionableNotebook> _origin;
+    private IQuestionableNotebook _current = null!;
 
     public PersistedNotebook(
         IStorage storage, 
@@ -43,7 +45,6 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         Added added, 
         CancellationToken token)
     {
-        // TODO: chore
         var origin = await _origin;
         
         var iteration = origin.Create(added);
@@ -51,23 +52,41 @@ internal sealed class PersistedNotebook : IPersistedNotebook
             _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);
         
-        SetOrigin(iteration.Notebook);
+        _current = iteration.Notebook;
         return iteration.Result;
     }
 
     public async Task<Either<IReadOnlyCollection<int>, Question>> Create(Guid id, bool isRight, CancellationToken token)
     {
-        var origin = await _origin;
-
-        var iteration = origin.Create(id, isRight);
+        var iteration = _current.Create(id, isRight);
 
         await iteration.Result.MatchAsync(
             _ => SaveChanges(iteration.Notebook, token),
             _ => Task.CompletedTask);
-        
-        SetOrigin(iteration.Notebook);
+
+        _current = iteration.Notebook;
 
         return iteration.Result;
+    }
+    
+    public async Task<Either<IReadOnlyCollection<int>, Question>> Actualize(int valueId, CancellationToken token)
+    {
+        var origin = await _origin;
+        var value = origin.Read(valueId);
+        if (value.IsNone)
+            return new Left<IReadOnlyCollection<int>, Question>(Array.Empty<int>());
+        
+        var added = new Added(new[] { value.ToSome().Text });
+        _current = origin.Delete(valueId);
+        var addResult = _current.Create(added);
+
+        await addResult.Result.MatchAsync(
+            _ => SaveChanges(addResult.Notebook, token),
+            _ => Task.CompletedTask);
+        
+        _current = addResult.Notebook;
+        
+        return addResult.Result;
     }
 
     public async Task Update(int key, string name, CancellationToken token)
@@ -114,8 +133,11 @@ internal sealed class PersistedNotebook : IPersistedNotebook
         return origin.Read(key);
     }
 
-    private Task SaveChanges(IQuestionableNotebook copy, CancellationToken token)
-        => _storage.Save(copy.ToArray(), token);
+    private async Task SaveChanges(IQuestionableNotebook copy, CancellationToken token)
+    {
+        await _storage.Save(copy.ToArray(), token);
+        SetOrigin(copy);
+    }
 
     private void SetOrigin(IQuestionableNotebook next)
     {

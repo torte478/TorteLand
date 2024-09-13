@@ -11,12 +11,13 @@ namespace TorteLand.Core.Contracts.Notebooks;
 
 public interface INotebooks
 {
-    Task<Page<Unique<Note>>> All(int index, Maybe<Pagination> pagination, CancellationToken token);
-    Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Added added, CancellationToken token);
-    Task<Either<IReadOnlyCollection<int>, Question>> Add(int index, Guid id, bool isRight, CancellationToken token);
-    Task<Maybe<Note>> Read(int index, int id, CancellationToken token);
-    Task Update(int index, int id, string name, CancellationToken token);
-    Task Delete(int index, int id, CancellationToken token);
-    Task<Either<byte, int>> Increment(int index, int id, CancellationToken token);
-    Task<Either<byte, int>> Decrement(int index, int id, CancellationToken token);
+    Task<Page<Unique<Note>>> All(int notebookId, Maybe<Pagination> pagination, CancellationToken token);
+    Task<Either<IReadOnlyCollection<int>, Question>> Add(int notebookId, Added added, CancellationToken token);
+    Task<Either<IReadOnlyCollection<int>, Question>> Add(int notebookId, Guid id, bool isRight, CancellationToken token);
+    Task<Maybe<Note>> Read(int notebookId, int id, CancellationToken token);
+    Task Update(int notebookId, int id, string name, CancellationToken token);
+    Task Delete(int notebookId, int id, CancellationToken token);
+    Task<Either<byte, int>> Increment(int notebookId, int id, CancellationToken token);
+    Task<Either<byte, int>> Decrement(int notebookId, int id, CancellationToken token);
+    Task<Either<IReadOnlyCollection<int>, Question>> Actualize(int notebookId, int valueId, CancellationToken token);
 }

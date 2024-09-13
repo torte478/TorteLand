@@ -28,7 +28,7 @@ internal sealed class ConfirmActionState : BaseState
     {
         var (input, _) = command.ToWord();
 
-        if (input == "y")
+        if (input.Trim().ToLowerInvariant()== "y")
             await _onAction(token);
         
         Machine.SetState(_previous);
